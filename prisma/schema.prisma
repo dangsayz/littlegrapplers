@@ -1,0 +1,404 @@
+// Prisma Schema for Little Grapplers Platform
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Authentication & Users
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(parent)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relations
+  parent            Parent?
+  discussionThreads DiscussionThread[]
+  discussionReplies DiscussionReply[]
+  sessions          Session[]
+  passwordResets    PasswordReset[]
+
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  admin
+  parent
+}
+
+// ============================================
+// Parent & Student Profiles
+// ============================================
+
+model Parent {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  firstName        String
+  lastName         String
+  phone            String?
+  avatarUrl        String?
+  emergencyContact String?
+  emergencyPhone   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([userId])
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  parentId    String
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  avatarUrl   String?
+  beltRank    BeltRank @default(white)
+  stripes     Int      @default(0)
+  notes       String?  @db.Text // Admin-only notes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parent                 Parent         @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  memberships            Membership[]
+  studentOfMonthFeatures Announcement[] @relation("StudentOfMonth")
+  beltHistory            BeltHistory[]
+
+  @@index([parentId])
+}
+
+model BeltHistory {
+  id          String   @id @default(cuid())
+  studentId   String
+  fromRank    BeltRank
+  toRank      BeltRank
+  fromStripes Int
+  toStripes   Int
+  notes       String?
+  promotedAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+enum BeltRank {
+  white
+  grey_white
+  grey
+  grey_black
+  yellow_white
+  yellow
+  yellow_black
+  orange_white
+  orange
+  orange_black
+  green_white
+  green
+  green_black
+}
+
+// ============================================
+// Locations & Programs
+// ============================================
+
+model Location {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  address      String
+  city         String
+  state        String
+  zip          String
+  phone        String?
+  email        String?
+  logoUrl      String?
+  heroImageUrl String?
+  description  String?  @db.Text
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  programs Program[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Program {
+  id           String   @id @default(cuid())
+  locationId   String
+  name         String
+  slug         String
+  description  String?  @db.Text
+  ageMin       Int
+  ageMax       Int
+  schedule     Json // Array of { day, startTime, endTime }
+  monthlyPrice Int // In cents
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  location          Location           @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  memberships       Membership[]
+  discussionThreads DiscussionThread[]
+  videos            VideoProgram[]
+  announcements     AnnouncementProgram[]
+
+  @@unique([locationId, slug])
+  @@index([locationId])
+  @@index([isActive])
+}
+
+// ============================================
+// Memberships
+// ============================================
+
+model Membership {
+  id               String           @id @default(cuid())
+  studentId        String
+  programId        String
+  status           MembershipStatus @default(pending)
+  startDate        DateTime
+  endDate          DateTime?
+  contractSignedAt DateTime?
+  monthlyRate      Int // Snapshot at enrollment (cents)
+  notes            String?          @db.Text
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([programId])
+  @@index([status])
+}
+
+enum MembershipStatus {
+  active
+  paused
+  cancelled
+  pending
+}
+
+// ============================================
+// Content: Videos
+// ============================================
+
+model Video {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?  @db.Text
+  videoUrl     String // YouTube/Vimeo embed or file URL
+  thumbnailUrl String?
+  duration     Int? // Seconds
+  category     String
+  isPublic     Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  programs VideoProgram[]
+
+  @@index([category])
+  @@index([isPublic])
+}
+
+model VideoProgram {
+  videoId   String
+  programId String
+
+  video   Video   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@id([videoId, programId])
+}
+
+// ============================================
+// Content: Discussions
+// ============================================
+
+model DiscussionThread {
+  id        String   @id @default(cuid())
+  programId String? // Null = all programs
+  authorId  String
+  title     String
+  content   String   @db.Text
+  isPinned  Boolean  @default(false)
+  isLocked  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  program Program?          @relation(fields: [programId], references: [id], onDelete: SetNull)
+  author  User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies DiscussionReply[]
+
+  @@index([programId])
+  @@index([authorId])
+  @@index([isPinned])
+}
+
+model DiscussionReply {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  thread DiscussionThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([authorId])
+}
+
+// ============================================
+// Content: Announcements
+// ============================================
+
+model Announcement {
+  id               String           @id @default(cuid())
+  title            String
+  content          String           @db.Text
+  type             AnnouncementType @default(general)
+  studentOfMonthId String?
+  publishAt        DateTime         @default(now())
+  expiresAt        DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  studentOfMonth Student?              @relation("StudentOfMonth", fields: [studentOfMonthId], references: [id], onDelete: SetNull)
+  programs       AnnouncementProgram[]
+
+  @@index([type])
+  @@index([publishAt])
+}
+
+model AnnouncementProgram {
+  announcementId String
+  programId      String
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  program      Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@id([announcementId, programId])
+}
+
+enum AnnouncementType {
+  general
+  student_of_month
+  event
+  schedule_change
+}
+
+// ============================================
+// Contact Submissions
+// ============================================
+
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  locationId  String?
+  reason      String
+  message     String   @db.Text
+  isRead      Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// CMS Content Blocks
+// ============================================
+
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., "home.hero.title"
+  content   Json // Flexible content structure
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+// ============================================
+// Activity Log (Admin)
+// ============================================
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String // e.g., "student.create", "belt.promote"
+  entityType  String // e.g., "Student", "Membership"
+  entityId    String
+  details     Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
