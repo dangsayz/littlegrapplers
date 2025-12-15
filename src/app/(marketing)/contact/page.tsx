@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Container } from '@/components/layout/container';
-import { CONTACT_REASONS } from '@/lib/constants';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,10 +30,12 @@ export default function ContactPage() {
       <section className="section-padding bg-muted/30">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-display-lg font-display font-bold">Get in Touch</h1>
+            <h1 className="text-display-lg font-display font-bold">We'd Love to Hear from You!</h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Have questions about Little Grapplers? We'd love to hear from you. Send us a message
-              and we'll respond as soon as possible.
+              Whether you're a daycare provider looking to bring the transformative art of Brazilian Jiu-Jitsu to your center, a parent eager to empower your child with confidence and discipline, or simply curious about our program, we're here to help!
+            </p>
+            <p className="mt-4 text-lg text-muted-foreground">
+              This isn't just a program—it's a movement to build a brighter future, one confident, resilient child at a time. Have questions, feedback, or just want to chat about how Jiu-Jitsu can make a difference for your kids? Don't hesitate to reach out.
             </p>
           </div>
         </Container>
@@ -46,9 +47,9 @@ export default function ContactPage() {
           <div className="grid gap-12 lg:grid-cols-3 lg:gap-16">
             {/* Contact Info */}
             <div className="lg:col-span-1">
-              <h2 className="text-xl font-semibold">Contact Information</h2>
+              <h2 className="text-xl font-semibold">Questions?</h2>
               <p className="mt-2 text-muted-foreground">
-                Reach out through any of these channels, or fill out the form.
+                We're here to help.
               </p>
 
               <div className="mt-8 space-y-6">
@@ -59,10 +60,10 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium">Email</div>
                     <a
-                      href="mailto:hello@littlegrapplers.net"
+                      href="mailto:sshnaydbjj@gmail.com"
                       className="text-muted-foreground hover:text-foreground"
                     >
-                      hello@littlegrapplers.net
+                      sshnaydbjj@gmail.com
                     </a>
                   </div>
                 </div>
@@ -74,10 +75,10 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium">Phone</div>
                     <a
-                      href="tel:+15551234567"
+                      href="tel:+14692095814"
                       className="text-muted-foreground hover:text-foreground"
                     >
-                      (555) 123-4567
+                      +1 (469) 209-5814
                     </a>
                   </div>
                 </div>
@@ -154,30 +155,31 @@ export default function ContactPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone (Optional)</Label>
+                        <Label htmlFor="phone">Phone *</Label>
                         <Input
                           id="phone"
                           name="phone"
                           type="tel"
+                          required
                           placeholder="(555) 123-4567"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="reason">Reason for Contact *</Label>
+                      <Label htmlFor="hearAbout">How did you hear about us? *</Label>
                       <select
-                        id="reason"
-                        name="reason"
+                        id="hearAbout"
+                        name="hearAbout"
                         required
                         className="flex h-11 w-full rounded-md border border-input bg-background px-4 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
-                        <option value="">Select a reason...</option>
-                        {CONTACT_REASONS.map((reason) => (
-                          <option key={reason.value} value={reason.value}>
-                            {reason.label}
-                          </option>
-                        ))}
+                        <option value="">Select an option</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="google">Google</option>
+                        <option value="word-of-mouth">Word of mouth</option>
+                        <option value="other">Others</option>
                       </select>
                     </div>
 

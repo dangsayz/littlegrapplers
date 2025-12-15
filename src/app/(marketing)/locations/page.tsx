@@ -19,21 +19,21 @@ const locations = [
     name: 'Sunshine Daycare',
     area: 'North Dallas',
     address: '4521 Preston Rd, Dallas, TX 75205',
-    image: '/images/highlights/bjjlittlegrapplers2-1.jpg',
+    image: '/images/highlights/LittleGrapplers-05873.jpg',
   },
   {
     id: '2',
     name: 'Happy Kids Learning Center',
     area: 'Plano',
     address: '2100 W Parker Rd, Plano, TX 75023',
-    image: '/images/highlights/bjjlittlegrapplers2-2.jpg',
+    image: '/images/highlights/LittleGrapplers-05919.jpg',
   },
   {
     id: '3',
     name: 'Little Learners Academy',
     area: 'Richardson',
     address: '850 W Arapaho Rd, Richardson, TX 75080',
-    image: '/images/highlights/bjjlittlegrapplers2-3.jpg',
+    image: '/images/highlights/LittleGrapplers-05924.jpg',
   },
 ];
 
@@ -61,20 +61,25 @@ export default function LocationsPage() {
           <StaggerContainer className="grid md:grid-cols-3 gap-6" staggerDelay={0.1}>
             {locations.map((location) => (
               <StaggerItem key={location.id}>
-                <div className="group relative overflow-hidden rounded-sm bg-background/5 hover:bg-background/10 transition-colors duration-300">
-                  {/* Image */}
+                <div className="group relative overflow-hidden rounded-lg bg-background/5 transition-all duration-500 hover:bg-background/10 hover:shadow-2xl hover:shadow-brand/10">
+                  {/* Image with cinematic styling */}
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
                       src={location.image}
                       alt={location.name}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
+                    {/* Dark cinematic overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/40 to-foreground/20" />
+                    {/* Grain texture overlay */}
+                    <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
+                    }} />
                     
                     {/* Area badge */}
                     <div className="absolute top-4 left-4">
-                      <span className="inline-block bg-brand text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                      <span className="inline-block bg-brand text-foreground px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest shadow-lg">
                         {location.area}
                       </span>
                     </div>
@@ -82,13 +87,13 @@ export default function LocationsPage() {
 
                   {/* Details */}
                   <div className="p-6">
-                    <h2 className="text-xl font-bold mb-3">{location.name}</h2>
+                    <h2 className="text-xl font-bold mb-3 tracking-tight">{location.name}</h2>
                     <div className="flex items-start gap-2 text-background/50 text-sm">
                       <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                       <span>{location.address}</span>
                     </div>
                     
-                    <Button variant="outline" size="sm" className="mt-6 w-full border-background/20 text-background hover:bg-background/10" asChild>
+                    <Button variant="outline" size="sm" className="mt-6 w-full border-background/20 text-background hover:bg-background hover:text-foreground transition-all duration-300" asChild>
                       <Link href="/inquiry">
                         Enroll Here
                         <ArrowRight className="h-4 w-4" />

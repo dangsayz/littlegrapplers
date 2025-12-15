@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Star, MapPin, Shield, Heart, Trophy, Zap } from 'lucide-react';
+import { ArrowRight, Star, Shield, Heart, Trophy, Zap, Users, Calendar, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import {
@@ -12,6 +12,10 @@ import {
   ScrollIndicator,
 } from '@/components/ui/motion';
 import { FloatingVideo } from '@/components/ui/floating-video';
+import { FloatingProcessCards } from '@/components/ui/floating-process-cards';
+import { GlassFeatureCard } from '@/components/ui/glass-feature-card';
+import { PricingSection } from '@/components/ui/pricing-section';
+import { GradientRevealSection } from '@/components/ui/gradient-reveal-section';
 
 export default function HomePage() {
   return (
@@ -54,17 +58,11 @@ export default function HomePage() {
               </p>
             </FadeInCTA>
 
-            <FadeInCTA delay={0.5} className="mt-12 flex flex-wrap gap-4">
+            <FadeInCTA delay={0.5} className="mt-12">
               <Button size="xl" variant="brand" className="text-lg px-8" asChild>
                 <Link href="/inquiry">
                   Get Started
                   <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="xl" variant="outline" className="text-lg px-8 border-background/30 text-background hover:bg-background/10" asChild>
-                <Link href="/locations">
-                  <MapPin className="h-5 w-5" />
-                  Find Location
                 </Link>
               </Button>
             </FadeInCTA>
@@ -75,7 +73,7 @@ export default function HomePage() {
       </section>
 
       {/* Story flows seamlessly - Mission */}
-      <section className="py-32 md:py-48">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -128,7 +126,7 @@ export default function HomePage() {
       </section>
 
       {/* Quote - full bleed image */}
-      <section className="relative py-32 md:py-48">
+      <section className="relative py-20 md:py-28">
         <div className="absolute inset-0">
           <Image
             src="/images/highlights/bjjlittlegrapplers2-7.jpg"
@@ -148,7 +146,7 @@ export default function HomePage() {
       </section>
 
       {/* Coach Stephen */}
-      <section className="py-32 md:py-48">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <FadeIn direction="up" delay={0.15} className="lg:order-2">
@@ -182,7 +180,7 @@ export default function HomePage() {
       </section>
 
       {/* What is BJJ */}
-      <section className="py-32 md:py-48">
+      <section className="py-20 md:py-28">
         <Container>
           <FadeIn direction="up" className="text-center max-w-3xl mx-auto">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">The Art</p>
@@ -213,26 +211,53 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Photo strip */}
-      <section className="py-8">
-        <StaggerContainer className="grid grid-cols-4 gap-2 px-2" staggerDelay={0.08}>
-          {[
-            '/images/highlights/bjjlittlegrapplers-2.jpg',
-            '/images/highlights/bjjlittlegrapplers2-16.jpg',
-            '/images/highlights/LittleGrapplers-05865.jpg',
-            '/images/highlights/LittleGrapplers-05924.jpg',
-          ].map((src, i) => (
-            <StaggerItem key={i} direction="none">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
-                <Image src={src} alt="Training" fill className="object-cover" />
+      {/* Photo Gallery - Glassmorphism Cards */}
+      <section className="py-16 md:py-20">
+        <Container>
+          <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto" staggerDelay={0.1}>
+            {/* Featured Image Card */}
+            <StaggerItem direction="up">
+              <div className="group relative rounded-2xl p-1.5 bg-gradient-to-br from-background/20 via-background/5 to-transparent">
+                <div className="absolute inset-0 rounded-2xl bg-background/5 backdrop-blur-xl border border-background/10" />
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+                  <Image 
+                    src="/images/highlights/bjjlittlegrapplers-2.jpg" 
+                    alt="Kids training BJJ" 
+                    fill 
+                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-background/70">Training Day</span>
+                  </div>
+                </div>
               </div>
             </StaggerItem>
-          ))}
-        </StaggerContainer>
+
+            {/* Secondary Image Card */}
+            <StaggerItem direction="up">
+              <div className="group relative rounded-2xl p-1.5 bg-gradient-to-br from-background/20 via-background/5 to-transparent">
+                <div className="absolute inset-0 rounded-2xl bg-background/5 backdrop-blur-xl border border-background/10" />
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+                  <Image 
+                    src="/images/highlights/LittleGrapplers-05865.jpg" 
+                    alt="Coach with students" 
+                    fill 
+                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <span className="text-xs font-bold uppercase tracking-wider text-background/70">Building Champions</span>
+                  </div>
+                </div>
+              </div>
+            </StaggerItem>
+          </StaggerContainer>
+        </Container>
       </section>
 
       {/* How it works */}
-      <section className="py-32 md:py-48">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
@@ -268,8 +293,165 @@ export default function HomePage() {
         </Container>
       </section>
 
+      {/* Visual Process Section - Floating Cards */}
+      <section className="relative py-20 md:py-28 overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/highlights/LittleGrapplers-05873.jpg"
+            alt="Kids on their journey"
+            fill
+            className="object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground via-foreground/95 to-foreground/80" />
+        </div>
+        <Container className="relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <FadeIn direction="up">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">The Journey</p>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
+                  Your child's <span className="font-serif italic font-normal text-brand">path.</span>
+                </h2>
+                <p className="mt-8 text-xl text-background/60 leading-relaxed">
+                  A structured progression that builds skills, confidence, and character step by step.
+                </p>
+              </FadeIn>
+            </div>
+            <FloatingProcessCards
+              steps={[
+                { number: '01', title: 'DISCOVER', active: true },
+                { number: '02', title: 'PRACTICE', active: true },
+                { number: '03', title: 'GROW', active: false },
+                { number: '04', title: 'ACHIEVE', active: false },
+              ]}
+            />
+          </div>
+        </Container>
+      </section>
+
+      {/* Glass Feature Cards Section */}
+      <section className="py-16 md:py-24">
+        <Container>
+          <FadeIn direction="up" className="text-center max-w-3xl mx-auto mb-16">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">Program Features</p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
+              Everything <span className="font-serif italic font-normal text-brand">included.</span>
+            </h2>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <GlassFeatureCard label="Classes" variant="brand">
+              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/images/highlights/bjjlittlegrapplers2-7.jpg"
+                  alt="BJJ Classes"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-background">Weekly Training</h3>
+              <p className="mt-2 text-background/60">
+                Structured classes at your child's daycare, taught by certified instructors.
+              </p>
+            </GlassFeatureCard>
+
+            <GlassFeatureCard label="Online">
+              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/images/highlights/bjjlittlegrapplers-3.jpg"
+                  alt="Video Library"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-background">Video Library</h3>
+              <p className="mt-2 text-background/60">
+                Access our online curriculum to practice techniques at home.
+              </p>
+            </GlassFeatureCard>
+
+            <GlassFeatureCard label="Events" variant="accent">
+              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                <Image
+                  src="/images/highlights/LittleGrapplers-05865.jpg"
+                  alt="BJJ Events"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-background">Belt Ceremonies</h3>
+              <p className="mt-2 text-background/60">
+                Celebrate achievements with belt promotions and special events.
+              </p>
+            </GlassFeatureCard>
+          </div>
+        </Container>
+      </section>
+
+      {/* Gradient Reveal Section */}
+      <GradientRevealSection
+        primaryText="Confidence"
+        secondaryText="starts here."
+        description="Every session builds mental resilience, physical skills, and the self-belief that lasts a lifetime."
+        variant="brand"
+      />
+
+      {/* Pricing Section */}
+      <PricingSection
+        subtitle="Membership"
+        title="Simple, transparent pricing"
+        description="Choose the plan that fits your family. No hidden fees."
+        tiers={[
+          {
+            name: '3 Months Paid-In-Full',
+            price: '$150',
+            period: 'one time',
+            description: 'Enjoy the convenience of a one-time payment for three months of membership. No recurring charges, no monthly billing—just full access to all your membership benefits.',
+            ctaText: 'Sign Up',
+            ctaLink: '/inquiry',
+            features: [
+              { text: 'Full access for 3 months', included: true },
+              { text: 'No recurring charges', included: true },
+              { text: 'All membership benefits included', included: true },
+            ],
+          },
+          {
+            name: 'Monthly Agreement',
+            price: '$50',
+            period: 'month',
+            description: 'Flexible monthly membership with full access to all content and classes.',
+            ctaText: 'Sign Up',
+            ctaLink: '/inquiry',
+            highlighted: true,
+            features: [
+              { text: 'Over 20 hours of video content', included: true },
+              { text: 'Unlimited lifetime access', included: true },
+              { text: 'Cancel anytime', included: true },
+            ],
+          },
+        ]}
+        features={[
+          {
+            icon: <Users className="w-5 h-5" />,
+            title: 'Expert instruction',
+            description: 'Certified coaches with child-focused training methodologies.',
+          },
+          {
+            icon: <Calendar className="w-5 h-5" />,
+            title: 'Flexible scheduling',
+            description: 'Classes happen at daycare—no extra driving required.',
+          },
+          {
+            icon: <Video className="w-5 h-5" />,
+            title: 'Home practice support',
+            description: 'Video tutorials to reinforce skills between sessions.',
+          },
+        ]}
+      />
+
       {/* Testimonial */}
-      <section className="py-32 md:py-48">
+      <section className="py-20 md:py-28">
         <Container>
           <FadeIn direction="up" className="max-w-4xl mx-auto">
             <div className="flex gap-1 mb-8">
@@ -290,7 +472,7 @@ export default function HomePage() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-32 md:py-48">
+      <section className="relative py-20 md:py-28">
         <div className="absolute inset-0">
           <Image
             src="/images/highlights/LittleGrapplers-05858.jpg"
@@ -310,16 +492,10 @@ export default function HomePage() {
               Join families across Dallas who've discovered the power of BJJ for their kids.
             </p>
           </FadeIn>
-          <FadeIn direction="up" delay={0.15} className="mt-12 flex flex-wrap justify-center gap-6">
+          <FadeIn direction="up" delay={0.15} className="mt-12">
             <Button size="xl" variant="brand" className="text-lg px-8" asChild>
               <Link href="/inquiry">
                 Get Started
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="xl" variant="outline" className="text-lg px-8 border-background/30 text-background hover:bg-background/10" asChild>
-              <Link href="/contact">
-                Contact Us
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>

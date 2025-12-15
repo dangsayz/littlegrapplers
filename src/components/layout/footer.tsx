@@ -1,25 +1,28 @@
 import Link from 'next/link';
+import type { Route } from 'next';
 import { Mail, Phone, MapPin, Instagram, Facebook } from 'lucide-react';
 import { Container } from './container';
 import { Logo } from './logo';
 import { Separator } from '@/components/ui/separator';
 
-const footerLinks = {
+type FooterLink = { label: string; href: Route };
+
+const footerLinks: { programs: FooterLink[]; company: FooterLink[]; legal: FooterLink[] } = {
   programs: [
-    { label: 'Tiny Grapplers (3-5)', href: '/programs#tiny' },
-    { label: 'Junior Grapplers (6-8)', href: '/programs#junior' },
-    { label: 'Advanced Grapplers (9-12)', href: '/programs#advanced' },
-    { label: 'All Programs', href: '/programs' },
+    { label: 'Tiny Grapplers (3-5)', href: '/programs#tiny' as Route },
+    { label: 'Junior Grapplers (6-8)', href: '/programs#junior' as Route },
+    { label: 'Advanced Grapplers (9-12)', href: '/programs#advanced' as Route },
+    { label: 'All Programs', href: '/programs' as Route },
   ],
   company: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Our Locations', href: '/locations' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'About Us', href: '/about' as Route },
+    { label: 'Our Locations', href: '/locations' as Route },
+    { label: 'FAQ', href: '/faq' as Route },
+    { label: 'Contact', href: '/contact' as Route },
   ],
   legal: [
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
+    { label: 'Privacy Policy', href: '/privacy' as Route },
+    { label: 'Terms of Service', href: '/terms' as Route },
   ],
 };
 
@@ -100,20 +103,20 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:hello@littlegrapplers.net"
+                  href="mailto:sshnaydbjj@gmail.com"
                   className="inline-flex items-center gap-2 text-sm text-background/70 transition-colors hover:text-background"
                 >
                   <Mail className="h-4 w-4" />
-                  hello@littlegrapplers.net
+                  sshnaydbjj@gmail.com
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+15551234567"
+                  href="tel:+14692095814"
                   className="inline-flex items-center gap-2 text-sm text-background/70 transition-colors hover:text-background"
                 >
                   <Phone className="h-4 w-4" />
-                  (555) 123-4567
+                  +1 (469) 209-5814
                 </a>
               </li>
               <li>

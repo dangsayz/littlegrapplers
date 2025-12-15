@@ -84,8 +84,13 @@ model Parent {
   lastName         String
   phone            String?
   avatarUrl        String?
+  address          String?
+  city             String?
+  state            String?
+  zip              String?
   emergencyContact String?
   emergencyPhone   String?
+  stripeCustomerId String?  @unique // For Stripe billing integration
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -94,6 +99,7 @@ model Parent {
   students Student[]
 
   @@index([userId])
+  @@index([stripeCustomerId])
 }
 
 model Student {
@@ -110,10 +116,11 @@ model Student {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  parent                 Parent         @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  parent                 Parent            @relation(fields: [parentId], references: [id], onDelete: Cascade)
   memberships            Membership[]
-  studentOfMonthFeatures Announcement[] @relation("StudentOfMonth")
+  studentOfMonthFeatures Announcement[]    @relation("StudentOfMonth")
   beltHistory            BeltHistory[]
+  locationAssignments    StudentLocation[]
 
   @@index([parentId])
 }
@@ -171,7 +178,9 @@ model Location {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  programs Program[]
+  programs          Program[]
+  discussionThreads DiscussionThread[]
+  studentLocations  StudentLocation[]
 
   @@index([slug])
   @@index([isActive])
@@ -275,22 +284,25 @@ model VideoProgram {
 // ============================================
 
 model DiscussionThread {
-  id        String   @id @default(cuid())
-  programId String? // Null = all programs
-  authorId  String
-  title     String
-  content   String   @db.Text
-  isPinned  Boolean  @default(false)
-  isLocked  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  programId  String? // Null = all programs
+  locationId String  // Required - threads belong to a specific location
+  authorId   String
+  title      String
+  content    String   @db.Text
+  isPinned   Boolean  @default(false)
+  isLocked   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
-  program Program?          @relation(fields: [programId], references: [id], onDelete: SetNull)
-  author  User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  replies DiscussionReply[]
+  program  Program?          @relation(fields: [programId], references: [id], onDelete: SetNull)
+  location Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  author   User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies  DiscussionReply[]
 
   @@index([programId])
+  @@index([locationId])
   @@index([authorId])
   @@index([isPinned])
 }
@@ -309,6 +321,27 @@ model DiscussionReply {
 
   @@index([threadId])
   @@index([authorId])
+}
+
+// ============================================
+// Student Location Assignments
+// Assigns students to specific locations (classes)
+// ============================================
+
+model StudentLocation {
+  id         String   @id @default(cuid())
+  studentId  String
+  locationId String
+  assignedAt DateTime @default(now())
+  assignedBy String   // Admin email who made the assignment
+
+  // Relations
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, locationId])
+  @@index([studentId])
+  @@index([locationId])
 }
 
 // ============================================

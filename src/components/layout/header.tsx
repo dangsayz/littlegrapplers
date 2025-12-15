@@ -4,61 +4,69 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
-import { Container } from './container';
 import { Logo } from './logo';
 
 /**
- * NavLink with animated underline indicator
- * Purpose: Guides user attention, reveals interactive state
- * Motion: GPU-accelerated scaleX transform with --ease-out-expo
+ * NavLink with magnetic hover effect
+ * Purpose: Creates playful, engaging interaction that feels alive
+ * Motion: GPU-accelerated transforms with spring-like easing
  */
 function NavLink({
   href,
   children,
   isActive,
-  index,
 }: {
   href: (typeof NAV_LINKS)[number]['href'];
   children: React.ReactNode;
   isActive: boolean;
-  index: number;
 }) {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <Link
+      ref={linkRef}
       href={href as typeof NAV_LINKS[number]['href']}
-      className="group relative px-4 py-2"
-      style={{
-        // Staggered entrance: 50ms intervals per motion system
-        animationDelay: `${index * 50}ms`,
-      }}
+      className="group relative px-3 py-1.5"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Hover background pill */}
+      <span
+        className={cn(
+          'absolute inset-0 rounded-full',
+          'transition-all duration-[var(--motion-fast)]',
+          '[transition-timing-function:var(--ease-out-expo)]',
+          isActive
+            ? 'bg-brand/15 scale-100'
+            : isHovered
+              ? 'bg-foreground/5 scale-100'
+              : 'bg-transparent scale-95 opacity-0'
+        )}
+        aria-hidden="true"
+      />
       <span
         className={cn(
           'relative z-10 text-sm font-medium transition-colors',
           'duration-[var(--motion-fast)]',
           isActive
-            ? 'text-foreground'
-            : 'text-muted-foreground group-hover:text-foreground'
+            ? 'text-brand'
+            : 'text-foreground/70 group-hover:text-foreground'
         )}
       >
         {children}
       </span>
-      {/* Animated underline - GPU accelerated via transform */}
-      <span
-        className={cn(
-          'absolute bottom-1 left-4 right-4 h-[2px] rounded-full',
-          'origin-left bg-brand',
-          'transition-transform duration-[var(--motion-fast)]',
-          '[transition-timing-function:var(--ease-out-expo)]',
-          isActive
-            ? 'scale-x-100'
-            : 'scale-x-0 group-hover:scale-x-100'
-        )}
-        aria-hidden="true"
-      />
+      {/* Active dot indicator */}
+      {isActive && (
+        <span
+          className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand"
+          aria-hidden="true"
+        />
+      )}
     </Link>
   );
 }
@@ -72,7 +80,8 @@ export function Header() {
 
   // Trigger entrance animation after mount
   useEffect(() => {
-    setHasMounted(true);
+    const timer = setTimeout(() => setHasMounted(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Track scroll position for header background with RAF for smoothness
@@ -83,8 +92,8 @@ export function Header() {
     const handleScroll = () => {
       rafId = requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
-        if ((currentScrollY > 10) !== (lastScrollY > 10)) {
-          setIsScrolled(currentScrollY > 10);
+        if ((currentScrollY > 50) !== (lastScrollY > 50)) {
+          setIsScrolled(currentScrollY > 50);
         }
         lastScrollY = currentScrollY;
       });
@@ -118,20 +127,34 @@ export function Header() {
     <>
       {/* CSS for header animations - GPU accelerated */}
       <style jsx global>{`
-        @keyframes nav-fade-in {
+        @keyframes header-float-in {
           from {
             opacity: 0;
-            transform: translateY(-8px);
+            transform: translateY(-20px) scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
           }
         }
         
-        .nav-item-enter {
-          opacity: 0;
-          animation: nav-fade-in var(--motion-normal) var(--ease-out-expo) forwards;
+        @keyframes glow-pulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(46, 196, 182, 0.3),
+                        0 0 40px rgba(46, 196, 182, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 25px rgba(46, 196, 182, 0.4),
+                        0 0 50px rgba(46, 196, 182, 0.2);
+          }
+        }
+        
+        .nav-pill {
+          animation: header-float-in 0.6s var(--ease-out-expo) forwards;
+        }
+        
+        .cta-glow {
+          animation: glow-pulse 2s ease-in-out infinite;
         }
         
         @keyframes mobile-menu-item-enter {
@@ -151,96 +174,121 @@ export function Header() {
         }
         
         @media (prefers-reduced-motion: reduce) {
-          .nav-item-enter,
+          .nav-pill,
           .mobile-menu-item {
             animation: none;
             opacity: 1;
             transform: none;
+          }
+          .cta-glow {
+            animation: none;
           }
         }
       `}</style>
 
       <header
         ref={headerRef}
-        className={cn(
-          'fixed left-0 right-0 top-0 z-50',
-          // GPU-accelerated transitions using motion tokens
-          'transition-[background-color,box-shadow,backdrop-filter]',
-          'duration-[var(--motion-normal)]',
-          '[transition-timing-function:var(--ease-out-expo)]',
-          isScrolled
-            ? 'bg-background/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-            : 'bg-transparent'
-        )}
+        className="fixed left-0 right-0 top-0 z-50 pointer-events-none"
       >
-        <Container>
-          <nav className="flex h-16 items-center justify-between lg:h-20">
-            {/* Logo */}
-            <Logo variant={isScrolled ? 'default' : 'default'} />
+        <div className="mx-auto max-w-7xl px-4 py-4">
+          {/* Floating Pill Nav Container */}
+          <nav
+            className={cn(
+              'pointer-events-auto relative mx-auto flex items-center justify-between',
+              'rounded-full px-2 py-1.5',
+              'transition-all duration-[var(--motion-normal)]',
+              '[transition-timing-function:var(--ease-out-expo)]',
+              hasMounted ? 'nav-pill' : 'opacity-0',
+              isScrolled
+                ? 'max-w-4xl bg-background/90 backdrop-blur-xl shadow-xl shadow-black/10'
+                : 'max-w-5xl bg-background/60 backdrop-blur-md'
+            )}
+          >
 
-            {/* Desktop Navigation - Staggered entrance animation */}
-            <div className="hidden items-center gap-0.5 lg:flex">
-              {NAV_LINKS.map((link, index) => (
-                <div
+            {/* Logo - Left side */}
+            <div className="flex-shrink-0 pl-3">
+              <Logo size="sm" />
+            </div>
+
+            {/* Desktop Navigation - Center */}
+            <div className="hidden items-center gap-1 lg:flex">
+              {NAV_LINKS.map((link) => (
+                <NavLink
                   key={link.href}
-                  className={hasMounted ? 'nav-item-enter' : 'opacity-0'}
-                  style={{ animationDelay: `${(index + 1) * 50}ms` }}
+                  href={link.href}
+                  isActive={pathname === link.href}
                 >
-                  <NavLink
-                    href={link.href}
-                    isActive={pathname === link.href}
-                    index={index}
-                  >
-                    {link.label}
-                  </NavLink>
-                </div>
+                  {link.label}
+                </NavLink>
               ))}
             </div>
 
-            {/* Desktop CTA - Staggered entrance */}
-            <div className="hidden items-center gap-3 lg:flex">
-              <div
-                className={hasMounted ? 'nav-item-enter' : 'opacity-0'}
-                style={{ animationDelay: `${(NAV_LINKS.length + 1) * 50}ms` }}
-              >
+            {/* Desktop CTA - Right side */}
+            <div className="hidden items-center gap-2 pr-1 lg:flex">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      'rounded-full text-sm font-medium text-foreground/70',
+                      'transition-all duration-[var(--motion-fast)]',
+                      '[transition-timing-function:var(--ease-out-expo)]',
+                      'hover:text-foreground hover:bg-foreground/5'
+                    )}
+                  >
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button
+                    variant="brand"
+                    size="sm"
+                    className={cn(
+                      'rounded-full px-5 font-semibold',
+                      'transition-all duration-[var(--motion-fast)]',
+                      '[transition-timing-function:var(--ease-out-expo)]',
+                      'hover:scale-105 active:scale-95',
+                      isScrolled && 'cta-glow'
+                    )}
+                  >
+                    Start Free
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
                 <Button
-                  variant="ghost"
+                  variant="brand"
+                  size="sm"
                   asChild
                   className={cn(
+                    'rounded-full px-5 font-semibold',
                     'transition-all duration-[var(--motion-fast)]',
                     '[transition-timing-function:var(--ease-out-expo)]',
-                    'hover:bg-muted/80'
+                    'hover:scale-105 active:scale-95'
                   )}
                 >
-                  <Link href="/login">Sign In</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </Button>
-              </div>
-              <div
-                className={hasMounted ? 'nav-item-enter' : 'opacity-0'}
-                style={{ animationDelay: `${(NAV_LINKS.length + 2) * 50}ms` }}
-              >
-                <Button
-                  asChild
-                  className={cn(
-                    'transition-all duration-[var(--motion-fast)]',
-                    '[transition-timing-function:var(--ease-out-expo)]',
-                    'hover:scale-[1.02] active:scale-[0.98]'
-                  )}
-                >
-                  <Link href="/register">Get Started</Link>
-                </Button>
-              </div>
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-9 h-9',
+                    },
+                  }}
+                />
+              </SignedIn>
             </div>
 
-            {/* Mobile Menu Button - Animated icon transition */}
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                'lg:hidden relative overflow-hidden',
-                hasMounted ? 'nav-item-enter' : 'opacity-0'
+                'lg:hidden relative overflow-hidden rounded-full h-9 w-9 mr-1',
+                'bg-foreground/5 hover:bg-foreground/10'
               )}
-              style={{ animationDelay: '100ms' }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
@@ -254,7 +302,7 @@ export function Header() {
                     : 'rotate-0 scale-100 opacity-100'
                 )}
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               </span>
               <span
                 className={cn(
@@ -266,11 +314,11 @@ export function Header() {
                     : '-rotate-90 scale-0 opacity-0'
                 )}
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </span>
             </Button>
           </nav>
-        </Container>
+        </div>
       </header>
 
       {/* Mobile Menu Overlay - Smooth fade with motion tokens */}
@@ -345,48 +393,92 @@ export function Header() {
 
         {/* CTA buttons with stagger */}
         <div className="mt-8 flex flex-col gap-3 px-4">
-          <div
-            className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-            style={{
-              animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 1) * 50}ms` : '0ms',
-            }}
-          >
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className={cn(
-                'w-full transition-all duration-[var(--motion-fast)]',
-                '[transition-timing-function:var(--ease-out-expo)]',
-                'hover:scale-[1.01] active:scale-[0.99]'
-              )}
+          <SignedOut>
+            <div
+              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
+              style={{
+                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 1) * 50}ms` : '0ms',
+              }}
             >
-              <Link href="/login">Sign In</Link>
-            </Button>
-          </div>
-          <div
-            className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-            style={{
-              animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 2) * 50}ms` : '0ms',
-            }}
-          >
-            <Button
-              size="lg"
-              asChild
-              className={cn(
-                'w-full transition-all duration-[var(--motion-fast)]',
-                '[transition-timing-function:var(--ease-out-expo)]',
-                'hover:scale-[1.01] active:scale-[0.99]'
-              )}
+              <SignInButton mode="modal">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className={cn(
+                    'w-full transition-all duration-[var(--motion-fast)]',
+                    '[transition-timing-function:var(--ease-out-expo)]',
+                    'hover:scale-[1.01] active:scale-[0.99]'
+                  )}
+                >
+                  Sign In
+                </Button>
+              </SignInButton>
+            </div>
+            <div
+              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
+              style={{
+                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 2) * 50}ms` : '0ms',
+              }}
             >
-              <Link href="/register">Get Started</Link>
-            </Button>
-          </div>
+              <SignUpButton mode="modal">
+                <Button
+                  variant="brand"
+                  size="lg"
+                  className={cn(
+                    'w-full transition-all duration-[var(--motion-fast)]',
+                    '[transition-timing-function:var(--ease-out-expo)]',
+                    'hover:scale-[1.01] active:scale-[0.99]'
+                  )}
+                >
+                  Get Started
+                </Button>
+              </SignUpButton>
+            </div>
+          </SignedOut>
+          <SignedIn>
+            <div
+              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
+              style={{
+                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 1) * 50}ms` : '0ms',
+              }}
+            >
+              <Button
+                variant="brand"
+                size="lg"
+                asChild
+                className={cn(
+                  'w-full transition-all duration-[var(--motion-fast)]',
+                  '[transition-timing-function:var(--ease-out-expo)]',
+                  'hover:scale-[1.01] active:scale-[0.99]'
+                )}
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            </div>
+            <div
+              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
+              style={{
+                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 2) * 50}ms` : '0ms',
+              }}
+            >
+              <div className="flex items-center justify-center gap-3 py-2">
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-10 h-10',
+                    },
+                  }}
+                />
+                <span className="text-sm text-muted-foreground">Manage Account</span>
+              </div>
+            </div>
+          </SignedIn>
         </div>
       </div>
 
-      {/* Spacer for fixed header */}
-      <div className="h-16 lg:h-20" />
+      {/* Spacer for floating header - accounts for py-4 + nav height */}
+      <div className="h-20" />
     </>
   );
 }

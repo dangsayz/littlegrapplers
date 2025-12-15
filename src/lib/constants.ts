@@ -115,12 +115,12 @@ export const BELT_PROGRESSION = [
 
 export const MAX_STRIPES = 4;
 
-export const CONTACT_REASONS = [
-  { value: 'enrollment', label: 'Enrollment Inquiry' },
-  { value: 'partnership', label: 'Daycare Partnership' },
-  { value: 'general', label: 'General Question' },
-  { value: 'support', label: 'Account Support' },
-  { value: 'other', label: 'Other' },
+export const HOW_HEARD_OPTIONS = [
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'google', label: 'Google' },
+  { value: 'word-of-mouth', label: 'Word of mouth' },
+  { value: 'other', label: 'Others' },
 ] as const;
 
 /**
@@ -139,3 +139,20 @@ export const UPLOAD_LIMITS = {
   image: { maxSizeMB: 10, types: ['image/jpeg', 'image/png', 'image/webp'] },
   video: { maxSizeMB: 100, types: ['video/mp4', 'video/webm'] },
 } as const;
+
+/**
+ * Admin configuration
+ */
+export const ADMIN_EMAIL = 'dangzr1@gmail.com';
+
+/**
+ * Discussion locations (classes)
+ * Each location is an isolated community
+ */
+export const DISCUSSION_LOCATIONS = [
+  { id: 'location-1', name: 'Location 1', slug: 'location-1' },
+  { id: 'location-2', name: 'Location 2', slug: 'location-2' },
+  { id: 'location-3', name: 'Location 3', slug: 'location-3' },
+] as const;
+
+export type DiscussionLocationId = (typeof DISCUSSION_LOCATIONS)[number]['id'];
