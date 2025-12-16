@@ -12,7 +12,7 @@ const nextConfig = {
       },
     ],
   },
-  typedRoutes: true,
+  typedRoutes: false,
 };
 
 module.exports = nextConfig;
