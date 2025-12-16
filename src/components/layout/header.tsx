@@ -3,278 +3,198 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { Menu, X, ChevronDown, MapPin, Shield, ArrowUpRight } from 'lucide-react';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
-import { Logo } from './logo';
 
-/**
- * NavLink with magnetic hover effect
- * Purpose: Creates playful, engaging interaction that feels alive
- * Motion: GPU-accelerated transforms with spring-like easing
- */
-function NavLink({
-  href,
-  children,
-  isActive,
-}: {
-  href: (typeof NAV_LINKS)[number]['href'];
-  children: React.ReactNode;
-  isActive: boolean;
-}) {
-  const linkRef = useRef<HTMLAnchorElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
+const LOCATIONS = [
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano' },
+  { id: 'pinnacle', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori' },
+] as const;
+
+const ADMIN_EMAIL = 'dangzr1@gmail.com';
+
+function LocationDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useUser();
+  const isAdmin = user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <Link
-      ref={linkRef}
-      href={href as typeof NAV_LINKS[number]['href']}
-      className="group relative px-3 py-1.5"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Hover background pill */}
-      <span
+    <div ref={dropdownRef} className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors"
+      >
+        Dashboard
+        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-200', isOpen && 'rotate-180')} />
+      </button>
+
+      <div
         className={cn(
-          'absolute inset-0 rounded-full',
-          'transition-all duration-[var(--motion-fast)]',
-          '[transition-timing-function:var(--ease-out-expo)]',
-          isActive
-            ? 'bg-brand/15 scale-100'
-            : isHovered
-              ? 'bg-foreground/5 scale-100'
-              : 'bg-transparent scale-95 opacity-0'
-        )}
-        aria-hidden="true"
-      />
-      <span
-        className={cn(
-          'relative z-10 text-sm font-medium transition-colors',
-          'duration-[var(--motion-fast)]',
-          isActive
-            ? 'text-brand'
-            : 'text-foreground/70 group-hover:text-foreground'
+          'absolute right-0 top-full mt-4 w-64 rounded-2xl overflow-hidden',
+          'bg-[#141414] border border-white/10',
+          'shadow-2xl',
+          'transition-all duration-300',
+          isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
         )}
       >
-        {children}
-      </span>
-      {/* Active dot indicator */}
-      {isActive && (
-        <span
-          className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand"
-          aria-hidden="true"
-        />
-      )}
-    </Link>
+        <div className="p-2">
+          {isAdmin && (
+            <>
+              <Link
+                href="/dashboard/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+              >
+                <Shield className="h-4 w-4 text-[#2EC4B6]" />
+                Admin Panel
+              </Link>
+              <div className="my-2 border-t border-white/10" />
+            </>
+          )}
+          <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+            Locations
+          </p>
+          {LOCATIONS.map((location) => (
+            <Link
+              key={location.id}
+              href={`/community/${location.slug}`}
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+            >
+              <MapPin className="h-4 w-4 text-[#2EC4B6]" />
+              {location.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
   const pathname = usePathname();
-  const headerRef = useRef<HTMLElement>(null);
 
-  // Trigger entrance animation after mount
   useEffect(() => {
-    const timer = setTimeout(() => setHasMounted(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Track scroll position for header background with RAF for smoothness
-  useEffect(() => {
-    let rafId: number;
-    let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
-      rafId = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-        if ((currentScrollY > 50) !== (lastScrollY > 50)) {
-          setIsScrolled(currentScrollY > 50);
-        }
-        lastScrollY = currentScrollY;
-      });
+      setIsScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      cancelAnimationFrame(rafId);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
 
   return (
     <>
-      {/* CSS for header animations - GPU accelerated */}
-      <style jsx global>{`
-        @keyframes header-float-in {
-          from {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        @keyframes glow-pulse {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(46, 196, 182, 0.3),
-                        0 0 40px rgba(46, 196, 182, 0.1);
-          }
-          50% {
-            box-shadow: 0 0 25px rgba(46, 196, 182, 0.4),
-                        0 0 50px rgba(46, 196, 182, 0.2);
-          }
-        }
-        
-        .nav-pill {
-          animation: header-float-in 0.6s var(--ease-out-expo) forwards;
-        }
-        
-        .cta-glow {
-          animation: glow-pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes mobile-menu-item-enter {
-          from {
-            opacity: 0;
-            transform: translateX(16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        
-        .mobile-menu-item {
-          opacity: 0;
-          animation: mobile-menu-item-enter var(--motion-normal) var(--ease-out-expo) forwards;
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-          .nav-pill,
-          .mobile-menu-item {
-            animation: none;
-            opacity: 1;
-            transform: none;
-          }
-          .cta-glow {
-            animation: none;
-          }
-        }
-      `}</style>
-
       <header
-        ref={headerRef}
-        className="fixed left-0 right-0 top-0 z-50 pointer-events-none"
+        className={cn(
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+          isScrolled ? 'py-3' : 'py-4'
+        )}
       >
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          {/* Floating Pill Nav Container */}
-          <nav
-            className={cn(
-              'pointer-events-auto relative mx-auto flex items-center justify-between',
-              'rounded-full px-2 py-1.5',
-              'transition-all duration-[var(--motion-normal)]',
-              '[transition-timing-function:var(--ease-out-expo)]',
-              hasMounted ? 'nav-pill' : 'opacity-0',
-              isScrolled
-                ? 'max-w-4xl bg-background/90 backdrop-blur-xl shadow-xl shadow-black/10'
-                : 'max-w-5xl bg-background/60 backdrop-blur-md'
-            )}
-          >
+        {/* Background blur layer - always visible with subtle background */}
+        <div 
+          className={cn(
+            'absolute inset-0 transition-all duration-500',
+            isScrolled 
+              ? 'bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10' 
+              : 'bg-[#0a0a0a]/60 backdrop-blur-md'
+          )} 
+        />
 
-            {/* Logo - Left side */}
-            <div className="flex-shrink-0 pl-3">
-              <Logo size="sm" />
-            </div>
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <nav className="flex items-center justify-between">
+            
+            {/* Logo */}
+            <Link href="/" className="relative z-10 flex items-center gap-3 group">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2EC4B6] group-hover:scale-105 transition-transform">
+                <span className="text-lg font-black text-white">LG</span>
+              </div>
+              <span className="hidden sm:block text-lg font-bold text-white">
+                Little Grapplers
+              </span>
+            </Link>
 
             {/* Desktop Navigation - Center */}
-            <div className="hidden items-center gap-1 lg:flex">
-              {NAV_LINKS.map((link) => (
-                <NavLink
-                  key={link.href}
-                  href={link.href}
-                  isActive={pathname === link.href}
-                >
-                  {link.label}
-                </NavLink>
-              ))}
+            <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+              {NAV_LINKS.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="group relative px-4 py-2"
+                  >
+                    <span
+                      className={cn(
+                        'text-sm font-medium transition-colors duration-300',
+                        isActive ? 'text-white' : 'text-white/50 group-hover:text-white'
+                      )}
+                    >
+                      {link.label}
+                    </span>
+                    {/* Animated underline */}
+                    <span
+                      className={cn(
+                        'absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] rounded-full transition-all duration-300 origin-left',
+                        isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                      )}
+                    />
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* Desktop CTA - Right side */}
-            <div className="hidden items-center gap-2 pr-1 lg:flex">
+            {/* Desktop CTA - Right */}
+            <div className="hidden lg:flex items-center gap-6">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      'rounded-full text-sm font-medium text-foreground/70',
-                      'transition-all duration-[var(--motion-fast)]',
-                      '[transition-timing-function:var(--ease-out-expo)]',
-                      'hover:text-foreground hover:bg-foreground/5'
-                    )}
-                  >
+                  <button className="text-sm font-medium text-white/50 hover:text-white transition-colors">
                     Sign In
-                  </Button>
+                  </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <Button
-                    variant="brand"
-                    size="sm"
-                    className={cn(
-                      'rounded-full px-5 font-semibold',
-                      'transition-all duration-[var(--motion-fast)]',
-                      '[transition-timing-function:var(--ease-out-expo)]',
-                      'hover:scale-105 active:scale-95',
-                      isScrolled && 'cta-glow'
-                    )}
-                  >
-                    Start Free
-                  </Button>
+                  <button className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#0a0a0a] text-sm font-semibold overflow-hidden transition-transform hover:scale-105">
+                    <span className="relative z-10">Get Started</span>
+                    <ArrowUpRight className="h-4 w-4 relative z-10 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span>Get Started</span>
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                  </button>
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
-                <Button
-                  variant="brand"
-                  size="sm"
-                  asChild
-                  className={cn(
-                    'rounded-full px-5 font-semibold',
-                    'transition-all duration-[var(--motion-fast)]',
-                    '[transition-timing-function:var(--ease-out-expo)]',
-                    'hover:scale-105 active:scale-95'
-                  )}
-                >
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
+                <LocationDropdown />
                 <UserButton
                   afterSignOutUrl="/"
                   appearance={{
                     elements: {
-                      avatarBox: 'w-9 h-9',
+                      avatarBox: 'w-9 h-9 ring-2 ring-white/10 hover:ring-[#2EC4B6]/50 transition-all',
                     },
                   }}
                 />
@@ -282,186 +202,104 @@ export function Header() {
             </div>
 
             {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                'lg:hidden relative overflow-hidden rounded-full h-9 w-9 mr-1',
-                'bg-foreground/5 hover:bg-foreground/10'
-              )}
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              className="lg:hidden relative z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              aria-label="Toggle menu"
             >
-              <span
-                className={cn(
-                  'absolute inset-0 flex items-center justify-center',
-                  'transition-all duration-[var(--motion-fast)]',
-                  '[transition-timing-function:var(--ease-out-expo)]',
-                  isMobileMenuOpen
-                    ? 'rotate-90 scale-0 opacity-0'
-                    : 'rotate-0 scale-100 opacity-100'
-                )}
-              >
-                <Menu className="h-5 w-5" />
-              </span>
-              <span
-                className={cn(
-                  'absolute inset-0 flex items-center justify-center',
-                  'transition-all duration-[var(--motion-fast)]',
-                  '[transition-timing-function:var(--ease-out-expo)]',
-                  isMobileMenuOpen
-                    ? 'rotate-0 scale-100 opacity-100'
-                    : '-rotate-90 scale-0 opacity-0'
-                )}
-              >
-                <X className="h-5 w-5" />
-              </span>
-            </Button>
+              <div className="relative w-5 h-4">
+                <span 
+                  className={cn(
+                    'absolute left-0 w-5 h-[2px] bg-white transition-all duration-300',
+                    isMobileMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'
+                  )} 
+                />
+                <span 
+                  className={cn(
+                    'absolute left-0 top-1/2 -translate-y-1/2 w-5 h-[2px] bg-white transition-all duration-300',
+                    isMobileMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+                  )} 
+                />
+                <span 
+                  className={cn(
+                    'absolute left-0 w-5 h-[2px] bg-white transition-all duration-300',
+                    isMobileMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'
+                  )} 
+                />
+              </div>
+            </button>
           </nav>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay - Smooth fade with motion tokens */}
+      {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden',
-          'transition-opacity duration-[var(--motion-normal)]',
-          '[transition-timing-function:var(--ease-out-expo)]',
-          isMobileMenuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+          'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300',
+          isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
         onClick={() => setIsMobileMenuOpen(false)}
-        aria-hidden="true"
       />
 
-      {/* Mobile Menu Panel - Slide with spring-like easing */}
+      {/* Mobile Menu Panel */}
       <div
         className={cn(
-          'fixed right-0 top-0 z-40 h-full w-full max-w-sm',
-          'bg-background shadow-2xl lg:hidden',
-          'transition-transform duration-[var(--motion-normal)]',
-          '[transition-timing-function:var(--ease-out-expo)]',
+          'fixed top-0 right-0 bottom-0 z-40 w-full max-w-sm bg-[#0a0a0a] lg:hidden transition-transform duration-500 ease-out',
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
-        <div className="flex h-16 items-center justify-between px-6">
-          <span className="text-sm font-medium text-muted-foreground">Menu</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileMenuOpen(false)}
-            aria-label="Close menu"
-            className={cn(
-              'transition-transform duration-[var(--motion-fast)]',
-              '[transition-timing-function:var(--ease-out-expo)]',
-              'hover:rotate-90'
-            )}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        <div className="flex flex-col h-full pt-24 pb-8 px-6">
+          {/* Nav Links */}
+          <nav className="flex-1 space-y-1">
+            {NAV_LINKS.map((link, i) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'block px-4 py-4 rounded-xl text-lg font-medium transition-all',
+                    isActive 
+                      ? 'bg-[#2EC4B6]/10 text-[#2EC4B6]' 
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  )}
+                  style={{ transitionDelay: isMobileMenuOpen ? `${i * 50}ms` : '0ms' }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Staggered nav items - 50ms intervals per motion system */}
-        <nav className="flex flex-col gap-1 px-4">
-          {NAV_LINKS.map((link, index) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'group relative rounded-xl px-4 py-3.5 text-lg font-medium',
-                'transition-colors duration-[var(--motion-fast)]',
-                '[transition-timing-function:var(--ease-out-expo)]',
-                pathname === link.href
-                  ? 'bg-brand/10 text-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'
-              )}
-              style={{
-                animationDelay: isMobileMenuOpen ? `${(index + 1) * 50}ms` : '0ms',
-              }}
-            >
-              {link.label}
-              {/* Active indicator dot */}
-              {pathname === link.href && (
-                <span
-                  className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-brand"
-                  aria-hidden="true"
-                />
-              )}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA buttons with stagger */}
-        <div className="mt-8 flex flex-col gap-3 px-4">
-          <SignedOut>
-            <div
-              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-              style={{
-                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 1) * 50}ms` : '0ms',
-              }}
-            >
+          {/* Mobile CTAs */}
+          <div className="space-y-3 pt-6 border-t border-white/10">
+            <SignedOut>
               <SignInButton mode="modal">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className={cn(
-                    'w-full transition-all duration-[var(--motion-fast)]',
-                    '[transition-timing-function:var(--ease-out-expo)]',
-                    'hover:scale-[1.01] active:scale-[0.99]'
-                  )}
-                >
+                <button className="w-full py-3.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors">
                   Sign In
-                </Button>
+                </button>
               </SignInButton>
-            </div>
-            <div
-              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-              style={{
-                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 2) * 50}ms` : '0ms',
-              }}
-            >
               <SignUpButton mode="modal">
-                <Button
-                  variant="brand"
-                  size="lg"
-                  className={cn(
-                    'w-full transition-all duration-[var(--motion-fast)]',
-                    '[transition-timing-function:var(--ease-out-expo)]',
-                    'hover:scale-[1.01] active:scale-[0.99]'
-                  )}
-                >
+                <button className="w-full py-3.5 rounded-xl bg-[#2EC4B6] text-white font-semibold hover:bg-[#2EC4B6]/90 transition-colors">
                   Get Started
-                </Button>
+                </button>
               </SignUpButton>
-            </div>
-          </SignedOut>
-          <SignedIn>
-            <div
-              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-              style={{
-                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 1) * 50}ms` : '0ms',
-              }}
-            >
-              <Button
-                variant="brand"
-                size="lg"
-                asChild
-                className={cn(
-                  'w-full transition-all duration-[var(--motion-fast)]',
-                  '[transition-timing-function:var(--ease-out-expo)]',
-                  'hover:scale-[1.01] active:scale-[0.99]'
-                )}
-              >
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-            </div>
-            <div
-              className={isMobileMenuOpen ? 'mobile-menu-item' : 'opacity-0'}
-              style={{
-                animationDelay: isMobileMenuOpen ? `${(NAV_LINKS.length + 2) * 50}ms` : '0ms',
-              }}
-            >
-              <div className="flex items-center justify-center gap-3 py-2">
+            </SignedOut>
+            <SignedIn>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-3">
+                Locations
+              </p>
+              {LOCATIONS.map((location) => (
+                <Link
+                  key={location.id}
+                  href={`/community/${location.slug}`}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                >
+                  <MapPin className="h-4 w-4 text-[#2EC4B6]" />
+                  {location.name}
+                </Link>
+              ))}
+              <div className="flex items-center gap-3 pt-4 mt-4 border-t border-white/10">
                 <UserButton
                   afterSignOutUrl="/"
                   appearance={{
@@ -470,15 +308,15 @@ export function Header() {
                     },
                   }}
                 />
-                <span className="text-sm text-muted-foreground">Manage Account</span>
+                <span className="text-sm text-white/50">Manage Account</span>
               </div>
-            </div>
-          </SignedIn>
+            </SignedIn>
+          </div>
         </div>
       </div>
 
-      {/* Spacer for floating header - accounts for py-4 + nav height */}
-      <div className="h-20" />
+      {/* Header Spacer */}
+      <div className="h-24" />
     </>
   );
 }

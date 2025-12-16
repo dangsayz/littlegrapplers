@@ -1,225 +1,311 @@
 'use client';
 
 import { useState } from 'react';
-import { Metadata } from 'next';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import Link from 'next/link';
+import { Mail, MapPin, Phone, Send, ArrowRight, Clock, CheckCircle, Loader2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Container } from '@/components/layout/container';
+import { FadeIn } from '@/components/ui/motion';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      firstName: formData.get('firstName') as string,
+      lastName: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      hearAbout: formData.get('hearAbout') as string,
+      message: formData.get('message') as string,
+    };
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || 'Failed to send message');
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[#F7F9F9]">
       {/* Hero Section */}
-      <section className="section-padding bg-muted/30">
-        <Container>
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-display-lg font-display font-bold">We'd Love to Hear from You!</h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Whether you're a daycare provider looking to bring the transformative art of Brazilian Jiu-Jitsu to your center, a parent eager to empower your child with confidence and discipline, or simply curious about our program, we're here to help!
+      <section className="relative bg-[#1F2A44] py-20 md:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/20 via-transparent to-transparent" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#2EC4B6]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F7931E]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        
+        <Container className="relative z-10">
+          <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2EC4B6]/10 border border-[#2EC4B6]/20 mb-6">
+              <MessageSquare className="h-4 w-4 text-[#2EC4B6]" />
+              <span className="text-sm font-medium text-[#2EC4B6]">Get In Touch</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              Let's Start a{' '}
+              <span className="text-[#2EC4B6]">Conversation</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+              Whether you're a daycare provider, a parent eager to empower your child, or simply curious about our program—we're here to help!
             </p>
-            <p className="mt-4 text-lg text-muted-foreground">
-              This isn't just a program—it's a movement to build a brighter future, one confident, resilient child at a time. Have questions, feedback, or just want to chat about how Jiu-Jitsu can make a difference for your kids? Don't hesitate to reach out.
-            </p>
-          </div>
+          </FadeIn>
         </Container>
       </section>
 
-      {/* Contact Form Section */}
-      <section className="section-padding">
+      {/* Main Content */}
+      <section className="py-16 md:py-24">
         <Container>
-          <div className="grid gap-12 lg:grid-cols-3 lg:gap-16">
-            {/* Contact Info */}
-            <div className="lg:col-span-1">
-              <h2 className="text-xl font-semibold">Questions?</h2>
-              <p className="mt-2 text-muted-foreground">
-                We're here to help.
-              </p>
-
-              <div className="mt-8 space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Email</div>
-                    <a
-                      href="mailto:sshnaydbjj@gmail.com"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      sshnaydbjj@gmail.com
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <Phone className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Phone</div>
-                    <a
-                      href="tel:+14692095814"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      +1 (469) 209-5814
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Locations</div>
-                    <p className="text-muted-foreground">Multiple daycare locations citywide</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 rounded-lg border bg-muted/50 p-4">
-                <h3 className="font-medium">Response Time</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  We typically respond within 24 hours during business days.
+          <div className="grid gap-12 lg:grid-cols-5 lg:gap-16">
+            {/* Contact Info Sidebar */}
+            <FadeIn direction="up" className="lg:col-span-2 space-y-8">
+              <div>
+                <h2 className="text-2xl font-bold text-[#1F2A44]">Contact Information</h2>
+                <p className="mt-2 text-[#1F2A44]/60">
+                  Reach out directly or fill out the form.
                 </p>
               </div>
-            </div>
+
+              <div className="space-y-6">
+                <a 
+                  href="mailto:sshnaydbjj@gmail.com"
+                  className="group flex items-start gap-4 p-4 rounded-xl bg-white border border-[#1F2A44]/10 hover:border-[#2EC4B6] hover:shadow-lg hover:shadow-[#2EC4B6]/10 transition-all"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2EC4B6]/10 group-hover:bg-[#2EC4B6] transition-colors">
+                    <Mail className="h-5 w-5 text-[#2EC4B6] group-hover:text-white transition-colors" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#1F2A44]">Email Us</div>
+                    <div className="text-[#1F2A44]/60 group-hover:text-[#2EC4B6] transition-colors">
+                      sshnaydbjj@gmail.com
+                    </div>
+                  </div>
+                </a>
+
+                <a 
+                  href="tel:+14692095814"
+                  className="group flex items-start gap-4 p-4 rounded-xl bg-white border border-[#1F2A44]/10 hover:border-[#F7931E] hover:shadow-lg hover:shadow-[#F7931E]/10 transition-all"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F7931E]/10 group-hover:bg-[#F7931E] transition-colors">
+                    <Phone className="h-5 w-5 text-[#F7931E] group-hover:text-white transition-colors" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#1F2A44]">Call Us</div>
+                    <div className="text-[#1F2A44]/60 group-hover:text-[#F7931E] transition-colors">
+                      (469) 209-5814
+                    </div>
+                  </div>
+                </a>
+
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-[#1F2A44]/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFC857]/10">
+                    <MapPin className="h-5 w-5 text-[#FFC857]" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#1F2A44]">Locations</div>
+                    <div className="text-[#1F2A44]/60">
+                      Multiple daycare locations citywide
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-xl bg-gradient-to-br from-[#2EC4B6]/10 to-[#8FE3CF]/10 border border-[#2EC4B6]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <Clock className="h-5 w-5 text-[#2EC4B6]" />
+                  <h3 className="font-semibold text-[#1F2A44]">Response Time</h3>
+                </div>
+                <p className="text-sm text-[#1F2A44]/70">
+                  We typically respond within 24 hours during business days. For urgent inquiries, please call us directly.
+                </p>
+              </div>
+            </FadeIn>
 
             {/* Contact Form */}
-            <div className="lg:col-span-2">
-              <div className="rounded-xl border bg-card p-6 md:p-8">
+            <FadeIn direction="up" delay={0.1} className="lg:col-span-3">
+              <div className="rounded-2xl bg-white border border-[#1F2A44]/10 shadow-xl shadow-[#1F2A44]/5 p-6 md:p-10">
                 {isSubmitted ? (
-                  <div className="py-12 text-center">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
-                      <svg
-                        className="h-8 w-8 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                  <div className="py-16 text-center">
+                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#2EC4B6]/10">
+                      <CheckCircle className="h-10 w-10 text-[#2EC4B6]" />
                     </div>
-                    <h3 className="mt-4 text-xl font-semibold">Message Sent!</h3>
-                    <p className="mt-2 text-muted-foreground">
+                    <h3 className="mt-6 text-2xl font-bold text-[#1F2A44]">Message Sent!</h3>
+                    <p className="mt-3 text-[#1F2A44]/60 max-w-sm mx-auto">
                       Thank you for reaching out. We'll get back to you within 24 hours.
                     </p>
-                    <Button className="mt-6" onClick={() => setIsSubmitted(false)}>
+                    <Button 
+                      className="mt-8 bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white" 
+                      onClick={() => setIsSubmitted(false)}
+                    >
                       Send Another Message
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input id="firstName" name="firstName" required placeholder="John" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input id="lastName" name="lastName" required placeholder="Doe" />
-                      </div>
+                  <>
+                    <div className="mb-8">
+                      <h3 className="text-xl font-bold text-[#1F2A44]">Send us a Message</h3>
+                      <p className="mt-1 text-[#1F2A44]/60">Fill out the form below and we'll be in touch soon.</p>
                     </div>
 
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          required
-                          placeholder="john@example.com"
-                        />
+                    {error && (
+                      <div className="mb-6 p-4 rounded-lg bg-[#FF5A5F]/10 border border-[#FF5A5F]/20 text-[#FF5A5F] text-sm">
+                        {error}
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone *</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                          required
-                          placeholder="(555) 123-4567"
-                        />
-                      </div>
-                    </div>
+                    )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="hearAbout">How did you hear about us? *</Label>
-                      <select
-                        id="hearAbout"
-                        name="hearAbout"
-                        required
-                        className="flex h-11 w-full rounded-md border border-input bg-background px-4 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="firstName" className="text-[#1F2A44] font-medium">First Name</Label>
+                          <Input 
+                            id="firstName" 
+                            name="firstName" 
+                            required 
+                            placeholder="John" 
+                            className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="lastName" className="text-[#1F2A44] font-medium">Last Name</Label>
+                          <Input 
+                            id="lastName" 
+                            name="lastName" 
+                            required 
+                            placeholder="Doe"
+                            className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-[#1F2A44] font-medium">Email</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            placeholder="john@example.com"
+                            className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-[#1F2A44] font-medium">Phone</Label>
+                          <Input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            required
+                            placeholder="(555) 123-4567"
+                            className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="hearAbout" className="text-[#1F2A44] font-medium">How did you hear about us?</Label>
+                        <select
+                          id="hearAbout"
+                          name="hearAbout"
+                          required
+                          className="flex h-12 w-full rounded-md border border-[#1F2A44]/20 bg-white text-[#1F2A44] px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-[#2EC4B6] focus:border-transparent transition-colors"
+                        >
+                          <option value="">Select an option</option>
+                          <option value="Facebook">Facebook</option>
+                          <option value="Instagram">Instagram</option>
+                          <option value="Google">Google</option>
+                          <option value="Word of Mouth">Word of mouth</option>
+                          <option value="Daycare Referral">Daycare referral</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="message" className="text-[#1F2A44] font-medium">Message</Label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          required
+                          placeholder="Tell us how we can help you..."
+                          rows={5}
+                          className="border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6] resize-none"
+                        />
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        size="lg" 
+                        className="w-full h-14 text-base font-semibold bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white shadow-lg shadow-[#2EC4B6]/25" 
+                        disabled={isSubmitting}
                       >
-                        <option value="">Select an option</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="google">Google</option>
-                        <option value="word-of-mouth">Word of mouth</option>
-                        <option value="other">Others</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        required
-                        placeholder="Tell us how we can help..."
-                        rows={5}
-                      />
-                    </div>
-
-                    <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-                      <Send className="h-5 w-5" />
-                      Send Message
-                    </Button>
-                  </form>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-5 w-5" />
+                            Send Message
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  </>
                 )}
               </div>
-            </div>
+            </FadeIn>
           </div>
         </Container>
       </section>
 
       {/* FAQ Teaser */}
-      <section className="section-padding bg-muted/30">
+      <section className="py-16 md:py-24 bg-[#1F2A44]">
         <Container>
-          <div className="text-center">
-            <h2 className="text-xl font-semibold">Have More Questions?</h2>
-            <p className="mt-2 text-muted-foreground">
-              Check out our frequently asked questions for quick answers.
+          <FadeIn direction="up" className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Have More <span className="text-[#2EC4B6]">Questions?</span>
+            </h2>
+            <p className="mt-4 text-lg text-white/60 max-w-xl mx-auto">
+              Check out our frequently asked questions for quick answers about our program.
             </p>
-            <Button variant="outline" className="mt-4" asChild>
-              <a href="/faq">View FAQ</a>
-            </Button>
-          </div>
+            <div className="mt-8">
+              <Button 
+                size="lg" 
+                className="bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white h-12 px-8"
+                asChild
+              >
+                <Link href="/faq">
+                  View FAQ
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </FadeIn>
         </Container>
       </section>
-    </>
+    </div>
   );
 }

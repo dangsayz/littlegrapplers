@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
-import prisma from '@/lib/db';
+import { currentUser } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAIL } from '@/lib/constants';
 import { z } from 'zod';
 
@@ -14,85 +14,112 @@ const createThreadSchema = z.object({
 // GET: Fetch threads for a specific location
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await currentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+    const userEmail = user.emailAddresses?.[0]?.emailAddress;
     const isAdmin = userEmail === ADMIN_EMAIL;
 
     const { searchParams } = new URL(request.url);
-    const locationId = searchParams.get('locationId');
+    const locationIdOrSlug = searchParams.get('locationId');
 
-    if (!locationId) {
+    if (!locationIdOrSlug) {
       return NextResponse.json({ error: 'Location ID required' }, { status: 400 });
     }
 
-    // If not admin, verify user has access to this location
-    if (!isAdmin) {
-      const hasAccess = await prisma.studentLocation.findFirst({
-        where: {
-          locationId,
-          student: {
-            parent: {
-              user: {
-                email: userEmail,
-              },
-            },
-          },
-        },
-      });
-
-      if (!hasAccess) {
-        return NextResponse.json({ error: 'No access to this location' }, { status: 403 });
+    // Try to find location by ID first, then by slug
+    let locationId = locationIdOrSlug;
+    
+    // Check if it's a UUID (Supabase ID) or a slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(locationIdOrSlug);
+    
+    if (!isUUID) {
+      // It's a slug, look up the real location ID from Supabase
+      const { data: locationBySlug } = await supabaseAdmin
+        .from('locations')
+        .select('id')
+        .eq('slug', locationIdOrSlug)
+        .single();
+      
+      if (locationBySlug) {
+        locationId = locationBySlug.id;
+      } else {
+        // Try matching by partial slug (e.g., 'lionheart-central' -> 'lionheart-central-church')
+        const { data: locationByPartialSlug } = await supabaseAdmin
+          .from('locations')
+          .select('id, slug')
+          .ilike('slug', `${locationIdOrSlug}%`)
+          .limit(1)
+          .single();
+        
+        if (locationByPartialSlug) {
+          locationId = locationByPartialSlug.id;
+        }
       }
     }
 
-    const threads = await prisma.discussionThread.findMany({
-      where: { locationId },
-      include: {
-        author: {
-          select: {
-            id: true,
-            email: true,
-            parent: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-        replies: {
-          select: { id: true },
-        },
-        location: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+    // Fetch threads from Supabase
+    const { data: threads, error: threadsError } = await supabaseAdmin
+      .from('discussion_threads')
+      .select('*')
+      .eq('location_id', locationId)
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (threadsError) {
+      console.error('Error fetching threads:', threadsError);
+      throw threadsError;
+    }
+
+    // Get reply counts
+    const threadIds = (threads || []).map(t => t.id);
+    const { data: replyCounts } = await supabaseAdmin
+      .from('discussion_replies')
+      .select('thread_id')
+      .in('thread_id', threadIds.length > 0 ? threadIds : ['none']);
+
+    const replyCountMap: Record<string, number> = {};
+    (replyCounts || []).forEach(r => {
+      replyCountMap[r.thread_id] = (replyCountMap[r.thread_id] || 0) + 1;
     });
 
+    // Get unique author IDs and fetch authors
+    const authorIds = [...new Set((threads || []).map(t => t.author_id).filter(Boolean))];
+    const { data: authors } = await supabaseAdmin
+      .from('users')
+      .select('id, email, first_name, last_name')
+      .in('id', authorIds.length > 0 ? authorIds : ['none']);
+
+    const authorMap = new Map((authors || []).map(a => [a.id, a]));
+
+    // Get location name
+    const { data: location } = await supabaseAdmin
+      .from('locations')
+      .select('name')
+      .eq('id', locationId)
+      .single();
+
     // Format threads for response
-    const formattedThreads = threads.map((thread) => ({
-      id: thread.id,
-      title: thread.title,
-      content: thread.content,
-      isPinned: thread.isPinned,
-      isLocked: thread.isLocked,
-      createdAt: thread.createdAt,
-      replyCount: thread.replies.length,
-      author: {
-        firstName: thread.author.parent?.firstName || 'Unknown',
-        lastName: thread.author.parent?.lastName || 'User',
-        isAdmin: thread.author.email === ADMIN_EMAIL,
-      },
-      location: thread.location,
-    }));
+    const formattedThreads = (threads || []).map(thread => {
+      const author = authorMap.get(thread.author_id);
+      return {
+        id: thread.id,
+        title: thread.title,
+        content: thread.content,
+        isPinned: thread.is_pinned,
+        isLocked: thread.is_locked,
+        createdAt: thread.created_at,
+        replyCount: replyCountMap[thread.id] || 0,
+        author: {
+          firstName: author?.first_name || 'Unknown',
+          lastName: author?.last_name || 'User',
+          isAdmin: (author?.email || thread.author_email) === ADMIN_EMAIL,
+        },
+        location: { name: location?.name || 'Unknown' },
+      };
+    });
 
     return NextResponse.json({ threads: formattedThreads });
   } catch (error) {
@@ -104,14 +131,13 @@ export async function GET(request: NextRequest) {
 // POST: Create a new thread
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await currentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const userEmail = user.emailAddresses?.[0]?.emailAddress;
+    const clerkUserId = user.id;
 
     const body = await request.json();
     const parsed = createThreadSchema.safeParse(body);
@@ -120,65 +146,77 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors }, { status: 400 });
     }
 
-    const { title, content, locationId } = parsed.data;
+    const { title, content, locationId: locationIdOrSlug } = parsed.data;
 
-    // If not admin, verify user has access to this location
-    if (!isAdmin) {
-      const hasAccess = await prisma.studentLocation.findFirst({
-        where: {
-          locationId,
-          student: {
-            parent: {
-              user: {
-                email: userEmail,
-              },
-            },
-          },
-        },
-      });
-
-      if (!hasAccess) {
-        return NextResponse.json({ error: 'No access to this location' }, { status: 403 });
+    // Resolve location ID (could be UUID or slug)
+    let locationId = locationIdOrSlug;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(locationIdOrSlug);
+    
+    if (!isUUID) {
+      // Look up by slug
+      const { data: locationBySlug } = await supabaseAdmin
+        .from('locations')
+        .select('id')
+        .eq('slug', locationIdOrSlug)
+        .single();
+      
+      if (locationBySlug) {
+        locationId = locationBySlug.id;
+      } else {
+        // Try partial match
+        const { data: locationByPartialSlug } = await supabaseAdmin
+          .from('locations')
+          .select('id')
+          .ilike('slug', `${locationIdOrSlug}%`)
+          .limit(1)
+          .single();
+        
+        if (locationByPartialSlug) {
+          locationId = locationByPartialSlug.id;
+        } else {
+          return NextResponse.json({ error: 'Location not found' }, { status: 404 });
+        }
       }
     }
 
-    // Get the internal user ID from email
-    let dbUser = await prisma.user.findUnique({
-      where: { email: userEmail },
-    });
+    // Get or create user in Supabase
+    let { data: dbUser } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('clerk_user_id', clerkUserId)
+      .single();
 
-    // If user doesn't exist in our DB, create them
     if (!dbUser) {
-      dbUser = await prisma.user.create({
-        data: {
-          email: userEmail!,
-          passwordHash: '', // Clerk handles auth
-          role: isAdmin ? 'admin' : 'parent',
-        },
-      });
+      const { data: newUser, error: createError } = await supabaseAdmin
+        .from('users')
+        .insert({
+          clerk_user_id: clerkUserId,
+          email: userEmail,
+          first_name: user.firstName || 'Unknown',
+          last_name: user.lastName || 'User',
+          status: 'active',
+        })
+        .select('id')
+        .single();
+
+      if (createError) throw createError;
+      dbUser = newUser;
     }
 
-    const thread = await prisma.discussionThread.create({
-      data: {
+    // Create thread in Supabase
+    const { data: thread, error: threadError } = await supabaseAdmin
+      .from('discussion_threads')
+      .insert({
+        location_id: locationId,
+        author_id: dbUser.id,
+        author_email: userEmail,
         title,
         content,
-        locationId,
-        authorId: dbUser.id,
-      },
-      include: {
-        author: {
-          select: {
-            email: true,
-            parent: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-    });
+      })
+      .select('id, title, content, created_at')
+      .single();
+
+    if (threadError) throw threadError;
 
     return NextResponse.json({ thread }, { status: 201 });
   } catch (error) {

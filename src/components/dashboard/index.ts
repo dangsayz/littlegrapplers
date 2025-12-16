@@ -4,3 +4,6 @@ export { StudentCard, NoStudentsCard } from './student-card';
 export { MembershipCard, NoMembershipsCard } from './membership-card';
 export { DiscussionPreview, NoDiscussionsAccess } from './discussion-preview';
 export { BillingPlaceholder } from './billing-placeholder';
+export { VideoCard } from './video-card';
+export { VideoPlayer } from './video-player';
+export { WaiverStatusCard } from './waiver-status-card';

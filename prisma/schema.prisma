@@ -173,6 +173,7 @@ model Location {
   logoUrl      String?
   heroImageUrl String?
   description  String?  @db.Text
+  accessPin    String?  // PIN code for accessing community page (set by admin)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -181,9 +182,25 @@ model Location {
   programs          Program[]
   discussionThreads DiscussionThread[]
   studentLocations  StudentLocation[]
+  pinAccess         LocationPinAccess[]
 
   @@index([slug])
   @@index([isActive])
+}
+
+// Tracks which users have verified PIN access to a location
+model LocationPinAccess {
+  id         String   @id @default(cuid())
+  locationId String
+  visitorId  String   // Can be a session ID or user ID
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, visitorId])
+  @@index([locationId])
+  @@index([expiresAt])
 }
 
 model Program {

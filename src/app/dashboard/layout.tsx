@@ -1,6 +1,9 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { DashboardSidebar, DashboardHeader } from '@/components/dashboard';
+import { supabaseAdmin } from '@/lib/supabase';
+
+const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function DashboardLayout({
   children,
@@ -12,6 +15,40 @@ export default async function DashboardLayout({
 
   if (!userId) {
     redirect('/');
+  }
+
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+  const isAdmin = userEmail === ADMIN_EMAIL;
+
+  // Check onboarding status (skip for admin)
+  if (!isAdmin && user) {
+    try {
+      // Check if user exists in our database
+      const { data: dbUser } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('clerk_user_id', user.id)
+        .single();
+
+      if (dbUser) {
+        // Check if parent profile exists and onboarding is complete
+        const { data: parent } = await supabaseAdmin
+          .from('parents')
+          .select('onboarding_completed')
+          .eq('user_id', dbUser.id)
+          .single();
+
+        if (!parent || !parent.onboarding_completed) {
+          redirect('/onboarding');
+        }
+      } else {
+        // User doesn't exist in DB yet - redirect to onboarding
+        redirect('/onboarding');
+      }
+    } catch (error) {
+      // If check fails, redirect to onboarding to be safe
+      redirect('/onboarding');
+    }
   }
 
   return (

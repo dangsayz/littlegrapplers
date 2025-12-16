@@ -3,33 +3,15 @@ import { Plus, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MembershipCard, NoMembershipsCard } from '@/components/dashboard';
 
-// TODO: Replace with actual database query
-const mockMemberships = [
-  {
-    id: '1',
-    status: 'active',
-    monthlyRate: 9900,
-    startDate: new Date('2024-09-15'),
-    student: { id: '1', firstName: 'Timmy', lastName: 'Johnson' },
-    program: {
-      id: '1',
-      name: 'Tiny Grapplers (Ages 4-6)',
-      location: { name: 'Austin HQ' },
-    },
-  },
-  {
-    id: '2',
-    status: 'active',
-    monthlyRate: 9900,
-    startDate: new Date('2024-10-01'),
-    student: { id: '2', firstName: 'Sarah', lastName: 'Johnson' },
-    program: {
-      id: '2',
-      name: 'Little Grapplers (Ages 7-10)',
-      location: { name: 'Austin HQ' },
-    },
-  },
-];
+// Empty array - real data will come from database
+const mockMemberships: Array<{
+  id: string;
+  status: string;
+  monthlyRate: number;
+  startDate: Date;
+  student: { id: string; firstName: string; lastName: string };
+  program: { id: string; name: string; location: { name: string } };
+}> = [];
 
 export default async function MembershipsPage() {
   const memberships = mockMemberships;

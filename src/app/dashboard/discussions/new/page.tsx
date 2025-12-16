@@ -1,30 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MessageSquare, Send, AlertCircle } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, AlertCircle, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { DISCUSSION_LOCATIONS } from '@/lib/constants';
 
 export default function NewDiscussionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const locationId = searchParams.get('location') || DISCUSSION_LOCATIONS[0]?.id;
+  const locationId = searchParams.get('location') || '';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locationName, setLocationName] = useState<string>('Loading...');
   const [formData, setFormData] = useState({
     title: '',
     content: '',
   });
 
-  const locationName =
-    DISCUSSION_LOCATIONS.find((l) => l.id === locationId)?.name || 'Unknown Location';
+  // Fetch location name from API
+  useEffect(() => {
+    const fetchLocationName = async () => {
+      if (!locationId) {
+        setLocationName('Unknown Location');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/locations/${locationId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setLocationName(data.name || 'Unknown Location');
+        }
+      } catch {
+        setLocationName('Unknown Location');
+      }
+    };
+    fetchLocationName();
+  }, [locationId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

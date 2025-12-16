@@ -147,12 +147,12 @@ export const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 /**
  * Discussion locations (classes)
- * Each location is an isolated community
+ * Each location is an isolated community with PIN-protected access
  */
 export const DISCUSSION_LOCATIONS = [
-  { id: 'location-1', name: 'Location 1', slug: 'location-1' },
-  { id: 'location-2', name: 'Location 2', slug: 'location-2' },
-  { id: 'location-3', name: 'Location 3', slug: 'location-3' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano' },
+  { id: 'pinnacle-montessori', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori' },
 ] as const;
 
 export type DiscussionLocationId = (typeof DISCUSSION_LOCATIONS)[number]['id'];

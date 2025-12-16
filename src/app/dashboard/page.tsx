@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Plus, Users, FileText, ArrowRight } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,94 +11,70 @@ import {
   DiscussionPreview,
   NoDiscussionsAccess,
   BillingPlaceholder,
+  WaiverStatusCard,
 } from '@/components/dashboard';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// TODO: Replace with actual database queries
-// These are mock data for development - will be replaced with Prisma queries
-const mockStudents = [
-  {
-    id: '1',
-    firstName: 'Timmy',
-    lastName: 'Johnson',
-    beltRank: 'yellow',
-    stripes: 2,
-    avatarUrl: null,
-  },
-  {
-    id: '2',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
-    beltRank: 'white',
-    stripes: 4,
-    avatarUrl: null,
-  },
-];
+// Empty arrays - real data will come from database
+const mockStudents: Array<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  beltRank: string;
+  stripes: number;
+  avatarUrl: string | null;
+}> = [];
 
-const mockMemberships = [
-  {
-    id: '1',
-    status: 'active',
-    monthlyRate: 9900,
-    startDate: new Date('2024-09-15'),
-    student: { id: '1', firstName: 'Timmy', lastName: 'Johnson' },
-    program: {
-      id: '1',
-      name: 'Tiny Grapplers (Ages 4-6)',
-      location: { name: 'Austin HQ' },
-    },
-  },
-  {
-    id: '2',
-    status: 'active',
-    monthlyRate: 9900,
-    startDate: new Date('2024-10-01'),
-    student: { id: '2', firstName: 'Sarah', lastName: 'Johnson' },
-    program: {
-      id: '2',
-      name: 'Little Grapplers (Ages 7-10)',
-      location: { name: 'Austin HQ' },
-    },
-  },
-];
+const mockMemberships: Array<{
+  id: string;
+  status: string;
+  monthlyRate: number;
+  startDate: Date;
+  student: { id: string; firstName: string; lastName: string };
+  program: { id: string; name: string; location: { name: string } };
+}> = [];
 
-const mockThreads = [
-  {
-    id: '1',
-    title: 'Holiday Schedule Update - December Classes',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    isPinned: true,
-    replyCount: 5,
-    author: { firstName: 'Coach Mike' },
-    program: { name: 'Tiny Grapplers', location: { name: 'Austin HQ' } },
-  },
-  {
-    id: '2',
-    title: 'Tips for practicing at home',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    isPinned: false,
-    replyCount: 12,
-    author: { firstName: 'Jessica' },
-    program: { name: 'Little Grapplers', location: { name: 'Austin HQ' } },
-  },
-  {
-    id: '3',
-    title: 'Tournament next month - sign up now!',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-    isPinned: false,
-    replyCount: 8,
-    author: { firstName: 'Coach Sarah' },
-    program: { name: 'All Programs', location: { name: 'Austin HQ' } },
-  },
-];
+// Real threads will be fetched from the database
+const mockThreads: Array<{
+  id: string;
+  title: string;
+  createdAt: Date;
+  isPinned: boolean;
+  replyCount: number;
+  author: { firstName: string };
+  program: { name: string; location: { name: string } };
+}> = [];
 
 const mockParentAddress = {
-  address: '123 Main Street',
-  city: 'Austin',
-  state: 'TX',
-  zip: '78701',
+  address: '',
+  city: '',
+  state: '',
+  zip: '',
 };
 
 export default async function DashboardPage() {
+  const { userId } = await auth();
+  
+  // Fetch waiver status
+  let waiverStatus = { hasSigned: false, signedAt: null as string | null, childName: null as string | null };
+  if (userId) {
+    const { data: waiver } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('signed_at, child_full_name')
+      .eq('clerk_user_id', userId)
+      .order('signed_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (waiver) {
+      waiverStatus = {
+        hasSigned: true,
+        signedAt: waiver.signed_at,
+        childName: waiver.child_full_name,
+      };
+    }
+  }
+
   // TODO: Fetch real data from database
   const students = mockStudents;
   const memberships = mockMemberships;
@@ -117,6 +94,15 @@ export default async function DashboardPage() {
           Manage your students, memberships, and account
         </p>
       </div>
+
+      {/* Waiver Status - Show prominently if not signed */}
+      {!waiverStatus.hasSigned && (
+        <WaiverStatusCard
+          hasSigned={waiverStatus.hasSigned}
+          signedAt={waiverStatus.signedAt}
+          childName={waiverStatus.childName}
+        />
+      )}
 
       {/* Two Column Layout on Desktop */}
       <div className="grid lg:grid-cols-3 gap-6">

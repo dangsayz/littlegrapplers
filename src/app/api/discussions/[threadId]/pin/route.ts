@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
-import prisma from '@/lib/db';
+import { currentUser } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAIL } from '@/lib/constants';
 
 // POST: Toggle pin status (admin only)
@@ -9,36 +9,43 @@ export async function POST(
   { params }: { params: Promise<{ threadId: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await currentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { threadId } = await params;
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+    const userEmail = user.emailAddresses?.[0]?.emailAddress;
 
     // Only admin can pin/unpin
     if (userEmail !== ADMIN_EMAIL) {
       return NextResponse.json({ error: 'Only admin can pin threads' }, { status: 403 });
     }
 
-    const thread = await prisma.discussionThread.findUnique({
-      where: { id: threadId },
-    });
+    // Get current thread
+    const { data: thread, error: fetchError } = await supabaseAdmin
+      .from('discussion_threads')
+      .select('id, is_pinned')
+      .eq('id', threadId)
+      .single();
 
-    if (!thread) {
+    if (fetchError || !thread) {
       return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
     }
 
-    const updatedThread = await prisma.discussionThread.update({
-      where: { id: threadId },
-      data: { isPinned: !thread.isPinned },
-    });
+    // Toggle pin status
+    const { data: updatedThread, error: updateError } = await supabaseAdmin
+      .from('discussion_threads')
+      .update({ is_pinned: !thread.is_pinned })
+      .eq('id', threadId)
+      .select('is_pinned')
+      .single();
+
+    if (updateError) throw updateError;
 
     return NextResponse.json({
       success: true,
-      isPinned: updatedThread.isPinned,
+      isPinned: updatedThread.is_pinned,
     });
   } catch (error) {
     console.error('Error toggling pin:', error);

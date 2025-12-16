@@ -23,6 +23,7 @@ const footerLinks: { programs: FooterLink[]; company: FooterLink[]; legal: Foote
   legal: [
     { label: 'Privacy Policy', href: '/privacy' as Route },
     { label: 'Terms of Service', href: '/terms' as Route },
+    { label: 'Enrollment Waiver', href: '/waiver' as Route },
   ],
 };
 

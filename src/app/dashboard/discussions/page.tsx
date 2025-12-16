@@ -1,6 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { MessageSquare } from 'lucide-react';
-import { ADMIN_EMAIL, DISCUSSION_LOCATIONS } from '@/lib/constants';
+import { ADMIN_EMAIL } from '@/lib/constants';
+import { supabaseAdmin } from '@/lib/supabase';
 import { DiscussionsClient } from './discussions-client';
 
 export default async function DiscussionsPage() {
@@ -8,8 +9,13 @@ export default async function DiscussionsPage() {
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
   const isAdmin = userEmail === ADMIN_EMAIL;
 
-  // For now, use the static locations. In production, these would come from the database.
-  const locations = DISCUSSION_LOCATIONS.map((loc) => ({
+  // Fetch real locations from Supabase
+  const { data: locationsData } = await supabaseAdmin
+    .from('locations')
+    .select('id, name, slug')
+    .order('name');
+
+  const locations = (locationsData || []).map((loc) => ({
     id: loc.id,
     name: loc.name,
     slug: loc.slug,

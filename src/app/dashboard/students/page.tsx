@@ -3,25 +3,15 @@ import { Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StudentCard, NoStudentsCard } from '@/components/dashboard';
 
-// TODO: Replace with actual database query
-const mockStudents = [
-  {
-    id: '1',
-    firstName: 'Timmy',
-    lastName: 'Johnson',
-    beltRank: 'yellow',
-    stripes: 2,
-    avatarUrl: null,
-  },
-  {
-    id: '2',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
-    beltRank: 'white',
-    stripes: 4,
-    avatarUrl: null,
-  },
-];
+// Empty array - real data will come from database
+const mockStudents: Array<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  beltRank: string;
+  stripes: number;
+  avatarUrl: string | null;
+}> = [];
 
 export default async function StudentsPage() {
   const students = mockStudents;

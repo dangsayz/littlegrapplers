@@ -1,209 +1,239 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Star, Shield, Heart, Trophy, Zap, Users, Calendar, Video } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield } from 'lucide-react';
 import { Container } from '@/components/layout/container';
-import {
-  HeroText,
-  FadeInCTA,
-  FadeIn,
-  StaggerContainer,
-  StaggerItem,
-  ScrollIndicator,
-} from '@/components/ui/motion';
-import { FloatingVideo } from '@/components/ui/floating-video';
-import { FloatingProcessCards } from '@/components/ui/floating-process-cards';
-import { GlassFeatureCard } from '@/components/ui/glass-feature-card';
-import { PricingSection } from '@/components/ui/pricing-section';
-import { GradientRevealSection } from '@/components/ui/gradient-reveal-section';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
 
 export default function HomePage() {
   return (
-    <div className="bg-foreground text-background">
-      {/* Hero Section */}
-      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
-        {/* Full-bleed background image */}
+    <div className="bg-[#0a0a0a] text-white selection:bg-[#2EC4B6] selection:text-black overflow-x-hidden">
+      
+      {/* ═══════════════════════════════════════════════════════════════════════
+          HERO - Massive typography with gradient mesh background
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex flex-col justify-between overflow-hidden">
+        {/* Animated gradient mesh */}
         <div className="absolute inset-0">
-          <Image
-            src="/images/highlights/LittleGrapplers-05971.jpg"
-            alt="Kids training Brazilian Jiu-Jitsu"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground via-foreground/90 to-foreground/50" />
+          <div className="absolute inset-0 bg-[#0a0a0a]" />
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#2EC4B6]/20 blur-[150px] animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#F7931E]/15 blur-[130px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-[#FF5A5F]/10 blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
-        <Container className="relative z-10 py-32">
-          <div className="max-w-4xl">
-            <FadeInCTA delay={0}>
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-background/60">Youth BJJ Program • Dallas</span>
-              </div>
-            </FadeInCTA>
-
-            <HeroText
-              className="font-display font-black tracking-tighter leading-[0.85]"
-              lines={[
-                { text: 'Build', className: 'text-[clamp(2.5rem,8vw,7rem)] text-background' },
-                { text: 'confidence.', className: 'text-[clamp(2.5rem,8vw,7rem)] text-brand font-serif italic font-normal' },
-                { text: 'Build', className: 'text-[clamp(2.5rem,8vw,7rem)] text-background' },
-                { text: 'character.', className: 'text-[clamp(2.5rem,8vw,7rem)] text-brand font-serif italic font-normal' },
-              ]}
-            />
-            
-            <FadeInCTA delay={0.35}>
-              <p className="mt-8 max-w-xl text-xl md:text-2xl text-background/80 font-medium">
-                Empowering children through Jiu-Jitsu at your local daycare.
-              </p>
-            </FadeInCTA>
-
-            <FadeInCTA delay={0.5} className="mt-12">
-              <Button size="xl" variant="brand" className="text-lg px-8" asChild>
-                <Link href="/inquiry">
-                  Get Started
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-            </FadeInCTA>
-          </div>
-        </Container>
-
-        <ScrollIndicator className="absolute bottom-8 left-1/2 -translate-x-1/2 text-background/50" />
-      </section>
-
-      {/* Story flows seamlessly - Mission */}
-      <section className="py-20 md:py-28">
-        <Container>
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
+        <div className="relative z-10 flex-1 flex items-center pt-32">
+          <Container>
+            <div className="max-w-[90vw]">
               <FadeIn direction="up">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">Our Mission</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-                  Empower <span className="font-serif italic font-normal text-brand">your kids.</span>
-                </h2>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="h-px w-12 bg-[#2EC4B6]" />
+                  <span className="text-[#2EC4B6] text-sm font-medium tracking-[0.2em] uppercase">Youth BJJ • Dallas-Fort Worth</span>
+                </div>
               </FadeIn>
+
               <FadeIn direction="up" delay={0.1}>
-                <p className="mt-8 text-xl text-background/70 leading-relaxed">
-                  We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
-                </p>
-                <p className="mt-4 text-lg text-background/50 leading-relaxed">
-                  Unlike soccer, basketball, or dance—Jiu-Jitsu builds confidence, discipline, and resilience like nothing else.
-                </p>
+                <h1 className="text-[clamp(3rem,12vw,10rem)] font-black leading-[0.85] tracking-[-0.04em]">
+                  <span className="block">Build</span>
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6]">
+                    confidence.
+                  </span>
+                </h1>
+              </FadeIn>
+
+              <FadeIn direction="up" delay={0.2}>
+                <div className="mt-6 ml-[5vw] md:ml-[15vw]">
+                  <h2 className="text-[clamp(2rem,8vw,6rem)] font-black leading-[0.9] tracking-[-0.03em] text-white/90">
+                    Build <span className="text-[#FFC857]">character.</span>
+                  </h2>
+                </div>
+              </FadeIn>
+
+              <FadeIn direction="up" delay={0.3}>
+                <div className="mt-16 flex flex-col md:flex-row md:items-end gap-8 md:gap-16">
+                  <p className="max-w-md text-lg md:text-xl text-white/50 leading-relaxed">
+                    Empowering kids ages 3-7 through Brazilian Jiu-Jitsu at partner daycares across Dallas.
+                  </p>
+                  
+                  <div className="flex items-center gap-4">
+                    <Link 
+                      href="/waiver"
+                      className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-transform hover:scale-105"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="relative group-hover:text-white transition-colors">Enroll Now</span>
+                      <ArrowUpRight className="h-5 w-5 relative transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+                    </Link>
+                    
+                    <Link 
+                      href="#story"
+                      className="group flex items-center gap-3 px-6 py-4 text-white/70 hover:text-white transition-colors"
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 group-hover:border-[#2EC4B6] group-hover:bg-[#2EC4B6]/10 transition-all">
+                        <Play className="h-4 w-4 ml-0.5" />
+                      </div>
+                      <span className="text-sm font-medium">Watch Story</span>
+                    </Link>
+                  </div>
+                </div>
               </FadeIn>
             </div>
-            <FadeIn direction="up" delay={0.15}>
-              <FloatingVideo
-                src="/videos/hero-video.mp4"
-                className="w-full max-w-xs mx-auto"
-                delay={0.2}
-              />
-            </FadeIn>
-          </div>
-        </Container>
-      </section>
-
-      {/* Stats - integrated, no box */}
-      <section className="py-16">
-        <Container>
-          <FadeIn direction="up">
-            <div className="flex flex-wrap justify-center gap-16 md:gap-24">
-              <div className="text-center">
-                <div className="text-5xl md:text-6xl font-black text-brand">11+</div>
-                <div className="mt-2 text-sm uppercase tracking-wider text-background/50">Years</div>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl md:text-6xl font-black text-brand">500+</div>
-                <div className="mt-2 text-sm uppercase tracking-wider text-background/50">Kids Trained</div>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl md:text-6xl font-black text-brand">15+</div>
-                <div className="mt-2 text-sm uppercase tracking-wider text-background/50">Daycares</div>
-              </div>
-            </div>
-          </FadeIn>
-        </Container>
-      </section>
-
-      {/* Quote - full bleed image */}
-      <section className="relative py-20 md:py-28">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/highlights/bjjlittlegrapplers2-7.jpg"
-            alt="Training session"
-            fill
-            className="object-cover opacity-30"
-          />
+          </Container>
         </div>
-        <Container className="relative z-10">
-          <FadeIn direction="none">
-            <p className="text-3xl md:text-5xl lg:text-6xl font-serif italic text-center max-w-4xl mx-auto leading-tight">
-              "Sometimes it is the people no one can imagine anything of who do the things
-              <span className="text-brand not-italic font-display font-black"> no one can imagine.</span>"
-            </p>
-          </FadeIn>
-        </Container>
+
+        {/* Bottom stats bar */}
+        <FadeIn direction="up" delay={0.4}>
+          <div className="relative z-10 border-t border-white/10">
+            <Container>
+              <div className="py-8 flex flex-wrap items-center justify-between gap-8">
+                <div className="flex items-center gap-12 md:gap-20">
+                  <div>
+                    <div className="text-4xl md:text-5xl font-black text-[#2EC4B6]">500+</div>
+                    <div className="text-sm text-white/40 mt-1">Kids Trained</div>
+                  </div>
+                  <div>
+                    <div className="text-4xl md:text-5xl font-black text-[#F7931E]">11</div>
+                    <div className="text-sm text-white/40 mt-1">Years Experience</div>
+                  </div>
+                  <div>
+                    <div className="text-4xl md:text-5xl font-black text-[#FFC857]">15+</div>
+                    <div className="text-sm text-white/40 mt-1">Partner Daycares</div>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="hidden md:flex items-center gap-2 text-white/40 hover:text-white transition-colors"
+                >
+                  <span className="text-sm">Scroll to explore</span>
+                  <ChevronDown className="h-4 w-4 animate-bounce" />
+                </button>
+              </div>
+            </Container>
+          </div>
+        </FadeIn>
       </section>
 
-      {/* Coach Stephen */}
-      <section className="py-20 md:py-28">
+      
+      {/* ═══════════════════════════════════════════════════════════════════════
+          BENTO GRID - Mission & Video
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="story" className="py-24 md:py-32">
         <Container>
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <FadeIn direction="up" delay={0.15} className="lg:order-2">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Large mission card */}
+            <FadeIn direction="up" className="lg:col-span-7">
+              <div className="relative h-full min-h-[400px] rounded-3xl bg-gradient-to-br from-[#1F2A44] to-[#0a0f1a] p-8 md:p-12 overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#2EC4B6]/10 rounded-full blur-[80px] group-hover:bg-[#2EC4B6]/20 transition-all duration-700" />
+                
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                  <div>
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#2EC4B6]/20 text-[#2EC4B6] text-xs font-bold uppercase tracking-wider mb-6">
+                      Our Mission
+                    </span>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9]">
+                      Empower
+                      <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF]">
+                        your kids.
+                      </span>
+                    </h2>
+                  </div>
+                  
+                  <p className="mt-8 text-lg text-white/50 max-w-md leading-relaxed">
+                    We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Video card */}
+            <FadeIn direction="up" delay={0.1} className="lg:col-span-5">
+              <div className="relative h-full min-h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
                 <Image
-                  src="/images/highlights/LittleGrapplers-05999.jpg"
-                  alt="Coach Stephen"
+                  src="/images/highlights/LittleGrapplers-05971.jpg"
+                  alt="Training session"
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+                
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:scale-110 group-hover:bg-[#2EC4B6] transition-all duration-300">
+                    <Play className="h-8 w-8 text-white ml-1" />
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-6 left-6 right-6">
+                  <span className="text-white/70 text-sm">Watch our story</span>
+                  <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
+                </div>
               </div>
             </FadeIn>
-            <div className="lg:order-1">
-              <FadeIn direction="up">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">Leadership</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-                  Coach <span className="font-serif italic font-normal text-brand">Stephen.</span>
-                </h2>
-              </FadeIn>
-              <FadeIn direction="up" delay={0.1}>
-                <p className="mt-8 text-xl text-background/70 leading-relaxed">
-                  Born and raised in Dallas, Stephen spent years searching for an outlet where he truly belonged.
-                </p>
-                <p className="mt-4 text-lg text-background/50 leading-relaxed">
-                  That search led him to Brazilian Jiu-Jitsu over 11 years ago—a passion that gave him confidence, discipline, and purpose. Now an active competitor and dedicated coach, he's committed to sharing that same passion with the next generation.
-                </p>
-              </FadeIn>
-            </div>
+
+            {/* Quote card */}
+            <FadeIn direction="up" delay={0.2} className="lg:col-span-12">
+              <div className="relative rounded-3xl bg-[#FFC857] p-8 md:p-12 overflow-hidden">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#F7931E]/30 rounded-full" />
+                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-[#FF5A5F]/20 rounded-full" />
+                
+                <div className="relative z-10 max-w-4xl mx-auto text-center">
+                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-[#1F2A44] leading-tight">
+                    "Sometimes it is the people no one can imagine anything of who do the things
+                    <span className="font-black not-italic"> no one can imagine.</span>"
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
           </div>
         </Container>
       </section>
 
-      {/* What is BJJ */}
-      <section className="py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          BENEFITS - Grid layout (no horizontal scroll)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="py-24 md:py-32">
         <Container>
-          <FadeIn direction="up" className="text-center max-w-3xl mx-auto">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">The Art</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-              What is <span className="font-serif italic font-normal text-brand">Brazilian Jiu-Jitsu?</span>
+          <FadeIn direction="up" className="mb-16">
+            <span className="text-[#2EC4B6] text-sm font-medium tracking-[0.2em] uppercase">The Art</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9]">
+              What is
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] to-[#FFC857]">
+                Brazilian Jiu-Jitsu?
+              </span>
             </h2>
-            <p className="mt-8 text-xl text-background/60 leading-relaxed">
-              A dynamic martial art focusing on ground fighting, leverage, and technique—allowing practitioners to control opponents regardless of size or strength.
-            </p>
           </FadeIn>
 
-          <StaggerContainer className="mt-24 grid md:grid-cols-2 lg:grid-cols-4 gap-12" staggerDelay={0.08}>
+          {/* Grid layout */}
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={0.1}>
             {[
-              { icon: Zap, label: 'Physical', title: 'Full-Body Fitness' },
-              { icon: Trophy, label: 'Mental', title: 'Strategic Thinking' },
-              { icon: Heart, label: 'Social', title: 'Teamwork & Respect' },
-              { icon: Shield, label: 'Safety', title: 'Bully-Proof Skills' },
+              { icon: Dumbbell, title: 'Full-Body Fitness', desc: 'Develops strength, flexibility, and coordination', color: '#2EC4B6' },
+              { icon: Brain, title: 'Strategic Thinking', desc: 'Problem-solving skills through technique', color: '#F7931E' },
+              { icon: Heart, title: 'Teamwork & Respect', desc: 'Building friendships and social skills', color: '#FF5A5F' },
+              { icon: Shield, title: 'Bully-Proof Skills', desc: 'Confidence to handle any situation', color: '#FFC857' },
             ].map((item) => (
               <StaggerItem key={item.title}>
-                <div className="text-center">
-                  <item.icon className="w-10 h-10 text-brand mx-auto mb-4" />
-                  <p className="text-xs uppercase tracking-wider text-background/40 mb-2">{item.label}</p>
-                  <h3 className="text-xl font-bold">{item.title}</h3>
+                <div className="group relative h-full rounded-3xl bg-[#1F2A44] p-8 overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                  <div 
+                    className="absolute top-0 left-0 w-full h-1"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <div 
+                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px] opacity-0 group-hover:opacity-30 transition-opacity duration-500"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  
+                  <div 
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl mb-6"
+                    style={{ backgroundColor: `${item.color}20` }}
+                  >
+                    <item.icon className="h-8 w-8" style={{ color: item.color }} />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-white/50 text-sm">{item.desc}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -211,294 +241,254 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Photo Gallery - Glassmorphism Cards */}
-      <section className="py-16 md:py-20">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          COACH - Split screen with image
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="py-24 md:py-32 bg-white text-[#1F2A44]">
         <Container>
-          <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto" staggerDelay={0.1}>
-            {/* Featured Image Card */}
-            <StaggerItem direction="up">
-              <div className="group relative rounded-2xl p-1.5 bg-gradient-to-br from-background/20 via-background/5 to-transparent">
-                <div className="absolute inset-0 rounded-2xl bg-background/5 backdrop-blur-xl border border-background/10" />
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                  <Image 
-                    src="/images/highlights/bjjlittlegrapplers-2.jpg" 
-                    alt="Kids training BJJ" 
-                    fill 
-                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <FadeIn direction="up">
+              <span className="text-[#2EC4B6] text-sm font-medium tracking-[0.2em] uppercase">Leadership</span>
+              <h2 className="mt-4 text-5xl md:text-6xl lg:text-7xl font-black leading-[0.85]">
+                Coach
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF]">
+                  Stephen.
+                </span>
+              </h2>
+              
+              <p className="mt-8 text-xl text-[#1F2A44]/70 leading-relaxed">
+                Born and raised in Dallas, Stephen spent years searching for an outlet where he truly belonged.
+              </p>
+              <p className="mt-4 text-lg text-[#1F2A44]/50 leading-relaxed">
+                That search led him to Brazilian Jiu-Jitsu over 11 years ago—a passion that gave him confidence, discipline, and purpose. Now an active competitor and dedicated coach, he's committed to sharing that same passion with the next generation.
+              </p>
+              
+              <Link 
+                href="/about"
+                className="inline-flex items-center gap-2 mt-8 text-[#2EC4B6] font-semibold hover:gap-4 transition-all"
+              >
+                Learn more about our team
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.2}>
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-br from-[#2EC4B6]/20 to-[#F7931E]/20 rounded-3xl blur-2xl" />
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden">
+                  <Image
+                    src="/images/highlights/LittleGrapplers-05999.jpg"
+                    alt="Coach Stephen"
+                    fill
+                    className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-4 left-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-background/70">Training Day</span>
-                  </div>
+                </div>
+                
+                {/* Floating badge */}
+                <div className="absolute -bottom-6 -left-6 bg-[#FFC857] rounded-2xl p-6 shadow-2xl">
+                  <div className="text-3xl font-black text-[#1F2A44]">11+</div>
+                  <div className="text-sm text-[#1F2A44]/70">Years BJJ</div>
                 </div>
               </div>
-            </StaggerItem>
-
-            {/* Secondary Image Card */}
-            <StaggerItem direction="up">
-              <div className="group relative rounded-2xl p-1.5 bg-gradient-to-br from-background/20 via-background/5 to-transparent">
-                <div className="absolute inset-0 rounded-2xl bg-background/5 backdrop-blur-xl border border-background/10" />
-                <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                  <Image 
-                    src="/images/highlights/LittleGrapplers-05865.jpg" 
-                    alt="Coach with students" 
-                    fill 
-                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-4 left-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-background/70">Building Champions</span>
-                  </div>
-                </div>
-              </div>
-            </StaggerItem>
-          </StaggerContainer>
-        </Container>
-      </section>
-
-      {/* How it works */}
-      <section className="py-20 md:py-28">
-        <Container>
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <div>
-              <FadeIn direction="up">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">How It Works</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-                  Three simple <span className="font-serif italic font-normal text-brand">steps.</span>
-                </h2>
-                <p className="mt-8 text-xl text-background/60 leading-relaxed">
-                  We bring the program directly to your child's daycare. No extra driving. No schedule conflicts.
-                </p>
-              </FadeIn>
-            </div>
-            
-            <StaggerContainer className="space-y-12" delay={0.2}>
-              {[
-                { num: '01', title: 'Find', desc: "Check if your daycare is a partner. Not yet? We'll reach out." },
-                { num: '02', title: 'Register', desc: 'Quick online signup. Select program. Done.' },
-                { num: '03', title: 'Train', desc: 'Classes at daycare + online video library access.' },
-              ].map((item) => (
-                <StaggerItem key={item.num}>
-                  <div className="flex gap-6">
-                    <div className="text-6xl font-black text-background/10">{item.num}</div>
-                    <div>
-                      <h3 className="text-2xl font-bold">{item.title}</h3>
-                      <p className="mt-2 text-background/50">{item.desc}</p>
-                    </div>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
+            </FadeIn>
           </div>
         </Container>
       </section>
 
-      {/* Visual Process Section - Floating Cards */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/images/highlights/LittleGrapplers-05873.jpg"
-            alt="Kids on their journey"
-            fill
-            className="object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground via-foreground/95 to-foreground/80" />
-        </div>
-        <Container className="relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <FadeIn direction="up">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">The Journey</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-                  Your child's <span className="font-serif italic font-normal text-brand">path.</span>
-                </h2>
-                <p className="mt-8 text-xl text-background/60 leading-relaxed">
-                  A structured progression that builds skills, confidence, and character step by step.
-                </p>
-              </FadeIn>
-            </div>
-            <FloatingProcessCards
-              steps={[
-                { number: '01', title: 'DISCOVER', active: true },
-                { number: '02', title: 'PRACTICE', active: true },
-                { number: '03', title: 'GROW', active: false },
-                { number: '04', title: 'ACHIEVE', active: false },
-              ]}
-            />
-          </div>
-        </Container>
-      </section>
-
-      {/* Glass Feature Cards Section */}
-      <section className="py-16 md:py-24">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          HOW IT WORKS - Large numbered steps
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="py-24 md:py-32">
         <Container>
-          <FadeIn direction="up" className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">Program Features</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-              Everything <span className="font-serif italic font-normal text-brand">included.</span>
+          <FadeIn direction="up" className="text-center mb-20">
+            <span className="text-[#F7931E] text-sm font-medium tracking-[0.2em] uppercase">How It Works</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black">
+              Three simple <span className="text-[#2EC4B6]">steps.</span>
             </h2>
           </FadeIn>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <GlassFeatureCard label="Classes" variant="brand">
-              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/images/highlights/bjjlittlegrapplers2-7.jpg"
-                  alt="BJJ Classes"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-background">Weekly Training</h3>
-              <p className="mt-2 text-background/60">
-                Structured classes at your child's daycare, taught by certified instructors.
-              </p>
-            </GlassFeatureCard>
-
-            <GlassFeatureCard label="Online">
-              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/images/highlights/bjjlittlegrapplers-3.jpg"
-                  alt="Video Library"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-background">Video Library</h3>
-              <p className="mt-2 text-background/60">
-                Access our online curriculum to practice techniques at home.
-              </p>
-            </GlassFeatureCard>
-
-            <GlassFeatureCard label="Events" variant="accent">
-              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                <Image
-                  src="/images/highlights/LittleGrapplers-05865.jpg"
-                  alt="BJJ Events"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-background">Belt Ceremonies</h3>
-              <p className="mt-2 text-background/60">
-                Celebrate achievements with belt promotions and special events.
-              </p>
-            </GlassFeatureCard>
+          <div className="space-y-0">
+            {[
+              { num: '01', title: 'Find', desc: "Check if your daycare is a partner. Not yet? We'll reach out.", color: '#2EC4B6' },
+              { num: '02', title: 'Register', desc: 'Quick online signup. Select program. Done.', color: '#F7931E' },
+              { num: '03', title: 'Train', desc: 'Classes at daycare + online video library access.', color: '#FFC857' },
+            ].map((step, i) => (
+              <FadeIn key={step.num} direction="up" delay={i * 0.1}>
+                <div className="group relative border-b border-white/10 py-12 md:py-16 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
+                    <div 
+                      className="text-[8rem] md:text-[10rem] font-black leading-none opacity-20 group-hover:opacity-40 transition-opacity"
+                      style={{ color: step.color }}
+                    >
+                      {step.num}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-3xl md:text-4xl font-bold text-white mb-3">{step.title}</h3>
+                      <p className="text-lg text-white/50 max-w-md">{step.desc}</p>
+                    </div>
+                    <ArrowRight className="hidden md:block h-8 w-8 text-white/20 group-hover:text-white/60 group-hover:translate-x-2 transition-all" />
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </Container>
       </section>
 
-      {/* Gradient Reveal Section */}
-      <GradientRevealSection
-        primaryText="Confidence"
-        secondaryText="starts here."
-        description="Every session builds mental resilience, physical skills, and the self-belief that lasts a lifetime."
-        variant="brand"
-      />
-
-      {/* Pricing Section */}
-      <PricingSection
-        subtitle="Membership"
-        title="Simple, transparent pricing"
-        description="Choose the plan that fits your family. No hidden fees."
-        tiers={[
-          {
-            name: '3 Months Paid-In-Full',
-            price: '$150',
-            period: 'one time',
-            description: 'Enjoy the convenience of a one-time payment for three months of membership. No recurring charges, no monthly billing—just full access to all your membership benefits.',
-            ctaText: 'Sign Up',
-            ctaLink: '/inquiry',
-            features: [
-              { text: 'Full access for 3 months', included: true },
-              { text: 'No recurring charges', included: true },
-              { text: 'All membership benefits included', included: true },
-            ],
-          },
-          {
-            name: 'Monthly Agreement',
-            price: '$50',
-            period: 'month',
-            description: 'Flexible monthly membership with full access to all content and classes.',
-            ctaText: 'Sign Up',
-            ctaLink: '/inquiry',
-            highlighted: true,
-            features: [
-              { text: 'Over 20 hours of video content', included: true },
-              { text: 'Unlimited lifetime access', included: true },
-              { text: 'Cancel anytime', included: true },
-            ],
-          },
-        ]}
-        features={[
-          {
-            icon: <Users className="w-5 h-5" />,
-            title: 'Expert instruction',
-            description: 'Certified coaches with child-focused training methodologies.',
-          },
-          {
-            icon: <Calendar className="w-5 h-5" />,
-            title: 'Flexible scheduling',
-            description: 'Classes happen at daycare—no extra driving required.',
-          },
-          {
-            icon: <Video className="w-5 h-5" />,
-            title: 'Home practice support',
-            description: 'Video tutorials to reinforce skills between sessions.',
-          },
-        ]}
-      />
-
-      {/* Testimonial */}
-      <section className="py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          PRICING - Modern cards
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="py-24 md:py-32 bg-[#1F2A44]">
         <Container>
-          <FadeIn direction="up" className="max-w-4xl mx-auto">
+          <FadeIn direction="up" className="text-center mb-16">
+            <span className="text-[#FFC857] text-sm font-medium tracking-[0.2em] uppercase">Membership</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black">
+              Simple, transparent <span className="text-[#2EC4B6]">pricing.</span>
+            </h2>
+            <p className="mt-6 text-lg text-white/50 max-w-xl mx-auto">
+              Choose the plan that fits your family. No hidden fees.
+            </p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* 3 Month Plan */}
+            <FadeIn direction="up">
+              <div className="relative rounded-3xl bg-[#0a0f1a] border border-white/10 p-8 md:p-10 overflow-hidden group hover:border-[#2EC4B6]/50 transition-colors">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#2EC4B6]/5 rounded-full blur-[60px] group-hover:bg-[#2EC4B6]/10 transition-colors" />
+                
+                <div className="relative z-10">
+                  <h3 className="text-xl font-bold text-white">3 Months Paid-In-Full</h3>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="text-5xl font-black text-white">$150</span>
+                    <span className="text-white/40">one time</span>
+                  </div>
+                  
+                  <ul className="mt-8 space-y-4">
+                    {['Full access for 3 months', 'No recurring charges', 'All membership benefits'].map((feature) => (
+                      <li key={feature} className="flex items-center gap-3 text-white/70">
+                        <Check className="h-5 w-5 text-[#2EC4B6]" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Link 
+                    href="/waiver"
+                    className="mt-8 block w-full py-4 text-center bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Monthly Plan - Highlighted */}
+            <FadeIn direction="up" delay={0.1}>
+              <div className="relative rounded-3xl bg-gradient-to-br from-[#2EC4B6] to-[#1F8A80] p-8 md:p-10 overflow-hidden group">
+                <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold">
+                  POPULAR
+                </div>
+                <div className="absolute bottom-0 right-0 w-60 h-60 bg-white/10 rounded-full blur-[80px]" />
+                
+                <div className="relative z-10">
+                  <h3 className="text-xl font-bold text-white">Monthly Agreement</h3>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <span className="text-5xl font-black text-white">$50</span>
+                    <span className="text-white/70">/month</span>
+                  </div>
+                  
+                  <ul className="mt-8 space-y-4">
+                    {['Over 20 hours of video content', 'Unlimited lifetime access', 'Cancel anytime'].map((feature) => (
+                      <li key={feature} className="flex items-center gap-3 text-white/90">
+                        <Check className="h-5 w-5 text-white" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Link 
+                    href="/waiver"
+                    className="mt-8 block w-full py-4 text-center bg-white text-[#1F2A44] font-semibold rounded-xl hover:bg-white/90 transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </Container>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          TESTIMONIAL - Large quote
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="py-24 md:py-32">
+        <Container>
+          <FadeIn direction="up" className="max-w-5xl mx-auto">
             <div className="flex gap-1 mb-8">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-brand text-brand" />
+                <Star key={i} className="h-6 w-6 fill-[#FFC857] text-[#FFC857]" />
               ))}
             </div>
-            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-serif italic leading-tight">
+            
+            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-white/90">
               "My son has completely transformed. He's more confident, more focused, and actually looks forward to
-              <span className="text-brand not-italic font-display font-black"> 'martial arts day'</span> at daycare."
+              <span className="text-[#2EC4B6] font-black"> 'martial arts day'</span> at daycare."
             </blockquote>
-            <div className="mt-12">
-              <div className="text-lg font-semibold">Sarah M.</div>
-              <div className="text-background/50">Parent, Sunshine Daycare</div>
+            
+            <div className="mt-12 flex items-center gap-4">
+              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#2EC4B6] to-[#F7931E]" />
+              <div>
+                <div className="text-lg font-semibold text-white">Sarah M.</div>
+                <div className="text-white/50">Parent, Sunshine Daycare</div>
+              </div>
             </div>
           </FadeIn>
         </Container>
       </section>
 
-      {/* Final CTA */}
-      <section className="relative py-20 md:py-28">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          FINAL CTA - Full bleed with gradient
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6] via-[#1F8A80] to-[#1F2A44]" />
         <div className="absolute inset-0">
-          <Image
-            src="/images/highlights/LittleGrapplers-05858.jpg"
-            alt="Kids training"
-            fill
-            className="object-cover opacity-20"
-          />
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#FFC857]/20 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#FF5A5F]/20 rounded-full blur-[120px]" />
         </div>
 
         <Container className="relative z-10 text-center">
           <FadeIn direction="up">
-            <h2 className="text-4xl md:text-5xl lg:text-7xl font-display font-black leading-tight">
-              Ready to <span className="font-serif italic font-normal text-brand">empower</span><br />
+            <h2 className="text-5xl md:text-6xl lg:text-8xl font-black leading-[0.85] text-white">
+              Ready to
+              <br />
+              <span className="text-[#FFC857]">empower</span>
+              <br />
               your child?
             </h2>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto">
+            
+            <p className="mt-8 text-xl text-white/70 max-w-xl mx-auto">
               Join families across Dallas who've discovered the power of BJJ for their kids.
             </p>
           </FadeIn>
-          <FadeIn direction="up" delay={0.15} className="mt-12">
-            <Button size="xl" variant="brand" className="text-lg px-8" asChild>
-              <Link href="/inquiry">
-                Get Started
-                <ArrowRight className="h-5 w-5" />
+          
+          <FadeIn direction="up" delay={0.2}>
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/waiver"
+                className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-[#1F2A44] font-bold text-lg rounded-full hover:scale-105 transition-transform"
+              >
+                Start Your Journey
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-            </Button>
+              <Link 
+                href="/contact"
+                className="inline-flex items-center gap-3 px-10 py-5 border-2 border-white/30 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-colors"
+              >
+                Contact Us
+              </Link>
+            </div>
           </FadeIn>
         </Container>
       </section>

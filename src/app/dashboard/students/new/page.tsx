@@ -1,22 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, Calendar, Save } from 'lucide-react';
+import { ArrowLeft, User, Save, MapPin } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+interface Location {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function NewStudentPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dateOfBirth: '',
+    locationId: '',
   });
+
+  // Fetch locations on mount
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await fetch('/api/locations/list');
+        if (res.ok) {
+          const data = await res.json();
+          setLocations(data.locations || []);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +123,33 @@ export default function NewStudentPage() {
               />
               <p className="text-xs text-muted-foreground">
                 This helps us place your child in the right age group
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Select
+                value={formData.locationId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, locationId: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        {location.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select which location this student attends
               </p>
             </div>
 
