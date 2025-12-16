@@ -49,6 +49,11 @@ const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
     icon: FileCheck,
   },
   {
+    label: 'Checkout',
+    href: '/dashboard/checkout' as Route,
+    icon: CreditCard,
+  },
+  {
     label: 'Billing',
     href: '/dashboard/billing' as Route,
     icon: CreditCard,

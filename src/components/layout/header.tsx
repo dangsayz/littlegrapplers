@@ -36,7 +36,7 @@ function LocationDropdown() {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors"
+        className="flex items-center gap-1.5 text-sm font-semibold text-[#1F2A44]/70 hover:text-[#1F2A44] transition-colors"
       >
         Dashboard
         <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-200', isOpen && 'rotate-180')} />
@@ -45,8 +45,8 @@ function LocationDropdown() {
       <div
         className={cn(
           'absolute right-0 top-full mt-4 w-64 rounded-2xl overflow-hidden',
-          'bg-[#141414] border border-white/10',
-          'shadow-2xl',
+          'bg-white border border-[#1F2A44]/10',
+          'shadow-xl shadow-black/10',
           'transition-all duration-300',
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
         )}
@@ -57,15 +57,15 @@ function LocationDropdown() {
               <Link
                 href="/dashboard/admin"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
               >
                 <Shield className="h-4 w-4 text-[#2EC4B6]" />
                 Admin Panel
               </Link>
-              <div className="my-2 border-t border-white/10" />
+              <div className="my-2 border-t border-[#1F2A44]/10" />
             </>
           )}
-          <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+          <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40">
             Locations
           </p>
           {LOCATIONS.map((location) => (
@@ -73,7 +73,7 @@ function LocationDropdown() {
               key={location.id}
               href={`/community/${location.slug}`}
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
             >
               <MapPin className="h-4 w-4 text-[#2EC4B6]" />
               {location.name}
@@ -111,78 +111,68 @@ export function Header() {
     <>
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-          isScrolled ? 'py-3' : 'py-4'
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+          isScrolled ? 'py-2' : 'py-4'
         )}
       >
-        {/* Background blur layer - always visible with subtle background */}
+        {/* Light glass background */}
         <div 
           className={cn(
-            'absolute inset-0 transition-all duration-500',
-            isScrolled 
-              ? 'bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10' 
-              : 'bg-[#0a0a0a]/60 backdrop-blur-md'
+            'absolute inset-0 transition-all duration-300',
+            'bg-white/95 backdrop-blur-2xl',
+            isScrolled && 'shadow-lg shadow-black/5'
           )} 
         />
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-          <nav className="flex items-center justify-between">
+          <nav className="flex items-center justify-between h-14">
             
             {/* Logo */}
             <Link href="/" className="relative z-10 flex items-center gap-3 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2EC4B6] group-hover:scale-105 transition-transform">
-                <span className="text-lg font-black text-white">LG</span>
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] shadow-lg shadow-[#2EC4B6]/30 group-hover:shadow-[#2EC4B6]/50 group-hover:scale-105 transition-all duration-300">
+                <span className="text-base font-black text-white tracking-tight">LG</span>
               </div>
-              <span className="hidden sm:block text-lg font-bold text-white">
-                Little Grapplers
-              </span>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-base font-bold text-[#1F2A44] leading-none">Little Grapplers</span>
+                <span className="text-[10px] text-[#2EC4B6] font-semibold tracking-wider uppercase">Youth BJJ</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation - Center */}
-            <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-              {NAV_LINKS.map((link) => {
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="group relative px-4 py-2"
-                  >
-                    <span
+            <div className="hidden lg:flex items-center">
+              <div className="flex items-center gap-1">
+                {NAV_LINKS.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
                       className={cn(
-                        'text-sm font-medium transition-colors duration-300',
-                        isActive ? 'text-white' : 'text-white/50 group-hover:text-white'
+                        'relative px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200',
+                        isActive 
+                          ? 'text-[#2EC4B6] bg-[#2EC4B6]/10' 
+                          : 'text-[#1F2A44]/70 hover:text-[#1F2A44] hover:bg-[#1F2A44]/5'
                       )}
                     >
                       {link.label}
-                    </span>
-                    {/* Animated underline */}
-                    <span
-                      className={cn(
-                        'absolute bottom-0 left-4 right-4 h-[2px] bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] rounded-full transition-all duration-300 origin-left',
-                        isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                      )}
-                    />
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Desktop CTA - Right */}
-            <div className="hidden lg:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-4">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="text-sm font-medium text-white/50 hover:text-white transition-colors">
-                    Sign In
+                  <button className="px-4 py-2 text-sm font-semibold text-[#1F2A44]/60 hover:text-[#1F2A44] transition-colors">
+                    Log in
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#0a0a0a] text-sm font-semibold overflow-hidden transition-transform hover:scale-105">
-                    <span className="relative z-10">Get Started</span>
-                    <ArrowUpRight className="h-4 w-4 relative z-10 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span>Get Started</span>
+                  <button className="group relative px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-sm font-bold text-white shadow-lg shadow-[#F7931E]/30 hover:shadow-[#F7931E]/50 transition-all duration-300 hover:scale-105">
+                    <span className="flex items-center gap-1.5">
+                      Get Started
                       <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>
                   </button>
@@ -194,7 +184,7 @@ export function Header() {
                   afterSignOutUrl="/"
                   appearance={{
                     elements: {
-                      avatarBox: 'w-9 h-9 ring-2 ring-white/10 hover:ring-[#2EC4B6]/50 transition-all',
+                      avatarBox: 'w-9 h-9 ring-2 ring-[#2EC4B6]/20 hover:ring-[#2EC4B6]/50 transition-all',
                     },
                   }}
                 />
@@ -204,25 +194,25 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden relative z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="lg:hidden relative z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-[#1F2A44]/10 bg-[#1F2A44]/5 hover:bg-[#1F2A44]/10 transition-colors"
               aria-label="Toggle menu"
             >
               <div className="relative w-5 h-4">
                 <span 
                   className={cn(
-                    'absolute left-0 w-5 h-[2px] bg-white transition-all duration-300',
+                    'absolute left-0 w-5 h-[2px] bg-[#1F2A44] rounded-full transition-all duration-300',
                     isMobileMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'
                   )} 
                 />
                 <span 
                   className={cn(
-                    'absolute left-0 top-1/2 -translate-y-1/2 w-5 h-[2px] bg-white transition-all duration-300',
+                    'absolute left-0 top-1/2 -translate-y-1/2 w-5 h-[2px] bg-[#1F2A44] rounded-full transition-all duration-300',
                     isMobileMenuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
                   )} 
                 />
                 <span 
                   className={cn(
-                    'absolute left-0 w-5 h-[2px] bg-white transition-all duration-300',
+                    'absolute left-0 w-5 h-[2px] bg-[#1F2A44] rounded-full transition-all duration-300',
                     isMobileMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'
                   )} 
                 />
@@ -235,7 +225,7 @@ export function Header() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300',
+          'fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden transition-opacity duration-300',
           isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -244,7 +234,7 @@ export function Header() {
       {/* Mobile Menu Panel */}
       <div
         className={cn(
-          'fixed top-0 right-0 bottom-0 z-40 w-full max-w-sm bg-[#0a0a0a] lg:hidden transition-transform duration-500 ease-out',
+          'fixed top-0 right-0 bottom-0 z-40 w-full max-w-sm bg-white lg:hidden transition-transform duration-500 ease-out shadow-2xl',
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
@@ -258,10 +248,10 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'block px-4 py-4 rounded-xl text-lg font-medium transition-all',
+                    'block px-4 py-4 rounded-xl text-lg font-semibold transition-all',
                     isActive 
                       ? 'bg-[#2EC4B6]/10 text-[#2EC4B6]' 
-                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                      : 'text-[#1F2A44]/70 hover:bg-[#1F2A44]/5 hover:text-[#1F2A44]'
                   )}
                   style={{ transitionDelay: isMobileMenuOpen ? `${i * 50}ms` : '0ms' }}
                 >
@@ -272,34 +262,34 @@ export function Header() {
           </nav>
 
           {/* Mobile CTAs */}
-          <div className="space-y-3 pt-6 border-t border-white/10">
+          <div className="space-y-3 pt-6 border-t border-[#1F2A44]/10">
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="w-full py-3.5 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors">
+                <button className="w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors">
                   Sign In
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="w-full py-3.5 rounded-xl bg-[#2EC4B6] text-white font-semibold hover:bg-[#2EC4B6]/90 transition-colors">
+                <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all">
                   Get Started
                 </button>
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-3">
                 Locations
               </p>
               {LOCATIONS.map((location) => (
                 <Link
                   key={location.id}
                   href={`/community/${location.slug}`}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
                 >
                   <MapPin className="h-4 w-4 text-[#2EC4B6]" />
                   {location.name}
                 </Link>
               ))}
-              <div className="flex items-center gap-3 pt-4 mt-4 border-t border-white/10">
+              <div className="flex items-center gap-3 pt-4 mt-4 border-t border-[#1F2A44]/10">
                 <UserButton
                   afterSignOutUrl="/"
                   appearance={{
@@ -308,7 +298,7 @@ export function Header() {
                     },
                   }}
                 />
-                <span className="text-sm text-white/50">Manage Account</span>
+                <span className="text-sm text-[#1F2A44]/60">Manage Account</span>
               </div>
             </SignedIn>
           </div>

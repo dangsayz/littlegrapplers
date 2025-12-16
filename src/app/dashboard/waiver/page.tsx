@@ -28,11 +28,23 @@ export default async function DashboardWaiverPage() {
     return <WaiverSignedView waiver={existingWaiver} />;
   }
 
+  // Fetch locations for the form
+  const { data: locationsData } = await supabaseAdmin
+    .from('locations')
+    .select('id, name')
+    .order('name');
+
+  const locations = (locationsData || []).map((loc) => ({
+    id: loc.id,
+    name: loc.name,
+  }));
+
   return (
     <WaiverSigningForm
       clerkUserId={userId}
       userEmail={userEmail || ''}
       userName={userName}
+      locations={locations}
     />
   );
 }

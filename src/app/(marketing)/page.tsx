@@ -1,117 +1,288 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield, Sparkles } from 'lucide-react';
 import { Container } from '@/components/layout/container';
-import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
+import { FadeIn, StaggerContainer, StaggerItem, HeroText, FadeInCTA } from '@/components/ui/motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 
 export default function HomePage() {
   return (
-    <div className="bg-[#0a0a0a] text-white selection:bg-[#2EC4B6] selection:text-black overflow-x-hidden">
+    <div className="bg-[#F7F9F9] text-[#1F2A44] selection:bg-[#2EC4B6] selection:text-white overflow-x-hidden">
       
       {/* ═══════════════════════════════════════════════════════════════════════
-          HERO - Massive typography with gradient mesh background
+          HERO - Cinematic, Breathtaking, Award-Winning Design
       ═══════════════════════════════════════════════════════════════════════ */}
       <section className="relative min-h-screen flex flex-col justify-between overflow-hidden">
-        {/* Animated gradient mesh */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[#0a0a0a]" />
-          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#2EC4B6]/20 blur-[150px] animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#F7931E]/15 blur-[130px] animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-[#FF5A5F]/10 blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+        
+        {/* Video Background with Cinematic Overlay */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover scale-105"
+            poster="/images/logo.jpg"
+          >
+            <source src="/videos/hero-video.mp4" type="video/mp4" />
+          </video>
+          {/* Multi-layer gradient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1F2A44]/70 via-[#1F2A44]/50 to-[#1F2A44]/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6]/20 via-transparent to-[#F7931E]/20" />
+          {/* Animated grain texture for premium feel */}
+          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat' }} />
         </div>
 
-        <div className="relative z-10 flex-1 flex items-center pt-32">
+        {/* Floating Animated Orbs - Creates depth and magic */}
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+          {/* Large primary orb */}
+          <motion.div
+            className="absolute top-[10%] left-[5%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(46,196,182,0.4) 0%, rgba(46,196,182,0) 70%)',
+              filter: 'blur(60px)',
+            }}
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+          {/* Secondary warm orb */}
+          <motion.div
+            className="absolute bottom-[15%] right-[10%] w-[35vw] h-[35vw] max-w-[400px] max-h-[400px] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(247,147,30,0.35) 0%, rgba(247,147,30,0) 70%)',
+              filter: 'blur(50px)',
+            }}
+            animate={{
+              x: [0, -40, 0],
+              y: [0, -50, 0],
+              scale: [1, 1.15, 1],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 2,
+            }}
+          />
+          {/* Accent golden orb */}
+          <motion.div
+            className="absolute top-[50%] right-[25%] w-[20vw] h-[20vw] max-w-[250px] max-h-[250px] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(255,200,87,0.3) 0%, rgba(255,200,87,0) 70%)',
+              filter: 'blur(40px)',
+            }}
+            animate={{
+              x: [0, 30, 0],
+              y: [0, -40, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 4,
+            }}
+          />
+          {/* Small floating particles */}
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full bg-white/20"
+              style={{
+                left: `${15 + i * 15}%`,
+                top: `${20 + (i % 3) * 25}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0.2, 0.6, 0.2],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: 4 + i * 0.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: i * 0.8,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Main Hero Content */}
+        <div className="relative z-10 flex-1 flex items-center pt-32 pb-8">
           <Container>
-            <div className="max-w-[90vw]">
-              <FadeIn direction="up">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="h-px w-12 bg-[#2EC4B6]" />
-                  <span className="text-[#2EC4B6] text-sm font-medium tracking-[0.2em] uppercase">Youth BJJ • Dallas-Fort Worth</span>
+            <div className="max-w-[95vw] lg:max-w-[85vw]">
+              
+              {/* Animated badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="mb-8"
+              >
+                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                  <motion.div
+                    className="w-2 h-2 rounded-full bg-[#2EC4B6]"
+                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                  <span className="text-white/90 text-sm font-semibold tracking-wide">Youth BJJ</span>
+                  <div className="w-px h-4 bg-white/30" />
+                  <span className="text-[#8FE3CF] text-sm font-bold tracking-wider">Dallas-Fort Worth</span>
                 </div>
-              </FadeIn>
+              </motion.div>
 
-              <FadeIn direction="up" delay={0.1}>
-                <h1 className="text-[clamp(3rem,12vw,10rem)] font-black leading-[0.85] tracking-[-0.04em]">
-                  <span className="block">Build</span>
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6]">
-                    confidence.
-                  </span>
-                </h1>
-              </FadeIn>
+              {/* Cinematic Hero Text with Character Animation */}
+              <HeroText
+                className="text-[clamp(3.5rem,14vw,12rem)] font-black leading-[0.85] tracking-[-0.04em]"
+                lines={[
+                  { text: 'Build', className: 'text-white drop-shadow-2xl' },
+                  { text: 'confidence.', className: 'text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6] animate-gradient-x' },
+                ]}
+              />
 
-              <FadeIn direction="up" delay={0.2}>
-                <div className="mt-6 ml-[5vw] md:ml-[15vw]">
-                  <h2 className="text-[clamp(2rem,8vw,6rem)] font-black leading-[0.9] tracking-[-0.03em] text-white/90">
-                    Build <span className="text-[#FFC857]">character.</span>
-                  </h2>
-                </div>
-              </FadeIn>
+              {/* Secondary headline with stagger */}
+              <motion.div
+                className="mt-4 ml-[2vw] md:ml-[8vw]"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <h2 className="text-[clamp(2.5rem,10vw,8rem)] font-black leading-[0.85] tracking-[-0.03em]">
+                  <span className="text-white/90 drop-shadow-lg">Build </span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] animate-gradient-x">character.</span>
+                </h2>
+              </motion.div>
 
-              <FadeIn direction="up" delay={0.3}>
-                <div className="mt-16 flex flex-col md:flex-row md:items-end gap-8 md:gap-16">
-                  <p className="max-w-md text-lg md:text-xl text-white/50 leading-relaxed">
+              {/* Tagline and CTAs */}
+              <FadeInCTA delay={1.2} className="mt-12 md:mt-16">
+                <div className="flex flex-col lg:flex-row lg:items-end gap-8 lg:gap-16">
+                  <motion.p 
+                    className="max-w-lg text-lg md:text-xl text-white/70 leading-relaxed font-medium"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 1.4 }}
+                  >
                     Empowering kids ages 3-7 through Brazilian Jiu-Jitsu at partner daycares across Dallas.
-                  </p>
+                    <span className="block mt-2 text-[#8FE3CF] font-semibold">A kid who understands their own potential is unstoppable.</span>
+                  </motion.p>
                   
-                  <div className="flex items-center gap-4">
+                  <motion.div 
+                    className="flex flex-wrap items-center gap-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 1.6 }}
+                  >
+                    {/* Primary CTA - Magnetic hover effect */}
                     <Link 
                       href="/waiver"
-                      className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-transform hover:scale-105"
+                      className="group relative inline-flex items-center gap-3 px-8 py-4 text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
                     >
-                      <span className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <span className="relative group-hover:text-white transition-colors">Enroll Now</span>
-                      <ArrowUpRight className="h-5 w-5 relative transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+                      {/* Animated gradient background */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-gradient-x" />
+                      {/* Glow effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] blur-xl" />
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                      </div>
+                      <span className="relative z-10">Enroll Now</span>
+                      <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </Link>
                     
+                    {/* Secondary CTA - Play button with pulse */}
                     <Link 
                       href="#story"
-                      className="group flex items-center gap-3 px-6 py-4 text-white/70 hover:text-white transition-colors"
+                      className="group flex items-center gap-3 px-4 py-3 text-white/80 hover:text-white transition-colors duration-300"
                     >
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 group-hover:border-[#2EC4B6] group-hover:bg-[#2EC4B6]/10 transition-all">
-                        <Play className="h-4 w-4 ml-0.5" />
+                      <div className="relative flex h-14 w-14 items-center justify-center">
+                        {/* Animated pulse rings */}
+                        <div className="absolute inset-0 rounded-full border-2 border-[#2EC4B6]/40 animate-ping opacity-30" />
+                        <div className="absolute inset-1 rounded-full border border-[#2EC4B6]/30 animate-pulse" />
+                        {/* Main button */}
+                        <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/30 group-hover:bg-[#2EC4B6] group-hover:border-[#2EC4B6] transition-all duration-300 shadow-lg">
+                          <Play className="h-5 w-5 ml-0.5 text-white" fill="currentColor" />
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">Watch Story</span>
+                      <span className="text-sm font-semibold tracking-wide">Watch Story</span>
                     </Link>
-                  </div>
+                  </motion.div>
                 </div>
-              </FadeIn>
+              </FadeInCTA>
             </div>
           </Container>
         </div>
 
-        {/* Bottom stats bar */}
-        <FadeIn direction="up" delay={0.4}>
-          <div className="relative z-10 border-t border-white/10">
+        {/* Bottom Stats Bar - Glassmorphism */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10"
+        >
+          <div className="border-t border-white/10 bg-white/5 backdrop-blur-xl">
             <Container>
-              <div className="py-8 flex flex-wrap items-center justify-between gap-8">
-                <div className="flex items-center gap-12 md:gap-20">
-                  <div>
-                    <div className="text-4xl md:text-5xl font-black text-[#2EC4B6]">500+</div>
-                    <div className="text-sm text-white/40 mt-1">Kids Trained</div>
-                  </div>
-                  <div>
-                    <div className="text-4xl md:text-5xl font-black text-[#F7931E]">11</div>
-                    <div className="text-sm text-white/40 mt-1">Years Experience</div>
-                  </div>
-                  <div>
-                    <div className="text-4xl md:text-5xl font-black text-[#FFC857]">15+</div>
-                    <div className="text-sm text-white/40 mt-1">Partner Daycares</div>
-                  </div>
+              <div className="py-6 md:py-8 flex flex-wrap items-center justify-between gap-6 md:gap-8">
+                <div className="flex items-center gap-8 md:gap-16 lg:gap-24">
+                  {/* Animated Counter Stats */}
+                  {[
+                    { value: '500+', label: 'Kids Trained', color: '#2EC4B6' },
+                    { value: '11', label: 'Years Experience', color: '#F7931E' },
+                    { value: '15+', label: 'Partner Daycares', color: '#FF5A5F' },
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 2 + index * 0.15 }}
+                      className="relative group"
+                    >
+                      <div 
+                        className="text-4xl md:text-5xl lg:text-6xl font-black transition-transform duration-300 group-hover:scale-110"
+                        style={{ color: stat.color }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div className="text-xs md:text-sm text-white/50 font-medium mt-1 tracking-wide">{stat.label}</div>
+                      {/* Hover glow */}
+                      <div 
+                        className="absolute -inset-4 rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl"
+                        style={{ background: stat.color }}
+                      />
+                    </motion.div>
+                  ))}
                 </div>
                 
-                <button 
+                {/* Scroll indicator */}
+                <motion.button 
                   onClick={() => document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="hidden md:flex items-center gap-2 text-white/40 hover:text-white transition-colors"
+                  className="hidden md:flex items-center gap-3 text-white/40 hover:text-white transition-colors duration-300 group"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 2.5 }}
                 >
-                  <span className="text-sm">Scroll to explore</span>
-                  <ChevronDown className="h-4 w-4 animate-bounce" />
-                </button>
+                  <span className="text-sm font-medium tracking-wide">Scroll to explore</span>
+                  <motion.div
+                    animate={{ y: [0, 6, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </motion.div>
+                </motion.button>
               </div>
             </Container>
           </div>
-        </FadeIn>
+        </motion.div>
       </section>
 
       
@@ -123,24 +294,25 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Large mission card */}
             <FadeIn direction="up" className="lg:col-span-7">
-              <div className="relative h-full min-h-[400px] rounded-3xl bg-gradient-to-br from-[#1F2A44] to-[#0a0f1a] p-8 md:p-12 overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#2EC4B6]/10 rounded-full blur-[80px] group-hover:bg-[#2EC4B6]/20 transition-all duration-700" />
+              <div className="relative h-full min-h-[400px] rounded-3xl bg-gradient-to-br from-[#2EC4B6] to-[#1a9e92] p-8 md:p-12 overflow-hidden group shadow-2xl shadow-[#2EC4B6]/20">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] group-hover:bg-white/20 transition-all duration-700" />
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#8FE3CF]/30 rounded-full blur-[60px]" />
                 
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   <div>
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#2EC4B6]/20 text-[#2EC4B6] text-xs font-bold uppercase tracking-wider mb-6">
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider mb-6">
                       Our Mission
                     </span>
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9]">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-white">
                       Empower
                       <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF]">
+                      <span className="text-[#FFC857]">
                         your kids.
                       </span>
                     </h2>
                   </div>
                   
-                  <p className="mt-8 text-lg text-white/50 max-w-md leading-relaxed">
+                  <p className="mt-8 text-lg text-white/80 max-w-md leading-relaxed">
                     We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
                   </p>
                 </div>
@@ -193,11 +365,11 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           BENEFITS - Grid layout (no horizontal scroll)
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32">
+      <section className="py-24 md:py-32 bg-white">
         <Container>
           <FadeIn direction="up" className="mb-16">
-            <span className="text-[#2EC4B6] text-sm font-medium tracking-[0.2em] uppercase">The Art</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9]">
+            <span className="text-[#2EC4B6] text-sm font-bold tracking-[0.2em] uppercase">The Art</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-[#1F2A44]">
               What is
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] to-[#FFC857]">
@@ -215,25 +387,25 @@ export default function HomePage() {
               { icon: Shield, title: 'Bully-Proof Skills', desc: 'Confidence to handle any situation', color: '#FFC857' },
             ].map((item) => (
               <StaggerItem key={item.title}>
-                <div className="group relative h-full rounded-3xl bg-[#1F2A44] p-8 overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="group relative h-full rounded-3xl bg-[#F7F9F9] border border-[#1F2A44]/10 p-8 overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300">
                   <div 
-                    className="absolute top-0 left-0 w-full h-1"
+                    className="absolute top-0 left-0 w-full h-1 rounded-t-3xl"
                     style={{ backgroundColor: item.color }}
                   />
                   <div 
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px] opacity-0 group-hover:opacity-30 transition-opacity duration-500"
+                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px] opacity-0 group-hover:opacity-20 transition-opacity duration-500"
                     style={{ backgroundColor: item.color }}
                   />
                   
                   <div 
                     className="flex h-16 w-16 items-center justify-center rounded-2xl mb-6"
-                    style={{ backgroundColor: `${item.color}20` }}
+                    style={{ backgroundColor: `${item.color}15` }}
                   >
                     <item.icon className="h-8 w-8" style={{ color: item.color }} />
                   </div>
                   
-                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-white/50 text-sm">{item.desc}</p>
+                  <h3 className="text-xl font-bold text-[#1F2A44] mb-3">{item.title}</h3>
+                  <p className="text-[#1F2A44]/60 text-sm">{item.desc}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -299,11 +471,11 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           HOW IT WORKS - Large numbered steps
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32">
+      <section className="pt-24 md:pt-32 pb-12 md:pb-16 bg-[#F7F9F9]">
         <Container>
           <FadeIn direction="up" className="text-center mb-20">
-            <span className="text-[#F7931E] text-sm font-medium tracking-[0.2em] uppercase">How It Works</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black">
+            <span className="text-[#F7931E] text-sm font-bold tracking-[0.2em] uppercase">How It Works</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black text-[#1F2A44]">
               Three simple <span className="text-[#2EC4B6]">steps.</span>
             </h2>
           </FadeIn>
@@ -315,19 +487,19 @@ export default function HomePage() {
               { num: '03', title: 'Train', desc: 'Classes at daycare + online video library access.', color: '#FFC857' },
             ].map((step, i) => (
               <FadeIn key={step.num} direction="up" delay={i * 0.1}>
-                <div className="group relative border-b border-white/10 py-12 md:py-16 hover:bg-white/[0.02] transition-colors">
+                <div className="group relative border-b border-[#1F2A44]/10 py-12 md:py-16 hover:bg-white/50 transition-colors rounded-2xl">
                   <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
                     <div 
-                      className="text-[8rem] md:text-[10rem] font-black leading-none opacity-20 group-hover:opacity-40 transition-opacity"
+                      className="text-[8rem] md:text-[10rem] font-black leading-none opacity-30 group-hover:opacity-50 transition-opacity"
                       style={{ color: step.color }}
                     >
                       {step.num}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-3xl md:text-4xl font-bold text-white mb-3">{step.title}</h3>
-                      <p className="text-lg text-white/50 max-w-md">{step.desc}</p>
+                      <h3 className="text-3xl md:text-4xl font-bold text-[#1F2A44] mb-3">{step.title}</h3>
+                      <p className="text-lg text-[#1F2A44]/60 max-w-md">{step.desc}</p>
                     </div>
-                    <ArrowRight className="hidden md:block h-8 w-8 text-white/20 group-hover:text-white/60 group-hover:translate-x-2 transition-all" />
+                    <ArrowRight className="hidden md:block h-8 w-8 text-[#1F2A44]/20 group-hover:text-[#2EC4B6] group-hover:translate-x-2 transition-all" />
                   </div>
                 </div>
               </FadeIn>
@@ -339,14 +511,14 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           PRICING - Modern cards
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-[#1F2A44]">
+      <section className="py-16 md:py-24 bg-white">
         <Container>
           <FadeIn direction="up" className="text-center mb-16">
-            <span className="text-[#FFC857] text-sm font-medium tracking-[0.2em] uppercase">Membership</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black">
+            <span className="text-[#F7931E] text-sm font-bold tracking-[0.2em] uppercase">Membership</span>
+            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black text-[#1F2A44]">
               Simple, transparent <span className="text-[#2EC4B6]">pricing.</span>
             </h2>
-            <p className="mt-6 text-lg text-white/50 max-w-xl mx-auto">
+            <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-xl mx-auto">
               Choose the plan that fits your family. No hidden fees.
             </p>
           </FadeIn>
@@ -354,19 +526,19 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* 3 Month Plan */}
             <FadeIn direction="up">
-              <div className="relative rounded-3xl bg-[#0a0f1a] border border-white/10 p-8 md:p-10 overflow-hidden group hover:border-[#2EC4B6]/50 transition-colors">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-[#2EC4B6]/5 rounded-full blur-[60px] group-hover:bg-[#2EC4B6]/10 transition-colors" />
+              <div className="relative rounded-3xl bg-[#F7F9F9] border border-[#1F2A44]/10 p-8 md:p-10 overflow-hidden group hover:border-[#2EC4B6]/50 hover:shadow-xl transition-all">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#2EC4B6]/10 rounded-full blur-[60px] group-hover:bg-[#2EC4B6]/20 transition-colors" />
                 
                 <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white">3 Months Paid-In-Full</h3>
+                  <h3 className="text-xl font-bold text-[#1F2A44]">3 Months Paid-In-Full</h3>
                   <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-5xl font-black text-white">$150</span>
-                    <span className="text-white/40">one time</span>
+                    <span className="text-5xl font-black text-[#1F2A44]">$150</span>
+                    <span className="text-[#1F2A44]/50">one time</span>
                   </div>
                   
                   <ul className="mt-8 space-y-4">
                     {['Full access for 3 months', 'No recurring charges', 'All membership benefits'].map((feature) => (
-                      <li key={feature} className="flex items-center gap-3 text-white/70">
+                      <li key={feature} className="flex items-center gap-3 text-[#1F2A44]/70">
                         <Check className="h-5 w-5 text-[#2EC4B6]" />
                         {feature}
                       </li>
@@ -375,7 +547,7 @@ export default function HomePage() {
                   
                   <Link 
                     href="/waiver"
-                    className="mt-8 block w-full py-4 text-center bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-colors"
+                    className="mt-8 block w-full py-4 text-center bg-[#1F2A44]/10 hover:bg-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-xl transition-colors"
                   >
                     Get Started
                   </Link>
@@ -423,7 +595,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════════════
           TESTIMONIAL - Large quote
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32">
+      <section className="py-24 md:py-32 bg-[#F7F9F9]">
         <Container>
           <FadeIn direction="up" className="max-w-5xl mx-auto">
             <div className="flex gap-1 mb-8">
@@ -432,7 +604,7 @@ export default function HomePage() {
               ))}
             </div>
             
-            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-white/90">
+            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-[#1F2A44]">
               "My son has completely transformed. He's more confident, more focused, and actually looks forward to
               <span className="text-[#2EC4B6] font-black"> 'martial arts day'</span> at daycare."
             </blockquote>
@@ -440,8 +612,8 @@ export default function HomePage() {
             <div className="mt-12 flex items-center gap-4">
               <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#2EC4B6] to-[#F7931E]" />
               <div>
-                <div className="text-lg font-semibold text-white">Sarah M.</div>
-                <div className="text-white/50">Parent, Sunshine Daycare</div>
+                <div className="text-lg font-semibold text-[#1F2A44]">Sarah M.</div>
+                <div className="text-[#1F2A44]/50">Parent, Sunshine Daycare</div>
               </div>
             </div>
           </FadeIn>

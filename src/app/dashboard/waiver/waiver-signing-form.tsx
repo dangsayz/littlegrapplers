@@ -1,14 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, Shield, Camera, CreditCard } from 'lucide-react';
+import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, Shield, Camera, CreditCard, MapPin } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+interface Location {
+  id: string;
+  name: string;
+}
 
 interface WaiverSigningFormProps {
   clerkUserId: string;
   userEmail: string;
   userName: string;
+  locations?: Location[];
 }
 
 interface FormData {
@@ -19,12 +25,13 @@ interface FormData {
   childDateOfBirth: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
+  locationId: string;
   digitalSignature: string;
   photoMediaConsent: boolean;
   agreedToTerms: boolean;
 }
 
-export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSigningFormProps) {
+export function WaiverSigningForm({ clerkUserId, userEmail, userName, locations = [] }: WaiverSigningFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     guardianFullName: userName,
@@ -34,6 +41,7 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
     childDateOfBirth: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
+    locationId: '',
     digitalSignature: '',
     photoMediaConsent: false,
     agreedToTerms: false,
@@ -42,8 +50,9 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -72,10 +81,10 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
       }
 
       setSubmitStatus('success');
-      // Delay refresh to show success message
+      // Redirect to checkout after showing success message
       setTimeout(() => {
-        router.refresh();
-      }, 3000);
+        router.push('/dashboard/checkout');
+      }, 2000);
     } catch (error) {
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'An error occurred');
@@ -93,18 +102,19 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
             <Check className="h-10 w-10 text-brand" />
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">
-            Thank You!
+            Waiver Signed!
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Your enrollment waiver has been successfully submitted for{' '}
-            <span className="font-medium text-foreground">{formData.childFullName}</span>.
+            Great! The waiver for{' '}
+            <span className="font-medium text-foreground">{formData.childFullName}</span>{' '}
+            has been submitted.
           </p>
           <p className="mt-2 text-muted-foreground">
-            The admin has been notified and will be in touch soon with next steps.
+            Next step: Choose a membership plan to complete enrollment.
           </p>
           <div className="mt-8 rounded-xl border border-brand/20 bg-brand/5 p-4">
             <p className="text-sm text-muted-foreground">
-              Redirecting to your waiver details...
+              Redirecting to checkout...
             </p>
           </div>
         </div>
@@ -279,6 +289,38 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
           </CardContent>
         </Card>
 
+        {/* Location Selection */}
+        {locations.length > 0 && (
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-brand" />
+                Daycare Location
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <label htmlFor="locationId" className="mb-2 block text-sm font-medium">
+                Select your child's daycare location <span className="text-coral">*</span>
+              </label>
+              <select
+                id="locationId"
+                name="locationId"
+                value={formData.locationId}
+                onChange={handleChange}
+                required
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              >
+                <option value="">Select a location...</option>
+                {locations.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Emergency Contact */}
         <Card>
           <CardHeader className="pb-4">
@@ -394,7 +436,7 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName }: WaiverSi
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || !formData.agreedToTerms || !formData.digitalSignature || !formData.childFullName}
+          disabled={isSubmitting || !formData.agreedToTerms || !formData.digitalSignature || !formData.childFullName || (locations.length > 0 && !formData.locationId)}
           className="w-full rounded-full bg-brand py-4 font-medium text-white transition-all hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? (

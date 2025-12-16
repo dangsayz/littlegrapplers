@@ -12,6 +12,7 @@ interface WaiverSubmission {
   childDateOfBirth?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
+  locationId?: string;
   digitalSignature: string;
   photoMediaConsent: boolean;
   agreedToTerms: boolean;
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
         child_date_of_birth: body.childDateOfBirth || null,
         emergency_contact_name: body.emergencyContactName || null,
         emergency_contact_phone: body.emergencyContactPhone || null,
+        location_id: body.locationId || null,
         digital_signature: body.digitalSignature,
         photo_media_consent: body.photoMediaConsent,
         agreed_to_terms: body.agreedToTerms,

@@ -172,6 +172,40 @@ const config: Config = {
   				to: {
   					transform: 'translateX(100%)'
   				}
+  			},
+  			'gradient-x': {
+  				'0%, 100%': {
+  					'background-position': '0% 50%'
+  				},
+  				'50%': {
+  					'background-position': '100% 50%'
+  				}
+  			},
+  			'float': {
+  				'0%, 100%': {
+  					transform: 'translateY(0px)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-20px)'
+  				}
+  			},
+  			'shimmer': {
+  				'0%': {
+  					transform: 'translateX(-100%)'
+  				},
+  				'100%': {
+  					transform: 'translateX(100%)'
+  				}
+  			},
+  			'glow-pulse': {
+  				'0%, 100%': {
+  					opacity: '0.4',
+  					transform: 'scale(1)'
+  				},
+  				'50%': {
+  					opacity: '0.8',
+  					transform: 'scale(1.05)'
+  				}
   			}
   		},
   		animation: {
@@ -180,7 +214,11 @@ const config: Config = {
   			'fade-in': 'fade-in 0.3s ease-out',
   			'fade-up': 'fade-up 0.4s ease-out',
   			'slide-in-right': 'slide-in-right 0.3s ease-out',
-  			'slide-out-right': 'slide-out-right 0.3s ease-out'
+  			'slide-out-right': 'slide-out-right 0.3s ease-out',
+  			'gradient-x': 'gradient-x 3s ease infinite',
+  			'float': 'float 6s ease-in-out infinite',
+  			'shimmer': 'shimmer 2s linear infinite',
+  			'glow-pulse': 'glow-pulse 3s ease-in-out infinite'
   		},
   		spacing: {
   			touch: '44px',
