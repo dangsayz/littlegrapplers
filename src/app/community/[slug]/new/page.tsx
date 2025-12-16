@@ -227,8 +227,8 @@ export default function NewThreadPage() {
               <div className="flex gap-4">
                 <Button
                   type="submit"
-                  variant="brand"
                   size="lg"
+                  className="bg-brand hover:bg-brand/90 text-white"
                   disabled={isSubmitting || !title || !content}
                 >
                   {isSubmitting ? 'Posting...' : 'Post Discussion'}
