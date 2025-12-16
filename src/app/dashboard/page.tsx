@@ -197,7 +197,6 @@ export default async function DashboardPage() {
           {/* Billing */}
           <BillingPlaceholder
             parentAddress={parentAddress}
-            hasStripeCustomer={false}
           />
         </div>
       </div>
