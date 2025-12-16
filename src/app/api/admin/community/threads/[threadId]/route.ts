@@ -6,8 +6,9 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { threadId: string } }
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
+  const { threadId } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -33,7 +34,7 @@ export async function PATCH(
   if (content !== undefined) {
     updates.content = content;
     updates.last_edited_at = new Date().toISOString();
-    updates.edit_count = supabaseAdmin.rpc('increment', { row_id: params.threadId });
+    updates.edit_count = supabaseAdmin.rpc('increment', { row_id: threadId });
   }
   if (is_pinned !== undefined) updates.is_pinned = is_pinned;
   if (is_locked !== undefined) updates.is_locked = is_locked;
@@ -51,7 +52,7 @@ export async function PATCH(
   const { data, error } = await supabaseAdmin
     .from('discussion_threads')
     .update(updates)
-    .eq('id', params.threadId)
+    .eq('id', threadId)
     .select()
     .single();
 
@@ -74,7 +75,7 @@ export async function PATCH(
     admin_email: ADMIN_EMAIL,
     action,
     entity_type: 'thread',
-    entity_id: params.threadId,
+    entity_id: threadId,
     details: updates,
   });
 
@@ -83,8 +84,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { threadId: string } }
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
+  const { threadId } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -95,13 +97,13 @@ export async function DELETE(
   const { data: threadData } = await supabaseAdmin
     .from('discussion_threads')
     .select('title, author_email')
-    .eq('id', params.threadId)
+    .eq('id', threadId)
     .single();
 
   const { error } = await supabaseAdmin
     .from('discussion_threads')
     .delete()
-    .eq('id', params.threadId);
+    .eq('id', threadId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -112,7 +114,7 @@ export async function DELETE(
     admin_email: ADMIN_EMAIL,
     action: 'thread.delete',
     entity_type: 'thread',
-    entity_id: params.threadId,
+    entity_id: threadId,
     details: { title: threadData?.title, author: threadData?.author_email },
   });
 

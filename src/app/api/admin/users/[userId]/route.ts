@@ -6,8 +6,9 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+  const { userId } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -17,7 +18,7 @@ export async function GET(
   const { data, error } = await supabaseAdmin
     .from('users')
     .select('*')
-    .eq('id', params.userId)
+    .eq('id', userId)
     .single();
 
   if (error) {
@@ -29,8 +30,9 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+  const { userId } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -50,7 +52,7 @@ export async function PATCH(
   const { data, error } = await supabaseAdmin
     .from('users')
     .update(updates)
-    .eq('id', params.userId)
+    .eq('id', userId)
     .select()
     .single();
 
@@ -63,7 +65,7 @@ export async function PATCH(
     admin_email: ADMIN_EMAIL,
     action: status ? `user.${status}` : 'user.update',
     entity_type: 'user',
-    entity_id: params.userId,
+    entity_id: userId,
     details: updates,
   });
 
@@ -72,8 +74,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+  const { userId } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -84,13 +87,13 @@ export async function DELETE(
   const { data: userData } = await supabaseAdmin
     .from('users')
     .select('email')
-    .eq('id', params.userId)
+    .eq('id', userId)
     .single();
 
   const { error } = await supabaseAdmin
     .from('users')
     .delete()
-    .eq('id', params.userId);
+    .eq('id', userId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -101,7 +104,7 @@ export async function DELETE(
     admin_email: ADMIN_EMAIL,
     action: 'user.delete',
     entity_type: 'user',
-    entity_id: params.userId,
+    entity_id: userId,
     details: { email: userData?.email },
   });
 
