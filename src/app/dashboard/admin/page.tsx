@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { 
   Settings, 
   MapPin, 
@@ -123,7 +124,7 @@ export default async function AdminPage() {
             </CardHeader>
             <CardContent>
               <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href={section.href}>
+                <Link href={section.href as Route}>
                   Manage
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
