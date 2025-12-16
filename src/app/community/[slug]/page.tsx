@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, UserPlus, Home, ChevronRight } from 'lucide-react';
@@ -493,7 +494,7 @@ export default function CommunityPage() {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold">Discussions</h2>
             <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
-              <Link href={`/community/${slug}/new` as string}>
+              <Link href={`/community/${slug}/new` as Route}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Thread
               </Link>
@@ -507,7 +508,7 @@ export default function CommunityPage() {
                 <h3 className="text-xl font-semibold mb-2">No discussions yet</h3>
                 <p className="text-background/60 mb-6">Be the first to start a conversation!</p>
                 <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
-                  <Link href={`/community/${slug}/new` as string}>
+                  <Link href={`/community/${slug}/new` as Route}>
                     <Plus className="h-4 w-4 mr-2" />
                     Start a Discussion
                   </Link>
@@ -518,7 +519,7 @@ export default function CommunityPage() {
             <StaggerContainer className="space-y-4" staggerDelay={0.05}>
               {threads.map((thread) => (
                 <StaggerItem key={thread.id}>
-                  <Link href={`/community/${slug}/thread/${thread.id}` as string}>
+                  <Link href={`/community/${slug}/thread/${thread.id}` as Route}>
                     <div className="group p-6 rounded-lg border border-background/10 bg-background/5 hover:bg-background/10 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
