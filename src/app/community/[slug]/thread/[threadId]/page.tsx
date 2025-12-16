@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { ArrowLeft, Send, Pin, Clock, User, MessageCircle, ImagePlus, X, Film, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
@@ -104,12 +105,12 @@ export default function ThreadPage() {
         setIsVerified(data.verified);
         
         if (!data.verified) {
-          router.push(`/community/${slug}`);
+          router.push(`/community/${slug}` as Route);
         } else {
           fetchThread();
         }
       } catch {
-        router.push(`/community/${slug}`);
+        router.push(`/community/${slug}` as Route);
       }
     };
 
@@ -198,7 +199,7 @@ export default function ThreadPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        router.push(`/community/${data.locationSlug || slug}`);
+        router.push(`/community/${data.locationSlug || slug}` as Route);
       }
     } catch (err) {
       console.error('Error deleting thread:', err);
@@ -317,7 +318,7 @@ export default function ThreadPage() {
         <Container className="relative z-10">
           <FadeIn direction="up">
             <Link 
-              href={`/community/${slug}`}
+              href={`/community/${slug}` as Route}
               className="inline-flex items-center gap-2 text-background/60 hover:text-brand mb-8 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -420,7 +421,7 @@ export default function ThreadPage() {
                     </div>
                   )}
                   <div className="flex gap-2">
-                    <Button variant="brand" onClick={handleSaveThread} disabled={isSavingThread}>
+                    <Button className="bg-brand hover:bg-brand/90 text-white" onClick={handleSaveThread} disabled={isSavingThread}>
                       {isSavingThread ? 'Saving...' : 'Save Changes'}
                     </Button>
                     <Button variant="ghost" onClick={() => setIsEditingThread(false)} className="text-background/60">
@@ -471,7 +472,7 @@ export default function ThreadPage() {
                               rows={3}
                             />
                             <div className="flex gap-2">
-                              <Button size="sm" variant="brand" onClick={() => handleEditReply(reply.id)}>
+                              <Button size="sm" className="bg-brand hover:bg-brand/90 text-white" onClick={() => handleEditReply(reply.id)}>
                                 Save
                               </Button>
                               <Button size="sm" variant="ghost" onClick={() => setEditingReplyId(null)} className="text-background/60">
@@ -581,7 +582,7 @@ export default function ThreadPage() {
                 
                 <Button
                   type="submit"
-                  variant="brand"
+                  className="bg-brand hover:bg-brand/90 text-white"
                   disabled={isSubmitting || !replyContent.trim()}
                 >
                   {isSubmitting ? 'Posting...' : 'Post Reply'}
@@ -620,7 +621,6 @@ export default function ThreadPage() {
                 Cancel
               </Button>
               <Button
-                variant="brand"
                 onClick={handleDeleteThread}
                 disabled={isDeleting}
                 className="bg-red-500 hover:bg-red-600 text-white"
