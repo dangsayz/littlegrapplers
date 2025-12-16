@@ -157,7 +157,7 @@ export default function InquiryPage() {
 
             {/* Submit */}
             <div className="pt-6">
-              <Button type="submit" size="xl" variant="brand" className="w-full" disabled={isLoading}>
+              <Button type="submit" size="lg" className="w-full bg-brand hover:bg-brand/90 text-white h-12" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-background border-t-transparent" />

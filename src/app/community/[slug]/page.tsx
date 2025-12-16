@@ -330,9 +330,8 @@ export default function CommunityPage() {
 
                 <Button
                   type="submit"
-                  variant="brand"
-                  size="xl"
-                  className="w-full"
+                  size="lg"
+                  className="w-full bg-brand hover:bg-brand/90 text-white h-12"
                   disabled={isLoading || pin.length < 4}
                 >
                   {isLoading ? 'Verifying...' : 'Enter Community'}
@@ -493,8 +492,8 @@ export default function CommunityPage() {
         <Container>
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold">Discussions</h2>
-            <Button variant="brand" asChild>
-              <Link href={`/community/${slug}/new`}>
+            <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
+              <Link href={`/community/${slug}/new` as string}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Thread
               </Link>
@@ -507,8 +506,8 @@ export default function CommunityPage() {
                 <MessageCircle className="h-12 w-12 text-background/30 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">No discussions yet</h3>
                 <p className="text-background/60 mb-6">Be the first to start a conversation!</p>
-                <Button variant="brand" asChild>
-                  <Link href={`/community/${slug}/new`}>
+                <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
+                  <Link href={`/community/${slug}/new` as string}>
                     <Plus className="h-4 w-4 mr-2" />
                     Start a Discussion
                   </Link>
@@ -519,7 +518,7 @@ export default function CommunityPage() {
             <StaggerContainer className="space-y-4" staggerDelay={0.05}>
               {threads.map((thread) => (
                 <StaggerItem key={thread.id}>
-                  <Link href={`/community/${slug}/thread/${thread.id}`}>
+                  <Link href={`/community/${slug}/thread/${thread.id}` as string}>
                     <div className="group p-6 rounded-lg border border-background/10 bg-background/5 hover:bg-background/10 transition-colors">
                       <div className="flex items-start gap-4">
                         <div className="flex-1">

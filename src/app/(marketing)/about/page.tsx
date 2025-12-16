@@ -303,13 +303,13 @@ export default function AboutPage() {
               Coach Stephen would love to hear from you.
             </p>
             <div className="mt-12 flex flex-wrap justify-center gap-4">
-              <Button size="xl" variant="brand" asChild>
+              <Button size="lg" className="bg-brand hover:bg-brand/90 text-white h-12 px-8" asChild>
                 <Link href="/contact">
                   Get in Touch
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="xl" variant="outline" className="border-background/20 text-background hover:bg-background hover:text-foreground" asChild>
+              <Button size="lg" variant="outline" className="border-background/20 text-background hover:bg-background hover:text-foreground h-12 px-8" asChild>
                 <Link href="/inquiry">
                   Enroll Now
                   <ArrowRight className="h-5 w-5" />
