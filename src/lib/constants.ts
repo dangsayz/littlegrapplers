@@ -5,7 +5,7 @@
 export const SITE_CONFIG = {
   name: 'Little Grapplers',
   description: 'Youth Brazilian Jiu-Jitsu programs at partnered daycare facilities',
-  url: 'https://littlegrapplers.net',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.ulsurt.com',
   ogImage: '/og.jpg',
 } as const;
 
