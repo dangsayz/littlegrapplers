@@ -191,10 +191,10 @@ const config: Config = {
   			},
   			'shimmer': {
   				'0%': {
-  					transform: 'translateX(-100%)'
+  					'background-position': '200% 0'
   				},
   				'100%': {
-  					transform: 'translateX(100%)'
+  					'background-position': '-200% 0'
   				}
   			},
   			'glow-pulse': {
@@ -217,7 +217,7 @@ const config: Config = {
   			'slide-out-right': 'slide-out-right 0.3s ease-out',
   			'gradient-x': 'gradient-x 3s ease infinite',
   			'float': 'float 6s ease-in-out infinite',
-  			'shimmer': 'shimmer 2s linear infinite',
+  			'shimmer': 'shimmer 8s ease-in-out infinite',
   			'glow-pulse': 'glow-pulse 3s ease-in-out infinite'
   		},
   		spacing: {

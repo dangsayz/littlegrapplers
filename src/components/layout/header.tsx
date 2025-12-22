@@ -1,12 +1,65 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, MapPin, Shield, ArrowUpRight } from 'lucide-react';
+import { ChevronDown, MapPin, Shield, ArrowUpRight } from 'lucide-react';
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
+
+// Magnetic button effect hook
+function useMagnetic(strength: number = 0.3) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    ref.current.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+  }, [strength]);
+  
+  const handleMouseLeave = useCallback(() => {
+    if (!ref.current) return;
+    ref.current.style.transform = 'translate(0, 0)';
+  }, []);
+  
+  return { ref, handleMouseMove, handleMouseLeave };
+}
+
+// Animated nav link component
+function NavLink({ href, label, isActive }: { href: string; label: string; isActive: boolean }) {
+  const { ref, handleMouseMove, handleMouseLeave } = useMagnetic(0.2);
+  
+  return (
+    <Link
+      ref={ref}
+      href={href}
+      onMouseMove={(e) => handleMouseMove(e.nativeEvent)}
+      onMouseLeave={handleMouseLeave}
+      className={cn(
+        'group relative px-4 py-2 text-sm font-medium transition-all duration-500 ease-out',
+        isActive ? 'text-[#2EC4B6]' : 'text-[#1F2A44]/60 hover:text-[#1F2A44]'
+      )}
+    >
+      <span className="relative z-10">{label}</span>
+      {/* Hover underline animation */}
+      <span 
+        className={cn(
+          'absolute bottom-0 left-1/2 h-[2px] bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] rounded-full transition-all duration-500 ease-out',
+          isActive 
+            ? 'w-6 -translate-x-1/2 opacity-100' 
+            : 'w-0 -translate-x-1/2 opacity-0 group-hover:w-6 group-hover:opacity-100'
+        )} 
+      />
+      {/* Subtle background glow on hover */}
+      <span 
+        className="absolute inset-0 rounded-full bg-[#2EC4B6]/0 group-hover:bg-[#2EC4B6]/5 transition-all duration-500 ease-out" 
+      />
+    </Link>
+  );
+}
 
 const LOCATIONS = [
   { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church' },
@@ -129,51 +182,58 @@ export function Header() {
             
             {/* Logo */}
             <Link href="/" className="relative z-10 flex items-center gap-3 group">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] shadow-lg shadow-[#2EC4B6]/30 group-hover:shadow-[#2EC4B6]/50 group-hover:scale-105 transition-all duration-300">
-                <span className="text-base font-black text-white tracking-tight">LG</span>
+              {/* Animated logo mark */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#2EC4B6] via-[#2EC4B6] to-[#8FE3CF] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/30 transition-all duration-500 group-hover:scale-105">
+                  {/* Inner glow ring */}
+                  <div className="absolute inset-[2px] rounded-[10px] bg-gradient-to-br from-white/20 to-transparent" />
+                  <span className="relative text-lg font-black text-white tracking-tight">LG</span>
+                </div>
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className="text-base font-bold text-[#1F2A44] leading-none">Little Grapplers</span>
-                <span className="text-[10px] text-[#2EC4B6] font-semibold tracking-wider uppercase">Youth BJJ</span>
+              {/* Text with hover animation */}
+              <div className="hidden sm:flex flex-col overflow-hidden">
+                <span className="text-[15px] font-bold text-[#1F2A44] leading-tight tracking-tight group-hover:tracking-normal transition-all duration-500">
+                  Little Grapplers
+                </span>
+                <span className="text-[10px] text-[#2EC4B6] font-semibold tracking-[0.15em] uppercase opacity-80 group-hover:opacity-100 group-hover:tracking-[0.2em] transition-all duration-500">
+                  Youth BJJ
+                </span>
               </div>
             </Link>
 
             {/* Desktop Navigation - Center */}
             <div className="hidden lg:flex items-center">
-              <div className="flex items-center gap-1">
-                {NAV_LINKS.map((link) => {
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={cn(
-                        'relative px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200',
-                        isActive 
-                          ? 'text-[#2EC4B6] bg-[#2EC4B6]/10' 
-                          : 'text-[#1F2A44]/70 hover:text-[#1F2A44] hover:bg-[#1F2A44]/5'
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
+              <div className="flex items-center">
+                {NAV_LINKS.map((link) => (
+                  <NavLink
+                    key={link.href}
+                    href={link.href}
+                    label={link.label}
+                    isActive={pathname === link.href}
+                  />
+                ))}
               </div>
             </div>
 
             {/* Desktop CTA - Right */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-3">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="px-4 py-2 text-sm font-semibold text-[#1F2A44]/60 hover:text-[#1F2A44] transition-colors">
-                    Log in
+                  <button className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500">
+                    <span className="relative z-10">Log in</span>
+                    <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="group relative px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-sm font-bold text-white shadow-lg shadow-[#F7931E]/30 hover:shadow-[#F7931E]/50 transition-all duration-300 hover:scale-105">
-                    <span className="flex items-center gap-1.5">
+                  <button className="group relative px-6 py-2.5 rounded-full overflow-hidden">
+                    {/* Animated gradient background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
+                    <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
                       Get Started
-                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>
                   </button>
                 </SignUpButton>
