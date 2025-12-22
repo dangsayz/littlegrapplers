@@ -1,8 +1,11 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { ArrowLeft, User, Award, Calendar, Edit } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { supabaseAdmin } from '@/lib/supabase';
 
 // Belt rank display mapping
 const beltConfig: Record<
@@ -25,25 +28,22 @@ const beltConfig: Record<
 };
 
 // TODO: Replace with actual database query
-const mockStudent = {
-  id: '1',
-  firstName: 'Timmy',
-  lastName: 'Johnson',
-  dateOfBirth: new Date('2018-03-15'),
-  beltRank: 'yellow',
-  stripes: 2,
-  avatarUrl: null,
-  createdAt: new Date('2024-09-01'),
-  memberships: [
-    {
-      id: '1',
-      status: 'active',
-      program: {
-        name: 'Tiny Grapplers (Ages 4-6)',
-        location: { name: 'Austin HQ' },
-      },
-    },
-  ],
+type Student = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date | null;
+  beltRank: string;
+  stripes: number;
+  avatarUrl: string | null;
+  memberships: Array<{
+    id: string;
+    status: string;
+    program: {
+      name: string;
+      location: { name: string };
+    };
+  }>;
 };
 
 interface StudentPageProps {
@@ -52,13 +52,42 @@ interface StudentPageProps {
 
 export default async function StudentPage({ params }: StudentPageProps) {
   const { id } = await params;
-  // TODO: Fetch actual student by id
-  const student = mockStudent;
-  const belt = beltConfig[student.beltRank] || beltConfig.white;
 
-  const age = Math.floor(
-    (Date.now() - student.dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
-  );
+  const { userId } = await auth();
+  if (!userId) {
+    return <div>Please sign in to view this student.</div>;
+  }
+
+  const { data: waiver, error } = await supabaseAdmin
+    .from('signed_waivers')
+    .select('id, child_full_name, child_date_of_birth')
+    .eq('id', id)
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (error || !waiver) {
+    notFound();
+  }
+
+  const nameParts = (waiver.child_full_name ?? '').trim().split(' ').filter(Boolean);
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const student: Student = {
+    id: waiver.id,
+    firstName,
+    lastName,
+    dateOfBirth: waiver.child_date_of_birth ? new Date(waiver.child_date_of_birth) : null,
+    beltRank: 'white',
+    stripes: 0,
+    avatarUrl: null,
+    memberships: [],
+  };
+
+  const belt = beltConfig[student.beltRank] || beltConfig.white;
+  const age = student.dateOfBirth
+    ? Math.floor((Date.now() - student.dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+    : null;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -102,10 +131,12 @@ export default async function StudentPage({ params }: StudentPageProps) {
               </div>
 
               <div className="flex items-center gap-4 mt-2 text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {age} years old
-                </span>
+                {age !== null ? (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {age} years old
+                  </span>
+                ) : null}
               </div>
 
               {/* Belt Display */}
