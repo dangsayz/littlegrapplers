@@ -206,6 +206,18 @@ const config: Config = {
   					opacity: '0.8',
   					transform: 'scale(1.05)'
   				}
+  			},
+  			'heroReveal': {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'translateY(120px) scale(0.8)',
+  					filter: 'blur(12px)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'translateY(0) scale(1)',
+  					filter: 'blur(0)'
+  				}
   			}
   		},
   		animation: {
@@ -218,7 +230,9 @@ const config: Config = {
   			'gradient-x': 'gradient-x 3s ease infinite',
   			'float': 'float 6s ease-in-out infinite',
   			'shimmer': 'shimmer 8s ease-in-out infinite',
-  			'glow-pulse': 'glow-pulse 3s ease-in-out infinite'
+  			'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+  			'hero-reveal': 'heroReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+  			'text-glow': 'textGlow 3s ease-in-out infinite'
   		},
   		spacing: {
   			touch: '44px',

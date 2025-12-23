@@ -71,9 +71,14 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 function LocationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
   const isAdmin = user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -84,6 +89,10 @@ function LocationDropdown() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  if (!mounted) {
+    return <div className="h-8 w-24" />;
+  }
 
   return (
     <div ref={dropdownRef} className="relative">

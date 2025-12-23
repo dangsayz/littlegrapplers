@@ -48,14 +48,14 @@ const locations = [
 
 export default function LocationsPage() {
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#F7F9F9]">
       {/* Hero Section with Floating Cards */}
       <section className="relative min-h-[90vh] flex items-center py-20 overflow-hidden">
         {/* Animated gradient background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f1a] via-[#1F2A44] to-[#0a0f1a]" />
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#2EC4B6]/20 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#F7931E]/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F7F9F9] via-white to-[#8FE3CF]/10" />
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#2EC4B6]/10 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#F7931E]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
         
         <Container className="relative z-10">
@@ -70,27 +70,27 @@ export default function LocationsPage() {
                 <span className="text-sm font-medium text-[#2EC4B6]">3 Locations Active</span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1]">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1F2A44] leading-[1.1]">
                 BJJ Programs at
                 <br />
                 <span className="text-[#2EC4B6]">Daycares Near You</span>
               </h1>
               
-              <p className="mt-6 text-lg text-white/60 max-w-lg">
+              <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-lg">
                 We bring expert martial arts instruction directly to your child's daycare. Build confidence and character without leaving their routine.
               </p>
 
               {/* Feature list */}
               <div className="mt-8 space-y-3">
-                <div className="flex items-center gap-3 text-white/80">
+                <div className="flex items-center gap-3 text-[#1F2A44]/80">
                   <Check className="h-5 w-5 text-[#2EC4B6]" />
                   <span>Age-appropriate curriculum for 3-7 year olds</span>
                 </div>
-                <div className="flex items-center gap-3 text-white/80">
+                <div className="flex items-center gap-3 text-[#1F2A44]/80">
                   <Check className="h-5 w-5 text-[#2EC4B6]" />
                   <span>Classes during daycare hours - no extra trips</span>
                 </div>
-                <div className="flex items-center gap-3 text-white/80">
+                <div className="flex items-center gap-3 text-[#1F2A44]/80">
                   <Check className="h-5 w-5 text-[#2EC4B6]" />
                   <span>Certified instructors with background checks</span>
                 </div>
@@ -108,7 +108,7 @@ export default function LocationsPage() {
                 </Link>
                 <Link 
                   href="#locations"
-                  className="inline-flex items-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold rounded-full hover:bg-white/5 transition-all"
+                  className="inline-flex items-center gap-2 px-8 py-4 border border-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-full hover:bg-[#1F2A44]/5 transition-all"
                 >
                   View Locations
                 </Link>
@@ -117,16 +117,16 @@ export default function LocationsPage() {
               {/* Stats row */}
               <div className="mt-12 flex gap-10">
                 <div>
-                  <div className="text-3xl font-bold text-white">100+</div>
-                  <div className="text-sm text-white/50">Active Students</div>
+                  <div className="text-3xl font-bold text-[#1F2A44]">100+</div>
+                  <div className="text-sm text-[#1F2A44]/50">Active Students</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white">4.9</div>
-                  <div className="text-sm text-white/50">Parent Rating</div>
+                  <div className="text-3xl font-bold text-[#1F2A44]">4.9</div>
+                  <div className="text-sm text-[#1F2A44]/50">Parent Rating</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white">3</div>
-                  <div className="text-sm text-white/50">DFW Locations</div>
+                  <div className="text-3xl font-bold text-[#1F2A44]">3</div>
+                  <div className="text-sm text-[#1F2A44]/50">DFW Locations</div>
                 </div>
               </div>
             </FadeIn>
@@ -277,14 +277,14 @@ export default function LocationsPage() {
       <section id="locations" className="py-16 md:py-24">
         <Container>
           <FadeIn direction="up" className="mb-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Our <span className="text-[#2EC4B6]">Locations</span></h2>
-            <p className="mt-3 text-white/50 max-w-2xl mx-auto">Select a location to learn more or enroll your child in our program.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1F2A44]">Our <span className="text-[#2EC4B6]">Locations</span></h2>
+            <p className="mt-3 text-[#1F2A44]/50 max-w-2xl mx-auto">Select a location to learn more or enroll your child in our program.</p>
           </FadeIn>
 
           <StaggerContainer className="grid md:grid-cols-3 gap-6" staggerDelay={0.1}>
             {locations.map((location) => (
               <StaggerItem key={location.id}>
-                <div className="group relative rounded-2xl overflow-hidden bg-[#1F2A44] border border-white/5 hover:border-white/20 transition-all duration-500">
+                <div className="group relative rounded-2xl overflow-hidden bg-white border border-[#1F2A44]/10 hover:border-[#2EC4B6]/30 shadow-lg hover:shadow-xl transition-all duration-500">
                   {/* Image with overlay */}
                   <div className="relative h-48 overflow-hidden">
                     <Image
@@ -293,7 +293,7 @@ export default function LocationsPage() {
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44] via-[#1F2A44]/50 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent" />
                     
                     {/* Status badge */}
                     <div className="absolute top-4 left-4">
@@ -312,26 +312,26 @@ export default function LocationsPage() {
 
                   {/* Content */}
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-white group-hover:text-[#2EC4B6] transition-colors">
+                    <h3 className="text-lg font-bold text-[#1F2A44] group-hover:text-[#2EC4B6] transition-colors">
                       {location.name}
                     </h3>
                     
                     <div className="mt-4 space-y-3">
                       <div className="flex items-center gap-3 text-sm">
-                        <MapPin className="h-4 w-4 text-white/40" />
-                        <span className="text-white/60">{location.address.split(',')[0]}</span>
+                        <MapPin className="h-4 w-4 text-[#1F2A44]/40" />
+                        <span className="text-[#1F2A44]/60">{location.address.split(',')[0]}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm">
-                        <Calendar className="h-4 w-4 text-white/40" />
-                        <span className="text-white/60">{location.schedule}</span>
+                        <Calendar className="h-4 w-4 text-[#1F2A44]/40" />
+                        <span className="text-[#1F2A44]/60">{location.schedule}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm">
-                        <Users className="h-4 w-4 text-white/40" />
-                        <span className="text-white/60">{location.ageGroups}</span>
+                        <Users className="h-4 w-4 text-[#1F2A44]/40" />
+                        <span className="text-[#1F2A44]/60">{location.ageGroups}</span>
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-white/10 flex gap-3">
+                    <div className="mt-6 pt-6 border-t border-[#1F2A44]/10 flex gap-3">
                       <Link 
                         href="/waiver"
                         className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
@@ -342,7 +342,7 @@ export default function LocationsPage() {
                       </Link>
                       <Link 
                         href={`/community/${location.slug}`}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg font-medium text-sm transition-all"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1F2A44]/5 hover:bg-[#1F2A44]/10 text-[#1F2A44] rounded-lg font-medium text-sm transition-all"
                       >
                         Community
                       </Link>
@@ -365,17 +365,17 @@ export default function LocationsPage() {
 
       {/* CTA Section */}
       <section className="py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1a] via-[#1F2A44] to-[#0a0f1a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F9F9] via-white to-[#F7F9F9]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2EC4B6]/10 rounded-full blur-[120px]" />
         
         <Container className="relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <FadeIn direction="up">
-              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+              <h2 className="text-4xl md:text-5xl font-bold text-[#1F2A44] leading-tight">
                 Don't See Your{' '}
                 <span className="text-[#2EC4B6]">Daycare?</span>
               </h2>
-              <p className="mt-6 text-lg text-white/60 max-w-xl mx-auto">
+              <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-xl mx-auto">
                 We're actively expanding across the Dallas-Fort Worth area. Request Little Grapplers at your child's daycare and we'll work to make it happen.
               </p>
               
@@ -390,7 +390,7 @@ export default function LocationsPage() {
                 </Link>
                 <Link 
                   href="tel:+14692095814"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 text-white font-semibold rounded-full hover:bg-white/5 transition-all"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-full hover:bg-[#1F2A44]/5 transition-all"
                 >
                   <Phone className="h-5 w-5" />
                   (469) 209-5814
@@ -400,20 +400,20 @@ export default function LocationsPage() {
 
             {/* Trust indicators */}
             <FadeIn direction="up" delay={0.2} className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10">
+              <div className="p-6 rounded-2xl bg-white shadow-lg border border-[#1F2A44]/5">
                 <Award className="h-8 w-8 text-[#2EC4B6] mx-auto" />
-                <div className="mt-4 text-white font-bold">Expert Instructors</div>
-                <div className="mt-2 text-white/50 text-sm">Certified BJJ professionals with child education experience</div>
+                <div className="mt-4 text-[#1F2A44] font-bold">Expert Instructors</div>
+                <div className="mt-2 text-[#1F2A44]/50 text-sm">Certified BJJ professionals with child education experience</div>
               </div>
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10">
+              <div className="p-6 rounded-2xl bg-white shadow-lg border border-[#1F2A44]/5">
                 <Shield className="h-8 w-8 text-[#F7931E] mx-auto" />
-                <div className="mt-4 text-white font-bold">Safe Environment</div>
-                <div className="mt-2 text-white/50 text-sm">Background-checked staff and age-appropriate curriculum</div>
+                <div className="mt-4 text-[#1F2A44] font-bold">Safe Environment</div>
+                <div className="mt-2 text-[#1F2A44]/50 text-sm">Background-checked staff and age-appropriate curriculum</div>
               </div>
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10">
+              <div className="p-6 rounded-2xl bg-white shadow-lg border border-[#1F2A44]/5">
                 <Calendar className="h-8 w-8 text-[#FFC857] mx-auto" />
-                <div className="mt-4 text-white font-bold">Flexible Schedule</div>
-                <div className="mt-2 text-white/50 text-sm">Classes that fit seamlessly into your child's routine</div>
+                <div className="mt-4 text-[#1F2A44] font-bold">Flexible Schedule</div>
+                <div className="mt-2 text-[#1F2A44]/50 text-sm">Classes that fit seamlessly into your child's routine</div>
               </div>
             </FadeIn>
           </div>

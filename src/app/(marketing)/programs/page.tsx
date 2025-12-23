@@ -41,7 +41,7 @@ const programs = [
       'Belt progression system',
     ],
     schedule: '45-minute classes, 2-3x per week',
-    image: '/images/highlights/bjjlittlegrapplers2-8.jpg',
+    image: '/images/highlights/bjjlittlegrapplers2-2.jpg',
   },
   {
     name: 'Advanced Grapplers',
@@ -56,7 +56,7 @@ const programs = [
       'Comprehensive belt curriculum',
     ],
     schedule: '60-minute classes, 2-3x per week',
-    image: '/images/highlights/bjjlittlegrapplers2-9.jpg',
+    image: '/images/highlights/bjjlittlegrapplers2-16.jpg',
   },
 ];
 
@@ -89,25 +89,32 @@ const curriculum = [
 
 export default function ProgramsPage() {
   return (
-    <div className="bg-foreground text-background overflow-hidden">
+    <div className="bg-[#F7F9F9] text-[#1F2A44] overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center py-32">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/10 via-white to-[#F7F9F9]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#1F2A44]/40 mb-6">
               Age-Appropriate Training
             </p>
-            <h1 className="text-5xl md:text-7xl font-display font-black leading-[0.9] tracking-tight">
-              Programs for Every<br />
-              <span className="font-serif italic font-normal text-brand">Young Grappler.</span>
+            <h1 className="text-5xl md:text-7xl font-display font-black leading-tight tracking-tight">
+              <span className="block overflow-visible pb-2">
+                <span className="inline-block opacity-0 animate-[heroReveal_1.2s_cubic-bezier(0.16,1,0.3,1)_0.2s_forwards]">Programs</span>{' '}
+                <span className="inline-block opacity-0 animate-[heroReveal_1.2s_cubic-bezier(0.16,1,0.3,1)_0.4s_forwards]">for</span>{' '}
+                <span className="inline-block opacity-0 animate-[heroReveal_1.2s_cubic-bezier(0.16,1,0.3,1)_0.6s_forwards]">Every</span>
+              </span>
+              <span className="block overflow-visible pb-4">
+                <span className="inline-block font-serif italic font-normal text-brand opacity-0 animate-[heroReveal_1.2s_cubic-bezier(0.16,1,0.3,1)_0.9s_forwards]">Young</span>{' '}
+                <span className="inline-block font-serif italic font-normal text-brand opacity-0 animate-[heroReveal_1.2s_cubic-bezier(0.16,1,0.3,1)_1.1s_forwards]">Grappler.</span>
+              </span>
             </h1>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-8 text-xl text-[#1F2A44]/60 max-w-xl mx-auto leading-relaxed">
               Age-appropriate curriculum designed by child development experts and experienced BJJ
               instructors. Every class is structured to be safe, engaging, and effective.
             </p>
@@ -134,7 +141,7 @@ export default function ProgramsPage() {
                       {program.name.split(' ')[0]}{' '}
                       <span className="font-serif italic font-normal text-brand">{program.name.split(' ')[1]}</span>
                     </h2>
-                    <p className="mt-6 text-lg text-background/60 leading-relaxed">{program.description}</p>
+                    <p className="mt-6 text-lg text-[#1F2A44]/60 leading-relaxed">{program.description}</p>
 
                     <ul className="mt-8 space-y-4">
                       {program.highlights.map((highlight) => (
@@ -154,12 +161,12 @@ export default function ProgramsPage() {
                               />
                             </svg>
                           </div>
-                          <span className="text-background/70">{highlight}</span>
+                          <span className="text-[#1F2A44]/70">{highlight}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <div className="mt-6 flex items-center gap-2 text-sm text-background/50">
+                    <div className="mt-6 flex items-center gap-2 text-sm text-[#1F2A44]/50">
                       <Clock className="h-4 w-4" />
                       <span>{program.schedule}</span>
                     </div>
@@ -181,7 +188,7 @@ export default function ProgramsPage() {
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
                     <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                     }} />
@@ -195,20 +202,20 @@ export default function ProgramsPage() {
 
       {/* Curriculum Overview */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/10 via-white to-[#F7F9F9]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-6">
               Curriculum
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black">
               What They'll <span className="font-serif italic font-normal text-brand">Learn</span>
             </h2>
-            <p className="mt-6 text-lg text-background/60">
+            <p className="mt-6 text-lg text-[#1F2A44]/60">
               Our comprehensive curriculum covers all aspects of youth BJJ development.
             </p>
           </FadeIn>
@@ -216,9 +223,9 @@ export default function ProgramsPage() {
           <StaggerContainer className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
             {curriculum.map((item) => (
               <StaggerItem key={item.title}>
-                <div className="rounded-lg border border-background/10 bg-background/5 p-6 h-full">
+                <div className="rounded-lg border border-[#1F2A44]/10 bg-white shadow-sm p-6 h-full">
                   <h3 className="text-lg font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm text-background/60">{item.description}</p>
+                  <p className="mt-2 text-sm text-[#1F2A44]/60">{item.description}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -231,13 +238,13 @@ export default function ProgramsPage() {
         <Container>
           <div className="grid gap-16 lg:grid-cols-2 lg:gap-24 items-center">
             <FadeIn direction="up">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-6">
                 Progression
               </p>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
                 Belt <span className="font-serif italic font-normal text-brand">System</span>
               </h2>
-              <div className="mt-8 space-y-6 text-lg text-background/60 leading-relaxed">
+              <div className="mt-8 space-y-6 text-lg text-[#1F2A44]/60 leading-relaxed">
                 <p>
                   Our structured belt system gives students clear goals and a sense of accomplishment
                   as they progress. Following IBJJF youth belt guidelines, students earn stripes and
@@ -250,7 +257,7 @@ export default function ProgramsPage() {
                 </p>
               </div>
               <div className="mt-8">
-                <Button variant="outline" className="border-background/20 text-background hover:bg-background hover:text-foreground" asChild>
+                <Button variant="outline" className="border-[#1F2A44]/20 text-[#1F2A44] hover:bg-[#1F2A44] hover:text-white" asChild>
                   <Link href="/benefits">
                     Learn About Benefits
                     <ArrowRight className="h-5 w-5" />
@@ -269,11 +276,11 @@ export default function ProgramsPage() {
                   { name: 'Green Belt', color: 'bg-green-500', stripes: '0-4 stripes per stage' },
                 ].map((belt) => (
                   <StaggerItem key={belt.name}>
-                    <div className="flex items-center gap-4 rounded-lg border border-background/10 bg-background/5 p-4">
+                    <div className="flex items-center gap-4 rounded-lg border border-[#1F2A44]/10 bg-white shadow-sm p-4">
                       <div className={`h-6 w-16 rounded ${belt.color}`} />
                       <div>
-                        <div className="font-medium text-background">{belt.name}</div>
-                        <div className="text-sm text-background/50">{belt.stripes}</div>
+                        <div className="font-medium text-[#1F2A44]">{belt.name}</div>
+                        <div className="text-sm text-[#1F2A44]/50">{belt.stripes}</div>
                       </div>
                     </div>
                   </StaggerItem>
@@ -286,16 +293,16 @@ export default function ProgramsPage() {
 
       {/* CTA Section */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground via-foreground to-[#0a0f1a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#F7F9F9] via-white to-[#F7F9F9]" />
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-3xl mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-6">
               Get Started
             </p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
               Find a Program <span className="font-serif italic font-normal text-brand">Near You</span>
             </h2>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto">
+            <p className="mt-8 text-xl text-[#1F2A44]/60 max-w-xl mx-auto">
               We partner with quality daycare facilities across the region. Find a location that
               works for your family.
             </p>
@@ -309,7 +316,7 @@ export default function ProgramsPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-background/20 text-background hover:bg-background hover:text-foreground h-12 px-8"
+                className="border-[#1F2A44]/20 text-[#1F2A44] hover:bg-[#1F2A44] hover:text-white h-12 px-8"
                 asChild
               >
                 <Link href="/contact">Contact Us</Link>
