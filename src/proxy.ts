@@ -20,7 +20,7 @@ const isProtectedRoute = createRouteMatcher([
   '/onboarding(.*)',
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+export const proxy = clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
   
   // If user is not signed in and trying to access protected route
