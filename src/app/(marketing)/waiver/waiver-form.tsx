@@ -3,6 +3,22 @@
 import { useState } from 'react';
 import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2 } from 'lucide-react';
 
+// Format phone number as user types: 000-000-0000
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// Character limits
+const LIMITS = {
+  name: 100,
+  email: 254,
+  phone: 12,
+  signature: 150,
+};
+
 type PlanType = 'month-to-month' | '3-month' | '6-month';
 
 interface FormData {
@@ -38,6 +54,7 @@ export function WaiverForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [formLoadTime] = useState(Date.now());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -51,11 +68,44 @@ export function WaiverForm() {
     }));
   };
 
+  const handlePhoneChange = (field: 'guardianPhone' | 'emergencyContactPhone') => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: formatPhoneInput(e.target.value),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
+
+    // Anti-bot timing check
+    const elapsed = (Date.now() - formLoadTime) / 1000;
+    if (elapsed < 5) {
+      setErrorMessage('Please take your time filling out the form.');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Client-side validation
+    if (formData.guardianPhone && !/^\d{3}-\d{3}-\d{4}$/.test(formData.guardianPhone)) {
+      setErrorMessage('Please enter a valid phone number (000-000-0000).');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.guardianEmail)) {
+      setErrorMessage('Please enter a valid email address.');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/waiver', {
@@ -126,6 +176,8 @@ export function WaiverForm() {
               value={formData.guardianFullName}
               onChange={handleChange}
               required
+              maxLength={LIMITS.name}
+              pattern="[a-zA-Z\s'-]+"
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               placeholder="Enter your full legal name"
             />
@@ -144,6 +196,7 @@ export function WaiverForm() {
                 value={formData.guardianEmail}
                 onChange={handleChange}
                 required
+                maxLength={LIMITS.email}
                 className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                 placeholder="your@email.com"
               />
@@ -161,9 +214,10 @@ export function WaiverForm() {
                 id="guardianPhone"
                 name="guardianPhone"
                 value={formData.guardianPhone}
-                onChange={handleChange}
+                onChange={handlePhoneChange('guardianPhone')}
+                maxLength={LIMITS.phone}
                 className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                placeholder="(555) 123-4567"
+                placeholder="000-000-0000"
               />
             </div>
           </div>
@@ -191,6 +245,8 @@ export function WaiverForm() {
               value={formData.childFullName}
               onChange={handleChange}
               required
+              maxLength={LIMITS.name}
+              pattern="[a-zA-Z\s'-]+"
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               placeholder="Enter child's full name"
             />
@@ -232,6 +288,8 @@ export function WaiverForm() {
               name="emergencyContactName"
               value={formData.emergencyContactName}
               onChange={handleChange}
+              maxLength={LIMITS.name}
+              pattern="[a-zA-Z\s'-]+"
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               placeholder="Emergency contact name"
             />
@@ -248,9 +306,10 @@ export function WaiverForm() {
                 id="emergencyContactPhone"
                 name="emergencyContactPhone"
                 value={formData.emergencyContactPhone}
-                onChange={handleChange}
+                onChange={handlePhoneChange('emergencyContactPhone')}
+                maxLength={LIMITS.phone}
                 className="w-full rounded-xl border border-border bg-background py-3 pl-12 pr-4 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                placeholder="(555) 123-4567"
+                placeholder="000-000-0000"
               />
             </div>
           </div>
@@ -378,6 +437,8 @@ export function WaiverForm() {
           value={formData.digitalSignature}
           onChange={handleChange}
           required
+          maxLength={LIMITS.signature}
+          pattern="[a-zA-Z\s'-]+"
           className="w-full rounded-xl border-2 border-dashed border-border bg-background px-4 py-4 text-center font-display text-xl italic text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none"
           placeholder="Type your full legal name as signature"
         />

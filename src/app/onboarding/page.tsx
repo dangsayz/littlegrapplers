@@ -4,6 +4,22 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Format phone number as user types: 000-000-0000
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// Character limits
+const LIMITS = {
+  name: 100,
+  email: 254,
+  phone: 12,
+  medicalInfo: 500,
+};
 import { 
   User, 
   Baby, 
@@ -174,6 +190,12 @@ export default function OnboardingPage() {
     setError('');
   };
 
+  const handlePhoneChange = (field: 'phone' | 'emergencyContactPhone') => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    updateField(field, formatPhoneInput(e.target.value));
+  };
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
@@ -181,8 +203,17 @@ export default function OnboardingPage() {
           setError('Please fill in all required fields');
           return false;
         }
+        // Validate phone format
+        if (!/^\d{3}-\d{3}-\d{4}$/.test(formData.phone)) {
+          setError('Please enter a valid phone number (000-000-0000)');
+          return false;
+        }
         if (!formData.emergencyContactName || !formData.emergencyContactPhone) {
           setError('Emergency contact information is required');
+          return false;
+        }
+        if (!/^\d{3}-\d{3}-\d{4}$/.test(formData.emergencyContactPhone)) {
+          setError('Please enter a valid emergency contact phone (000-000-0000)');
           return false;
         }
         return true;
@@ -427,8 +458,9 @@ export default function OnboardingPage() {
                           id="phone"
                           type="tel"
                           value={formData.phone}
-                          onChange={(e) => updateField('phone', e.target.value)}
-                          placeholder="(555) 555-5555"
+                          onChange={handlePhoneChange('phone')}
+                          maxLength={LIMITS.phone}
+                          placeholder="000-000-0000"
                           className="pl-10"
                           required
                         />
@@ -457,8 +489,9 @@ export default function OnboardingPage() {
                             id="emergencyContactPhone"
                             type="tel"
                             value={formData.emergencyContactPhone}
-                            onChange={(e) => updateField('emergencyContactPhone', e.target.value)}
-                            placeholder="(555) 555-5555"
+                            onChange={handlePhoneChange('emergencyContactPhone')}
+                            maxLength={LIMITS.phone}
+                            placeholder="000-000-0000"
                             required
                           />
                         </div>

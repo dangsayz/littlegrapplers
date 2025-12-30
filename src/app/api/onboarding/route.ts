@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import {
+  onboardingFormSchema,
+  validateData,
+  isRateLimited,
+  getClientIdentifier,
+} from '@/lib/validation';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const user = await currentUser();
     
@@ -10,7 +16,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimit = isRateLimited(clientId, 'onboarding');
+    
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
+
+    // Validate and sanitize all input
+    const validation = validateData(onboardingFormSchema, body);
+    
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400 }
+      );
+    }
+
     const {
       firstName,
       lastName,
@@ -26,20 +54,7 @@ export async function POST(request: Request) {
       howHeard,
       photoConsent,
       waiverAccepted,
-    } = body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !phone || !emergencyContactName || !emergencyContactPhone) {
-      return NextResponse.json({ error: 'Missing required parent information' }, { status: 400 });
-    }
-
-    if (!studentFirstName || !studentLastName || !studentDob || !locationId) {
-      return NextResponse.json({ error: 'Missing required student information' }, { status: 400 });
-    }
-
-    if (!waiverAccepted) {
-      return NextResponse.json({ error: 'Liability waiver must be accepted' }, { status: 400 });
-    }
+    } = validation.data;
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
     const clerkUserId = user.id;

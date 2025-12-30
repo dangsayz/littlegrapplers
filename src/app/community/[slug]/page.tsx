@@ -26,28 +26,36 @@ const MOTION = {
 /**
  * Location-specific color themes
  */
-const LOCATION_THEMES: Record<string, { primary: string; primaryRgb: string; gradient: string }> = {
+const LOCATION_THEMES: Record<string, { primary: string; primaryRgb: string; secondary: string; secondaryRgb: string; bgGradient: string }> = {
   'lionheart-central-church': {
     primary: '#2EC4B6', // Teal Blue
     primaryRgb: '46, 196, 182',
-    gradient: 'from-[#2EC4B6]/20 via-foreground to-foreground',
+    secondary: '#8FE3CF',
+    secondaryRgb: '143, 227, 207',
+    bgGradient: 'from-[#E8F8F5] via-[#F0FFFD] to-white',
   },
   'lionheart-first-baptist-plano': {
-    primary: '#8FE3CF', // Soft Sky Blue
-    primaryRgb: '143, 227, 207',
-    gradient: 'from-[#8FE3CF]/20 via-foreground to-foreground',
+    primary: '#6C63FF', // Purple
+    primaryRgb: '108, 99, 255',
+    secondary: '#A29BFE',
+    secondaryRgb: '162, 155, 254',
+    bgGradient: 'from-[#F0EFFF] via-[#F8F7FF] to-white',
   },
   'pinnacle-montessori': {
     primary: '#F7931E', // Warm Orange
     primaryRgb: '247, 147, 30',
-    gradient: 'from-[#F7931E]/20 via-foreground to-foreground',
+    secondary: '#FFD93D',
+    secondaryRgb: '255, 217, 61',
+    bgGradient: 'from-[#FFF8E8] via-[#FFFDF5] to-white',
   },
 };
 
 const DEFAULT_THEME = {
   primary: '#2EC4B6',
   primaryRgb: '46, 196, 182',
-  gradient: 'from-brand/20 via-foreground to-foreground',
+  secondary: '#8FE3CF',
+  secondaryRgb: '143, 227, 207',
+  bgGradient: 'from-[#E8F8F5] via-[#F0FFFD] to-white',
 };
 
 function getLocationTheme(slug: string) {
@@ -220,8 +228,8 @@ export default function CommunityPage() {
   // Loading state
   if (isVerified === null) {
     return (
-      <div className="min-h-screen bg-foreground text-background flex items-center justify-center">
-        <div className="animate-pulse text-background/60">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#E8F8F5] via-[#F0FFFD] to-white flex items-center justify-center">
+        <div className="animate-pulse text-[#1F2A44]/60">Loading...</div>
       </div>
     );
   }
@@ -230,12 +238,12 @@ export default function CommunityPage() {
   // Purpose: REVEAL (lock icon), GUIDE (form interaction), REWARD (success transition)
   if (!isVerified) {
     return (
-      <div className="min-h-screen bg-foreground text-background overflow-hidden">
+      <div className={`min-h-screen bg-gradient-to-br ${theme.bgGradient} text-[#1F2A44] overflow-hidden`}>
         <section className="relative min-h-screen flex items-center justify-center py-32">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
-          <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-          }} />
+          {/* Playful background shapes */}
+          <div className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-30" style={{ backgroundColor: theme.primary }} />
+          <div className="absolute bottom-20 right-10 w-48 h-48 rounded-full opacity-20" style={{ backgroundColor: theme.secondary }} />
+          <div className="absolute top-1/3 right-1/4 w-20 h-20 rounded-full opacity-25" style={{ backgroundColor: theme.primary }} />
           
           <Container className="relative z-10">
             <motion.div 
@@ -256,7 +264,7 @@ export default function CommunityPage() {
                     window.location.href = '/';
                   }
                 }}
-                className="absolute top-8 left-8 flex items-center gap-2 text-background/60 hover:text-background transition-colors"
+                className="absolute top-8 left-8 flex items-center gap-2 text-[#1F2A44]/60 hover:text-[#1F2A44] transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
                 <span className="text-sm font-medium">Back</span>
@@ -264,7 +272,8 @@ export default function CommunityPage() {
               
               {/* Lock icon - Purpose: REVEAL */}
               <motion.div 
-                className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand/20 mb-8"
+                className="mx-auto flex h-20 w-20 items-center justify-center rounded-full mb-8 shadow-lg"
+                style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.15)` }}
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ 
@@ -274,20 +283,20 @@ export default function CommunityPage() {
                   delay: 0.1 
                 }}
               >
-                <Lock className="h-10 w-10 text-brand" />
+                <Lock className="h-10 w-10" style={{ color: theme.primary }} />
               </motion.div>
               
               {/* Title */}
               <motion.h1 
-                className="text-3xl md:text-4xl font-display font-black"
+                className="text-3xl md:text-4xl font-display font-black text-[#1F2A44]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: MOTION.normal, ease: MOTION.easeOutExpo }}
               >
-                Community <span className="font-serif italic font-normal text-brand">Access</span>
+                Community <span className="font-serif italic font-normal" style={{ color: theme.primary }}>Access</span>
               </motion.h1>
               <motion.p 
-                className="mt-4 text-background/60"
+                className="mt-4 text-[#1F2A44]/60"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: MOTION.normal }}
@@ -298,7 +307,7 @@ export default function CommunityPage() {
               {/* Form - Purpose: GUIDE */}
               <motion.form 
                 onSubmit={handleVerifyPin} 
-                className="mt-8 space-y-4"
+                className="mt-8 space-y-4 p-6 rounded-2xl bg-white/80 backdrop-blur-sm shadow-xl border border-white"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: MOTION.normal, ease: MOTION.easeOutExpo }}
@@ -308,7 +317,8 @@ export default function CommunityPage() {
                   placeholder="Enter PIN"
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  className="text-center text-2xl tracking-widest bg-background/10 border-background/20 text-background placeholder:text-background/40 focus:ring-brand focus:border-brand"
+                  className="text-center text-2xl tracking-widest bg-[#F7F9F9] border-[#1F2A44]/10 text-[#1F2A44] placeholder:text-[#1F2A44]/30 focus:ring-2 focus:border-transparent h-14"
+                  style={{ '--tw-ring-color': theme.primary } as React.CSSProperties}
                   maxLength={6}
                   autoFocus
                 />
@@ -332,7 +342,8 @@ export default function CommunityPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-brand hover:bg-brand/90 text-white h-12"
+                  className="w-full text-white h-14 text-lg font-semibold shadow-lg"
+                  style={{ backgroundColor: theme.primary }}
                   disabled={isLoading || pin.length < 4}
                 >
                   {isLoading ? 'Verifying...' : 'Enter Community'}
@@ -341,7 +352,7 @@ export default function CommunityPage() {
               </motion.form>
 
               <motion.p 
-                className="mt-8 text-sm text-background/40"
+                className="mt-8 text-sm text-[#1F2A44]/40"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: MOTION.normal }}
@@ -357,16 +368,16 @@ export default function CommunityPage() {
 
   // Community page (verified)
   return (
-    <div className="min-h-screen bg-foreground text-background overflow-hidden">
+    <div className={`min-h-screen bg-gradient-to-br ${theme.bgGradient} text-[#1F2A44] overflow-hidden`}>
+      {/* Playful background decorations */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-20" style={{ backgroundColor: theme.primary }} />
+        <div className="absolute top-1/3 -left-10 w-40 h-40 rounded-full opacity-15" style={{ backgroundColor: theme.secondary }} />
+        <div className="absolute bottom-20 right-1/4 w-32 h-32 rounded-full opacity-20" style={{ backgroundColor: theme.primary }} />
+      </div>
+
       {/* Hero */}
-      <section className="relative py-24 md:py-32">
-        <div 
-          className="absolute inset-0 bg-gradient-to-br via-foreground to-foreground" 
-          style={{ background: `linear-gradient(to bottom right, rgba(${theme.primaryRgb}, 0.2), var(--foreground), var(--foreground))` }}
-        />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-        }} />
+      <section className="relative py-16 md:py-24">
         
         <Container className="relative z-10">
           {/* Breadcrumb Navigation */}
@@ -374,63 +385,64 @@ export default function CommunityPage() {
             <nav className="flex items-center gap-2 text-sm">
               <Link 
                 href="/" 
-                className="flex items-center gap-1 text-background/50 hover:text-brand transition-colors"
+                className="flex items-center gap-1 text-[#1F2A44]/50 hover:text-[#1F2A44] transition-colors"
+                style={{ '--hover-color': theme.primary } as React.CSSProperties}
               >
                 <Home className="h-4 w-4" />
                 <span>Home</span>
               </Link>
-              <ChevronRight className="h-4 w-4 text-background/30" />
-              <span className="text-background/50">Community</span>
-              <ChevronRight className="h-4 w-4 text-background/30" />
-              <span className="text-background font-medium">{location?.name || 'Loading...'}</span>
+              <ChevronRight className="h-4 w-4 text-[#1F2A44]/30" />
+              <span className="text-[#1F2A44]/50">Community</span>
+              <ChevronRight className="h-4 w-4 text-[#1F2A44]/30" />
+              <span className="text-[#1F2A44] font-medium">{location?.name || 'Loading...'}</span>
             </nav>
           </FadeIn>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
             {/* Left: Welcome Message */}
             <FadeIn direction="up" className="lg:col-span-2">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-background/40 mb-4">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] mb-4" style={{ color: theme.primary }}>
                 Community
               </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight text-[#1F2A44]">
                 Hello, <span className="font-serif italic font-normal" style={{ color: theme.primary }}>{userName}!</span>
               </h1>
-              <p className="mt-4 text-2xl text-background/80 font-semibold">
+              <p className="mt-4 text-2xl text-[#1F2A44]/80 font-semibold">
                 {location?.name || 'Community'}
               </p>
-              <p className="mt-2 text-lg text-background/60">
+              <p className="mt-2 text-lg text-[#1F2A44]/60">
                 Connect with other parents and share experiences.
               </p>
               {location && (
                 <div 
-                  className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border"
-                  style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.2)`, borderColor: `rgba(${theme.primaryRgb}, 0.3)` }}
+                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full shadow-md"
+                  style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.15)`, border: `2px solid rgba(${theme.primaryRgb}, 0.3)` }}
                 >
                   <MapPin className="h-4 w-4" style={{ color: theme.primary }} />
-                  <span className="text-sm font-medium" style={{ color: theme.primary }}>{location.name}</span>
+                  <span className="text-sm font-semibold" style={{ color: theme.primary }}>{location.name}</span>
                 </div>
               )}
             </FadeIn>
 
             {/* Right: Members Section */}
             <FadeIn direction="up" delay={0.1} className="lg:col-span-1">
-              <div className="rounded-xl border border-background/10 bg-background/5 p-6">
+              <div className="rounded-2xl border-2 border-[#1F2A44]/5 bg-white/70 backdrop-blur-sm p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5" style={{ color: theme.primary }} />
-                    <h3 className="text-lg font-semibold">Members</h3>
+                    <h3 className="text-lg font-semibold text-[#1F2A44]">Members</h3>
                   </div>
-                  <span className="text-sm text-background/40">{members.length} total</span>
+                  <span className="text-sm text-[#1F2A44]/40">{members.length} total</span>
                 </div>
 
                 <div className="space-y-3">
                   {/* Real Members from API */}
                   {members.length === 0 ? (
-                    <p className="text-sm text-background/40 text-center py-4">No members yet</p>
+                    <p className="text-sm text-[#1F2A44]/40 text-center py-4">No members yet</p>
                   ) : (
                     <>
                       {members.slice(0, 4).map((member) => (
-                        <div key={member.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-background/5 transition-colors">
+                        <div key={member.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1F2A44]/5 transition-colors">
                           <div 
                             className="h-9 w-9 rounded-full flex items-center justify-center"
                             style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.2)` }}
@@ -438,16 +450,16 @@ export default function CommunityPage() {
                             <span className="text-xs font-bold" style={{ color: theme.primary }}>{member.initials}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{member.name}</p>
-                            <p className="text-xs text-background/40 capitalize">{member.role}</p>
+                            <p className="text-sm font-medium truncate text-[#1F2A44]">{member.name}</p>
+                            <p className="text-xs text-[#1F2A44]/40 capitalize">{member.role}</p>
                           </div>
                         </div>
                       ))}
 
                       {/* Show more members indicator */}
                       {members.length > 4 && (
-                        <div className="flex items-center gap-3 p-2 text-background/40">
-                          <div className="h-9 w-9 rounded-full bg-background/10 flex items-center justify-center">
+                        <div className="flex items-center gap-3 p-2 text-[#1F2A44]/40">
+                          <div className="h-9 w-9 rounded-full bg-[#1F2A44]/10 flex items-center justify-center">
                             <span className="text-xs font-medium">+{members.length - 4}</span>
                           </div>
                           <p className="text-sm">more members</p>
@@ -458,9 +470,9 @@ export default function CommunityPage() {
 
                   {/* Request to Join / Membership Status */}
                   {membershipStatus === 'pending' ? (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-background/10 border border-background/20">
-                      <Clock className="h-4 w-4 text-background/50" />
-                      <p className="text-sm text-background/50">Request pending approval</p>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                      <Clock className="h-4 w-4 text-amber-600" />
+                      <p className="text-sm text-amber-700">Request pending approval</p>
                     </div>
                   ) : membershipStatus === 'approved' ? (
                     <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.1)`, borderColor: `rgba(${theme.primaryRgb}, 0.3)` }}>
@@ -471,12 +483,12 @@ export default function CommunityPage() {
                     <button 
                       onClick={handleRequestMembership}
                       disabled={isRequestingMembership}
-                      className="w-full flex items-center gap-3 p-2 rounded-lg border border-dashed border-background/20 hover:border-brand/50 hover:bg-brand/5 transition-colors group disabled:opacity-50"
+                      className="w-full flex items-center gap-3 p-3 rounded-lg border-2 border-dashed border-[#1F2A44]/20 hover:border-[#1F2A44]/40 hover:bg-[#1F2A44]/5 transition-colors group disabled:opacity-50"
                     >
-                      <div className="h-9 w-9 rounded-full border border-dashed border-background/30 group-hover:border-brand/50 flex items-center justify-center transition-colors">
-                        <UserPlus className="h-4 w-4 text-background/40 group-hover:text-brand transition-colors" />
+                      <div className="h-9 w-9 rounded-full border-2 border-dashed border-[#1F2A44]/20 group-hover:border-[#1F2A44]/40 flex items-center justify-center transition-colors">
+                        <UserPlus className="h-4 w-4 text-[#1F2A44]/40 group-hover:text-[#1F2A44] transition-colors" />
                       </div>
-                      <p className="text-sm text-background/40 group-hover:text-brand transition-colors">
+                      <p className="text-sm text-[#1F2A44]/40 group-hover:text-[#1F2A44] transition-colors font-medium">
                         {isRequestingMembership ? 'Requesting...' : 'Request to join'}
                       </p>
                     </button>
@@ -489,10 +501,10 @@ export default function CommunityPage() {
       </section>
 
       {/* Discussion Threads */}
-      <section className="py-16 md:py-24">
+      <section className="relative py-16 md:py-24">
         <Container>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">Discussions</h2>
+            <h2 className="text-2xl font-bold text-[#1F2A44]">Discussions</h2>
             <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
               <Link href={`/community/${slug}/new` as Route}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -503,10 +515,10 @@ export default function CommunityPage() {
 
           {threads.length === 0 ? (
             <FadeIn direction="up">
-              <div className="text-center py-16 rounded-lg border border-background/10 bg-background/5">
-                <MessageCircle className="h-12 w-12 text-background/30 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No discussions yet</h3>
-                <p className="text-background/60 mb-6">Be the first to start a conversation!</p>
+              <div className="text-center py-16 rounded-2xl border-2 border-dashed border-[#1F2A44]/10 bg-white/50">
+                <MessageCircle className="h-12 w-12 mx-auto mb-4" style={{ color: theme.primary, opacity: 0.5 }} />
+                <h3 className="text-xl font-semibold mb-2 text-[#1F2A44]">No discussions yet</h3>
+                <p className="text-[#1F2A44]/60 mb-6">Be the first to start a conversation!</p>
                 <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
                   <Link href={`/community/${slug}/new` as Route}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -520,7 +532,7 @@ export default function CommunityPage() {
               {threads.map((thread) => (
                 <StaggerItem key={thread.id}>
                   <Link href={`/community/${slug}/thread/${thread.id}` as Route}>
-                    <div className="group p-6 rounded-lg border border-background/10 bg-background/5 hover:bg-background/10 transition-colors">
+                    <div className="group p-6 rounded-2xl border-2 border-[#1F2A44]/5 bg-white/70 backdrop-blur-sm hover:bg-white hover:shadow-lg hover:border-[#1F2A44]/10 transition-all">
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -531,13 +543,13 @@ export default function CommunityPage() {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-lg font-semibold transition-colors" style={{ '--hover-color': theme.primary } as React.CSSProperties}>
+                          <h3 className="text-lg font-semibold text-[#1F2A44] group-hover:text-[#1F2A44] transition-colors">
                             {thread.title}
                           </h3>
-                          <p className="mt-2 text-background/60 line-clamp-2">
+                          <p className="mt-2 text-[#1F2A44]/60 line-clamp-2">
                             {thread.content}
                           </p>
-                          <div className="mt-4 flex items-center gap-4 text-sm text-background/40">
+                          <div className="mt-4 flex items-center gap-4 text-sm text-[#1F2A44]/40">
                             <span className="flex items-center gap-1">
                               <User className="h-3 w-3" />
                               {thread.author.email.split('@')[0]}
@@ -552,7 +564,7 @@ export default function CommunityPage() {
                             </span>
                           </div>
                         </div>
-                        <ArrowRight className="h-5 w-5 text-background/30 transition-colors group-hover:opacity-100" style={{ color: theme.primary }} />
+                        <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-all" style={{ color: theme.primary }} />
                       </div>
                     </div>
                   </Link>

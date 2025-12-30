@@ -123,128 +123,141 @@ export default function NewThreadPage() {
 
   if (isVerified === null) {
     return (
-      <div className="min-h-screen bg-foreground text-background flex items-center justify-center">
-        <div className="animate-pulse text-background/60">Loading...</div>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="animate-pulse text-foreground/60">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-foreground text-background overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <section className="relative py-24 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-background to-background" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up">
-            <Link 
-              href={`/community/${slug}`}
-              className="inline-flex items-center gap-2 text-background/60 hover:text-brand mb-8 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Community
-            </Link>
+            <div className="max-w-2xl mx-auto">
+              <Link 
+                href={`/community/${slug}`}
+                className="inline-flex items-center gap-2 text-foreground/60 hover:text-brand mb-8 transition-colors text-sm font-medium"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Community
+              </Link>
 
-            <h1 className="text-3xl md:text-4xl font-display font-black">
-              Start a New <span className="font-serif italic font-normal text-brand">Discussion</span>
-            </h1>
-
-            <form onSubmit={handleSubmit} className="mt-8 max-w-2xl space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-background">Title *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="What's on your mind?"
-                  required
-                  className="bg-background/10 border-background/20 text-background placeholder:text-background/40"
-                />
+              <div className="text-center mb-10">
+                <h1 className="text-3xl md:text-4xl font-display font-black">
+                  Start a New <span className="font-serif italic font-normal text-brand">Discussion</span>
+                </h1>
+                <p className="text-foreground/60 mt-3">Share your thoughts with the community</p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="content" className="text-background">Content *</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Share your thoughts, questions, or experiences..."
-                  required
-                  rows={8}
-                  className="bg-background/10 border-background/20 text-background placeholder:text-background/40"
-                />
-              </div>
-
-              {/* Media Upload */}
-              <div className="space-y-2">
-                <Label className="text-background">Photos & Videos (optional)</Label>
-                <div className="flex flex-wrap gap-3">
-                  {mediaPreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      {mediaFiles[index]?.type.startsWith('video/') ? (
-                        <div className="w-24 h-24 rounded-lg bg-background/20 flex items-center justify-center border border-background/20">
-                          <Film className="h-8 w-8 text-background/60" />
-                        </div>
-                      ) : (
-                        <img
-                          src={preview}
-                          alt={`Upload ${index + 1}`}
-                          className="w-24 h-24 object-cover rounded-lg border border-background/20"
-                        />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeMedia(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {mediaFiles.length < 5 && (
-                    <label className="w-24 h-24 rounded-lg border-2 border-dashed border-background/30 hover:border-brand/50 flex flex-col items-center justify-center cursor-pointer transition-colors">
-                      <ImagePlus className="h-6 w-6 text-background/40" />
-                      <span className="text-xs text-background/40 mt-1">Add</span>
-                      <input
-                        type="file"
-                        accept="image/*,video/*"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Title Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-foreground font-semibold">
+                    Title <span className="text-brand">*</span>
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="What's on your mind?"
+                    required
+                    className="h-12 bg-white border-2 border-gray-200 focus:border-brand focus:ring-brand/20 text-foreground placeholder:text-foreground/40 rounded-xl shadow-sm"
+                  />
                 </div>
-                <p className="text-xs text-background/40">Max 5 files. Images up to 10MB, videos up to 100MB.</p>
-              </div>
 
-              {error && (
-                <p className="text-red-400 text-sm">{error}</p>
-              )}
+                {/* Content Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="content" className="text-foreground font-semibold">
+                    Content <span className="text-brand">*</span>
+                  </Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Share your thoughts, questions, or experiences..."
+                    required
+                    rows={8}
+                    className="bg-white border-2 border-gray-200 focus:border-brand focus:ring-brand/20 text-foreground placeholder:text-foreground/40 rounded-xl shadow-sm resize-none"
+                  />
+                </div>
 
-              <div className="flex gap-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="bg-brand hover:bg-brand/90 text-white"
-                  disabled={isSubmitting || !title || !content}
-                >
-                  {isSubmitting ? 'Posting...' : 'Post Discussion'}
-                  <Send className="h-4 w-4 ml-2" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="lg"
-                  className="text-background/70 hover:text-background hover:bg-background/10"
-                  onClick={() => router.back()}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
+                {/* Media Upload */}
+                <div className="space-y-3">
+                  <Label className="text-foreground font-semibold">Photos & Videos (optional)</Label>
+                  <div className="flex flex-wrap gap-4">
+                    {mediaPreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        {mediaFiles[index]?.type.startsWith('video/') ? (
+                          <div className="w-28 h-28 rounded-xl bg-gray-100 flex items-center justify-center border-2 border-gray-200 shadow-sm">
+                            <Film className="h-10 w-10 text-foreground/40" />
+                          </div>
+                        ) : (
+                          <img
+                            src={preview}
+                            alt={`Upload ${index + 1}`}
+                            className="w-28 h-28 object-cover rounded-xl border-2 border-gray-200 shadow-sm"
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeMedia(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {mediaFiles.length < 5 && (
+                      <label className="w-28 h-28 rounded-xl border-2 border-dashed border-gray-300 hover:border-brand hover:bg-brand/5 flex flex-col items-center justify-center cursor-pointer transition-all group">
+                        <ImagePlus className="h-8 w-8 text-gray-400 group-hover:text-brand transition-colors" />
+                        <span className="text-sm text-gray-400 group-hover:text-brand mt-1 font-medium transition-colors">Add</span>
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          multiple
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <p className="text-xs text-foreground/50">Max 5 files. Images up to 10MB, videos up to 100MB.</p>
+                </div>
+
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-red-600 text-sm font-medium">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="flex-1 h-12 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+                    disabled={isSubmitting || !title || !content}
+                  >
+                    {isSubmitting ? 'Posting...' : 'Post Discussion'}
+                    <Send className="h-4 w-4 ml-2" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="h-12 px-8 border-2 border-gray-200 text-foreground/70 hover:text-foreground hover:bg-gray-50 font-semibold rounded-xl"
+                    onClick={() => router.back()}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
           </FadeIn>
         </Container>
       </section>

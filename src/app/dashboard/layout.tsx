@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { DashboardSidebar, DashboardHeader } from '@/components/dashboard';
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { supabaseAdmin } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'dangzr1@gmail.com';
@@ -64,9 +65,12 @@ export default async function DashboardLayout({
           lastName={user?.lastName}
         />
 
-        {/* Page content */}
-        <main className="p-4 lg:p-6">{children}</main>
+        {/* Page content - extra bottom padding on mobile for floating nav */}
+        <main className="p-4 lg:p-6 pb-24 lg:pb-6">{children}</main>
       </div>
+
+      {/* Mobile floating bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

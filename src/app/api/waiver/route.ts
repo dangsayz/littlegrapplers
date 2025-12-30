@@ -1,61 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-interface WaiverSubmission {
-  guardianFullName: string;
-  guardianEmail: string;
-  guardianPhone?: string;
-  childFullName: string;
-  childDateOfBirth?: string;
-  emergencyContactName?: string;
-  emergencyContactPhone?: string;
-  planType: 'month-to-month' | '3-month' | '6-month';
-  digitalSignature: string;
-  photoMediaConsent: boolean;
-  agreedToTerms: boolean;
-}
+import {
+  waiverFormSchema,
+  validateData,
+  isRateLimited,
+  getClientIdentifier,
+  checkHoneypot,
+} from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
-    const body: WaiverSubmission = await request.json();
-
-    // Validate required fields
-    if (!body.guardianFullName || !body.guardianEmail || !body.childFullName || !body.digitalSignature || !body.agreedToTerms) {
+    // Rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimit = isRateLimited(clientId, 'waiver');
+    
+    if (rateLimit.limited) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    const body = await request.json();
+
+    // Check for bot/spam via honeypot
+    if (checkHoneypot(body)) {
+      return NextResponse.json({ success: true, message: 'Waiver received' });
+    }
+
+    // Validate and sanitize all input
+    const validation = validateData(waiverFormSchema, body);
+    
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.guardianEmail)) {
-      return NextResponse.json(
-        { error: 'Invalid email address' },
-        { status: 400 }
-      );
-    }
+    const data = validation.data;
 
     // Get IP address and user agent for legal records
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ipAddress = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Insert into Supabase
-    const { data, error } = await supabaseAdmin
+    // Insert into Supabase (data is already sanitized)
+    const { data: result, error } = await supabaseAdmin
       .from('signed_waivers')
       .insert({
-        guardian_full_name: body.guardianFullName,
-        guardian_email: body.guardianEmail,
-        guardian_phone: body.guardianPhone || null,
-        child_full_name: body.childFullName,
-        child_date_of_birth: body.childDateOfBirth || null,
-        emergency_contact_name: body.emergencyContactName || null,
-        emergency_contact_phone: body.emergencyContactPhone || null,
-        plan_type: body.planType,
-        digital_signature: body.digitalSignature,
-        photo_media_consent: body.photoMediaConsent,
-        agreed_to_terms: body.agreedToTerms,
+        guardian_full_name: data.guardianFullName,
+        guardian_email: data.guardianEmail,
+        guardian_phone: data.guardianPhone || null,
+        child_full_name: data.childFullName,
+        child_date_of_birth: data.childDateOfBirth || null,
+        emergency_contact_name: data.emergencyContactName || null,
+        emergency_contact_phone: data.emergencyContactPhone || null,
+        plan_type: data.planType || 'month-to-month',
+        digital_signature: data.digitalSignature,
+        photo_media_consent: data.photoMediaConsent,
+        agreed_to_terms: data.agreedToTerms,
         ip_address: ipAddress,
         user_agent: userAgent,
       })
@@ -73,7 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Waiver submitted successfully',
-      waiverId: data.id,
+      waiverId: result.id,
     });
   } catch (error) {
     console.error('Waiver submission error:', error);

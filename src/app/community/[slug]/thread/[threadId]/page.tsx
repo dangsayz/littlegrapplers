@@ -298,18 +298,18 @@ export default function ThreadPage() {
 
   if (isVerified === null || !thread) {
     return (
-      <div className="min-h-screen bg-foreground text-background flex items-center justify-center">
-        <div className="animate-pulse text-background/60">Loading...</div>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-foreground text-background overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <section className="relative py-16 md:py-24">
         <div 
           className="absolute inset-0" 
-          style={{ background: `linear-gradient(to bottom right, rgba(${theme.primaryRgb}, 0.2), var(--foreground), var(--foreground))` }}
+          style={{ background: `linear-gradient(to bottom right, rgba(${theme.primaryRgb}, 0.1), var(--background), var(--background))` }}
         />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
@@ -319,7 +319,7 @@ export default function ThreadPage() {
           <FadeIn direction="up">
             <Link 
               href={`/community/${slug}` as Route}
-              className="inline-flex items-center gap-2 text-background/60 hover:text-brand mb-8 transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-brand mb-8 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Community
@@ -342,7 +342,7 @@ export default function ThreadPage() {
                 {thread.title}
               </h1>
               <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm text-background/50">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <User className="h-4 w-4" />
                     {thread.author.email.split('@')[0]}
@@ -356,7 +356,7 @@ export default function ThreadPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={handleEditThread}
-                      className="flex items-center gap-1 text-sm text-background/60 hover:text-brand transition-colors"
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-brand transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                       Edit
@@ -374,31 +374,31 @@ export default function ThreadPage() {
             </div>
 
             {/* Original Post */}
-            <div className="p-6 rounded-lg border border-background/10 bg-background/5 mb-8">
+            <div className="p-6 rounded-lg border border-border bg-card mb-8">
               {isEditingThread ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-background/60 mb-1 block">Title</label>
+                    <label className="text-sm font-medium text-muted-foreground mb-1 block">Title</label>
                     <input
                       type="text"
                       value={editThreadTitle}
                       onChange={(e) => setEditThreadTitle(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-background/10 border border-background/20 text-background focus:outline-none focus:ring-2 focus:ring-brand"
+                      className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-brand"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-background/60 mb-1 block">Content</label>
+                    <label className="text-sm font-medium text-muted-foreground mb-1 block">Content</label>
                     <Textarea
                       value={editThreadContent}
                       onChange={(e) => setEditThreadContent(e.target.value)}
-                      className="bg-background/10 border-background/20 text-background min-h-[120px]"
+                      className="bg-muted border-border text-foreground min-h-[120px]"
                       rows={5}
                     />
                   </div>
                   {/* Media with remove option when editing */}
                   {thread.media && thread.media.length > 0 && (
                     <div>
-                      <label className="text-sm font-medium text-background/60 mb-2 block">Attachments</label>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">Attachments</label>
                       <div className="flex flex-wrap gap-3">
                         {thread.media.map((m) => (
                           <div key={m.id} className="relative group">
@@ -424,14 +424,14 @@ export default function ThreadPage() {
                     <Button className="bg-brand hover:bg-brand/90 text-white" onClick={handleSaveThread} disabled={isSavingThread}>
                       {isSavingThread ? 'Saving...' : 'Save Changes'}
                     </Button>
-                    <Button variant="ghost" onClick={() => setIsEditingThread(false)} className="text-background/60">
+                    <Button variant="ghost" onClick={() => setIsEditingThread(false)} className="text-muted-foreground">
                       Cancel
                     </Button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <p className="text-background/80 whitespace-pre-wrap">{thread.content}</p>
+                  <p className="text-foreground/80 whitespace-pre-wrap">{thread.content}</p>
                   {thread.media && thread.media.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-3">
                       {thread.media.map((m) => (
@@ -457,32 +457,32 @@ export default function ThreadPage() {
               </h2>
 
               {thread.replies.length === 0 ? (
-                <p className="text-background/50 py-8 text-center">No replies yet. Be the first to respond!</p>
+                <p className="text-muted-foreground py-8 text-center">No replies yet. Be the first to respond!</p>
               ) : (
                 <StaggerContainer className="space-y-4" staggerDelay={0.05}>
                   {thread.replies.map((reply) => (
                     <StaggerItem key={reply.id}>
-                      <div className="p-4 rounded-lg border border-background/10 bg-background/5">
+                      <div className="p-4 rounded-lg border border-border bg-card">
                         {editingReplyId === reply.id ? (
                           <div className="space-y-3">
                             <Textarea
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
-                              className="bg-background/10 border-background/20 text-background"
+                              className="bg-muted border-border text-foreground"
                               rows={3}
                             />
                             <div className="flex gap-2">
                               <Button size="sm" className="bg-brand hover:bg-brand/90 text-white" onClick={() => handleEditReply(reply.id)}>
                                 Save
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={() => setEditingReplyId(null)} className="text-background/60">
+                              <Button size="sm" variant="ghost" onClick={() => setEditingReplyId(null)} className="text-muted-foreground">
                                 Cancel
                               </Button>
                             </div>
                           </div>
                         ) : (
                           <>
-                            <p className="text-background/80 whitespace-pre-wrap">{reply.content}</p>
+                            <p className="text-foreground/80 whitespace-pre-wrap">{reply.content}</p>
                             {reply.media && reply.media.length > 0 && (
                               <div className="mt-3 flex flex-wrap gap-2">
                                 {reply.media.map((m) => (
@@ -498,7 +498,7 @@ export default function ThreadPage() {
                             )}
                           </>
                         )}
-                        <div className="mt-3 flex items-center justify-between text-xs text-background/40">
+                        <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                           <div className="flex items-center gap-4">
                             <span className="flex items-center gap-1">
                               <User className="h-3 w-3" />
@@ -513,7 +513,7 @@ export default function ThreadPage() {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => { setEditingReplyId(reply.id); setEditContent(reply.content); }}
-                                className="flex items-center gap-1 hover:text-background/70 transition-colors"
+                                className="flex items-center gap-1 hover:text-foreground transition-colors"
                               >
                                 <Pencil className="h-3 w-3" />
                                 Edit
@@ -536,7 +536,7 @@ export default function ThreadPage() {
             </div>
 
             {/* Reply Form */}
-            <div className="p-6 rounded-lg border border-background/10 bg-background/5">
+            <div className="p-6 rounded-lg border border-border bg-card">
               <h3 className="font-semibold mb-4">Add a Reply</h3>
               <form onSubmit={handleReply} className="space-y-4">
                 <Textarea
@@ -544,7 +544,7 @@ export default function ThreadPage() {
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Share your thoughts..."
                   rows={4}
-                  className="bg-background/10 border-background/20 text-background placeholder:text-background/40"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                 />
                 
                 {/* Media Upload for Reply */}
@@ -552,8 +552,8 @@ export default function ThreadPage() {
                   {replyMediaPreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       {replyMediaFiles[index]?.type.startsWith('video/') ? (
-                        <div className="w-16 h-16 rounded bg-background/20 flex items-center justify-center">
-                          <Film className="h-6 w-6 text-background/60" />
+                        <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
+                          <Film className="h-6 w-6 text-muted-foreground" />
                         </div>
                       ) : (
                         <img src={preview} alt="" className="w-16 h-16 object-cover rounded" />
@@ -568,8 +568,8 @@ export default function ThreadPage() {
                     </div>
                   ))}
                   {replyMediaFiles.length < 3 && (
-                    <label className="w-16 h-16 rounded border-2 border-dashed border-background/30 hover:border-brand/50 flex items-center justify-center cursor-pointer">
-                      <ImagePlus className="h-5 w-5 text-background/40" />
+                    <label className="w-16 h-16 rounded border-2 border-dashed border-border hover:border-brand/50 flex items-center justify-center cursor-pointer">
+                      <ImagePlus className="h-5 w-5 text-muted-foreground" />
                       <input
                         type="file"
                         accept="image/*,video/*"
@@ -601,14 +601,14 @@ export default function ThreadPage() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => !isDeleting && setShowDeleteThreadConfirm(false)}
           />
-          <div className="relative bg-foreground border border-background/20 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="relative bg-card border border-border rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-full bg-red-500/20">
                 <Trash2 className="h-5 w-5 text-red-400" />
               </div>
-              <h3 className="text-lg font-bold text-background">Delete Thread</h3>
+              <h3 className="text-lg font-bold text-foreground">Delete Thread</h3>
             </div>
-            <p className="text-background/70 mb-6">
+            <p className="text-muted-foreground mb-6">
               Are you sure you want to delete this thread? This action cannot be undone and all replies will be permanently removed.
             </p>
             <div className="flex gap-3 justify-end">
@@ -616,7 +616,7 @@ export default function ThreadPage() {
                 variant="ghost"
                 onClick={() => setShowDeleteThreadConfirm(false)}
                 disabled={isDeleting}
-                className="text-background/60 hover:text-background hover:bg-background/10"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>

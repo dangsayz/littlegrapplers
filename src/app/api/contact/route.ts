@@ -1,27 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendAdminNotification, createContactFormEmail } from '@/lib/email';
+import { supabaseAdmin } from '@/lib/supabase';
+import { 
+  contactFormSchema, 
+  validateData, 
+  isRateLimited, 
+  getClientIdentifier,
+  checkHoneypot,
+  sanitizeString 
+} from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimit = isRateLimited(clientId, 'contact');
+    
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     
-    const { firstName, lastName, email, phone, hearAbout, message } = body;
+    // Check for bot/spam via honeypot
+    if (checkHoneypot(body)) {
+      // Silently reject spam
+      return NextResponse.json({ success: true, message: 'Message received' });
+    }
     
-    // Validate required fields
-    if (!firstName || !lastName || !email || !phone || !hearAbout || !message) {
+    // Validate and sanitize all input
+    const validation = validateData(contactFormSchema, body);
+    
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: validation.error },
         { status: 400 }
       );
     }
     
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
+    const { firstName, lastName, email, phone, hearAbout, message } = validation.data;
+
+    // Store in database for admin inbox
+    const { error: dbError } = await supabaseAdmin
+      .from('contact_submissions')
+      .insert({
+        name: sanitizeString(`${firstName} ${lastName}`),
+        email,
+        phone,
+        reason: hearAbout,
+        message,
+        is_read: false,
+      });
+
+    if (dbError) {
+      console.error('[Contact] Database error:', dbError);
+      // Continue even if DB fails - still try to send email
     }
     
     // Create and send the email notification

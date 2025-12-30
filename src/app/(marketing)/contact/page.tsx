@@ -1,8 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Mail, MapPin, Phone, Send, ArrowRight, Clock, CheckCircle, Loader2, MessageSquare } from 'lucide-react';
+
+// Format phone number as user types: 000-000-0000
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// Character limits
+const LIMITS = {
+  name: 100,
+  email: 254,
+  phone: 12,
+  message: 2000,
+  shortText: 200,
+};
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +31,12 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [phone, setPhone] = useState('');
+  const [formLoadTime] = useState(Date.now());
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhoneInput(e.target.value));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,14 +44,56 @@ export default function ContactPage() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    
+    // Check honeypot (should be empty)
+    const honeypot = formData.get('website') as string;
+    if (honeypot) {
+      // Bot detected, silently fail
+      setIsSubmitted(true);
+      return;
+    }
+
+    // Check submission timing (too fast = bot)
+    const elapsed = (Date.now() - formLoadTime) / 1000;
+    if (elapsed < 3) {
+      setError('Please take your time filling out the form.');
+      setIsSubmitting(false);
+      return;
+    }
+
     const data = {
-      firstName: formData.get('firstName') as string,
-      lastName: formData.get('lastName') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
+      firstName: (formData.get('firstName') as string).trim(),
+      lastName: (formData.get('lastName') as string).trim(),
+      email: (formData.get('email') as string).trim().toLowerCase(),
+      phone: phone,
       hearAbout: formData.get('hearAbout') as string,
-      message: formData.get('message') as string,
+      message: (formData.get('message') as string).trim(),
     };
+
+    // Client-side validation
+    if (!data.firstName || !data.lastName) {
+      setError('Please enter your full name.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email)) {
+      setError('Please enter a valid email address.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!/^\d{3}-\d{3}-\d{4}$/.test(data.phone)) {
+      setError('Please enter a valid phone number (000-000-0000).');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (data.message.length < 10) {
+      setError('Please enter a message with at least 10 characters.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/contact', {
@@ -176,23 +241,39 @@ export default function ContactPage() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                      {/* Honeypot field - hidden from users, bots will fill it */}
+                      <div className="hidden" aria-hidden="true">
+                        <Label htmlFor="website">Website</Label>
+                        <Input
+                          id="website"
+                          name="website"
+                          type="text"
+                          tabIndex={-1}
+                          autoComplete="off"
+                        />
+                      </div>
+
                       <div className="grid gap-6 sm:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName" className="text-[#1F2A44] font-medium">First Name</Label>
+                          <Label htmlFor="firstName" className="text-[#1F2A44] font-medium">First Name *</Label>
                           <Input 
                             id="firstName" 
                             name="firstName" 
                             required 
+                            maxLength={LIMITS.name}
+                            pattern="[a-zA-Z\s'-]+"
                             placeholder="John" 
                             className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName" className="text-[#1F2A44] font-medium">Last Name</Label>
+                          <Label htmlFor="lastName" className="text-[#1F2A44] font-medium">Last Name *</Label>
                           <Input 
                             id="lastName" 
                             name="lastName" 
                             required 
+                            maxLength={LIMITS.name}
+                            pattern="[a-zA-Z\s'-]+"
                             placeholder="Doe"
                             className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
                           />
@@ -201,31 +282,35 @@ export default function ContactPage() {
 
                       <div className="grid gap-6 sm:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-[#1F2A44] font-medium">Email</Label>
+                          <Label htmlFor="email" className="text-[#1F2A44] font-medium">Email *</Label>
                           <Input
                             id="email"
                             name="email"
                             type="email"
                             required
+                            maxLength={LIMITS.email}
                             placeholder="john@example.com"
                             className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-[#1F2A44] font-medium">Phone</Label>
+                          <Label htmlFor="phone" className="text-[#1F2A44] font-medium">Phone *</Label>
                           <Input
                             id="phone"
                             name="phone"
                             type="tel"
                             required
-                            placeholder="(555) 123-4567"
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            maxLength={LIMITS.phone}
+                            placeholder="000-000-0000"
                             className="h-12 border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6]"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="hearAbout" className="text-[#1F2A44] font-medium">How did you hear about us?</Label>
+                        <Label htmlFor="hearAbout" className="text-[#1F2A44] font-medium">How did you hear about us? *</Label>
                         <select
                           id="hearAbout"
                           name="hearAbout"
@@ -243,15 +328,18 @@ export default function ContactPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="message" className="text-[#1F2A44] font-medium">Message</Label>
+                        <Label htmlFor="message" className="text-[#1F2A44] font-medium">Message *</Label>
                         <Textarea
                           id="message"
                           name="message"
                           required
-                          placeholder="Tell us how we can help you..."
+                          minLength={10}
+                          maxLength={LIMITS.message}
+                          placeholder="Tell us how we can help you... (min 10 characters)"
                           rows={5}
                           className="border-[#1F2A44]/20 focus:border-[#2EC4B6] focus:ring-[#2EC4B6] resize-none"
                         />
+                        <p className="text-xs text-[#1F2A44]/50 text-right">Max {LIMITS.message} characters</p>
                       </div>
 
                       <Button 

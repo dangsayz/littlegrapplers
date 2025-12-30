@@ -8,11 +8,23 @@ import {
   MessageSquare, 
   Users, 
   FileText,
+  FileCheck,
   ArrowRight,
-  Shield
+  Shield,
+  Mail,
+  DollarSign,
+  Video,
+  Megaphone,
+  Send,
+  GraduationCap,
+  CreditCard,
+  Activity,
+  Inbox,
+  TrendingUp,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { supabaseAdmin } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
@@ -24,20 +36,65 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
+  // Fetch dynamic stats
+  const [locationsRes, threadsRes, usersRes, contactsRes, waiversRes, newsletterRes] = await Promise.all([
+    supabaseAdmin.from('locations').select('*', { count: 'exact', head: true }).eq('is_active', true),
+    supabaseAdmin.from('discussion_threads').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('contact_submissions').select('*', { count: 'exact', head: true }).eq('is_read', false),
+    supabaseAdmin.from('signed_waivers').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('newsletter_subscribers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+  ]);
+
+  const stats = {
+    locations: locationsRes.count || 0,
+    threads: threadsRes.count || 0,
+    users: usersRes.count || 0,
+    unreadContacts: contactsRes.count || 0,
+    students: waiversRes.count || 0,
+    subscribers: newsletterRes.count || 0,
+  };
+
   const adminSections = [
+    {
+      title: 'Financials',
+      description: 'Revenue, memberships, and payments',
+      icon: DollarSign,
+      href: '/dashboard/admin/financials',
+      color: 'text-green-600',
+      stat: `${stats.students} students`,
+    },
+    {
+      title: 'Students',
+      description: 'View all enrolled students',
+      icon: GraduationCap,
+      href: '/dashboard/admin/students',
+      color: 'text-indigo-500',
+      stat: `${stats.students} enrolled`,
+    },
+    {
+      title: 'Waivers',
+      description: 'View signed enrollment waivers',
+      icon: FileCheck,
+      href: '/dashboard/admin/waivers',
+      color: 'text-teal-500',
+      stat: `${stats.students} signed`,
+    },
+    {
+      title: 'Memberships',
+      description: 'Manage contracts and billing',
+      icon: CreditCard,
+      href: '/dashboard/admin/memberships',
+      color: 'text-emerald-500',
+      stat: 'View all',
+    },
     {
       title: 'Locations',
       description: 'Manage location PINs and settings',
       icon: MapPin,
       href: '/dashboard/admin/locations',
       color: 'text-blue-500',
-    },
-    {
-      title: 'Community',
-      description: 'Moderate discussions and threads',
-      icon: MessageSquare,
-      href: '/dashboard/admin/community',
-      color: 'text-green-500',
+      stat: `${stats.locations} active`,
     },
     {
       title: 'Users',
@@ -45,13 +102,63 @@ export default async function AdminPage() {
       icon: Users,
       href: '/dashboard/admin/users',
       color: 'text-purple-500',
+      stat: `${stats.users} registered`,
     },
     {
-      title: 'Content',
-      description: 'Edit website content blocks',
-      icon: FileText,
-      href: '/dashboard/admin/content',
+      title: 'Community',
+      description: 'Moderate discussions and threads',
+      icon: MessageSquare,
+      href: '/dashboard/admin/community',
+      color: 'text-green-500',
+      stat: `${stats.threads} threads`,
+    },
+    {
+      title: 'Announcements',
+      description: 'Create and manage announcements',
+      icon: Megaphone,
+      href: '/dashboard/admin/announcements',
+      color: 'text-yellow-600',
+      stat: 'Manage',
+    },
+    {
+      title: 'Videos',
+      description: 'Manage technique video library',
+      icon: Video,
+      href: '/dashboard/admin/videos',
+      color: 'text-red-500',
+      stat: 'Manage',
+    },
+    {
+      title: 'Newsletter',
+      description: 'Manage email subscribers',
+      icon: Mail,
+      href: '/dashboard/admin/newsletter',
+      color: 'text-pink-500',
+      stat: `${stats.subscribers} subscribers`,
+    },
+    {
+      title: 'Email',
+      description: 'Send emails and campaigns',
+      icon: Send,
+      href: '/dashboard/admin/email',
+      color: 'text-cyan-500',
+      stat: 'Compose',
+    },
+    {
+      title: 'Contact Inbox',
+      description: 'View contact form submissions',
+      icon: Inbox,
+      href: '/dashboard/admin/contacts',
       color: 'text-orange-500',
+      stat: stats.unreadContacts > 0 ? `${stats.unreadContacts} unread` : 'All read',
+    },
+    {
+      title: 'Activity Log',
+      description: 'View system activity and audit trail',
+      icon: Activity,
+      href: '/dashboard/admin/activity',
+      color: 'text-slate-500',
+      stat: 'View logs',
     },
     {
       title: 'Settings',
@@ -59,6 +166,7 @@ export default async function AdminPage() {
       icon: Settings,
       href: '/dashboard/admin/settings',
       color: 'text-gray-500',
+      stat: 'Configure',
     },
   ];
 
@@ -80,29 +188,59 @@ export default async function AdminPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <Card className="border-green-200 bg-green-50/50">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-sm text-muted-foreground">Locations</p>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-green-600" />
+              <span className="text-sm text-muted-foreground">Students</span>
+            </div>
+            <div className="text-2xl font-bold text-green-600 mt-1">{stats.students}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-sm text-muted-foreground">Active Threads</p>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-blue-500" />
+              <span className="text-sm text-muted-foreground">Locations</span>
+            </div>
+            <div className="text-2xl font-bold mt-1">{stats.locations}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-sm text-muted-foreground">Registered Users</p>
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-purple-500" />
+              <span className="text-sm text-muted-foreground">Users</span>
+            </div>
+            <div className="text-2xl font-bold mt-1">{stats.users}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-sm text-muted-foreground">Contact Requests</p>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-green-500" />
+              <span className="text-sm text-muted-foreground">Threads</span>
+            </div>
+            <div className="text-2xl font-bold mt-1">{stats.threads}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-pink-500" />
+              <span className="text-sm text-muted-foreground">Subscribers</span>
+            </div>
+            <div className="text-2xl font-bold mt-1">{stats.subscribers}</div>
+          </CardContent>
+        </Card>
+        <Card className={stats.unreadContacts > 0 ? 'border-orange-200 bg-orange-50/50' : ''}>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Inbox className={`h-4 w-4 ${stats.unreadContacts > 0 ? 'text-orange-500' : 'text-muted-foreground'}`} />
+              <span className="text-sm text-muted-foreground">Unread</span>
+            </div>
+            <div className={`text-2xl font-bold mt-1 ${stats.unreadContacts > 0 ? 'text-orange-500' : ''}`}>{stats.unreadContacts}</div>
           </CardContent>
         </Card>
       </div>
@@ -123,12 +261,15 @@ export default async function AdminPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link href={section.href as Route}>
-                  Manage
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{section.stat}</span>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={section.href as Route}>
+                    Manage
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

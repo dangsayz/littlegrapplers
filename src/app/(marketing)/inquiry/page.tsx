@@ -3,6 +3,23 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
+
+// Format phone number as user types: 000-000-0000
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// Character limits
+const LIMITS = {
+  name: 100,
+  email: 254,
+  phone: 12,
+  message: 1000,
+  address: 300,
+};
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,10 +29,42 @@ import { Container } from '@/components/layout/container';
 export default function InquiryPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
+  const [formLoadTime] = useState(Date.now());
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhoneInput(e.target.value));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+    
+    // Check honeypot
+    const honeypot = formData.get('company_website') as string;
+    if (honeypot) {
+      setIsSubmitted(true);
+      return;
+    }
+
+    // Anti-bot timing check
+    const elapsed = (Date.now() - formLoadTime) / 1000;
+    if (elapsed < 3) {
+      setError('Please take your time filling out the form.');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate phone format
+    if (!/^\d{3}-\d{3}-\d{4}$/.test(phone)) {
+      setError('Please enter a valid phone number (000-000-0000).');
+      setIsLoading(false);
+      return;
+    }
     
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -53,12 +102,12 @@ export default function InquiryPage() {
   return (
     <>
       {/* Header */}
-      <section className="py-16 md:py-24 bg-foreground text-background">
+      <section className="py-16 md:py-24 bg-muted text-foreground">
         <Container>
           <div className="max-w-3xl">
             <Link 
               href="/" 
-              className="inline-flex items-center gap-2 text-background/60 hover:text-background transition-colors mb-8"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -67,7 +116,7 @@ export default function InquiryPage() {
               GET<br />
               <span className="text-brand">STARTED.</span>
             </h1>
-            <p className="mt-6 text-lg text-background/70 max-w-xl">
+            <p className="mt-6 text-lg text-muted-foreground max-w-xl">
               Fill out the form below and a Little Grapplers coach will reach out to you ASAP to discuss how we can bring BJJ to your child's daycare.
             </p>
           </div>
@@ -82,25 +131,37 @@ export default function InquiryPage() {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">Your Information</h2>
               
+              {/* Honeypot field */}
+              <div className="hidden" aria-hidden="true">
+                <Label htmlFor="company_website">Company Website</Label>
+                <Input id="company_website" name="company_website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
+
+              {error && (
+                <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name *</Label>
-                  <Input id="firstName" name="firstName" required placeholder="John" />
+                  <Input id="firstName" name="firstName" required maxLength={LIMITS.name} pattern="[a-zA-Z\s'-]+" placeholder="John" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name *</Label>
-                  <Input id="lastName" name="lastName" required placeholder="Smith" />
+                  <Input id="lastName" name="lastName" required maxLength={LIMITS.name} pattern="[a-zA-Z\s'-]+" placeholder="Smith" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address *</Label>
-                <Input id="email" name="email" type="email" required placeholder="john@example.com" />
+                <Input id="email" name="email" type="email" required maxLength={LIMITS.email} placeholder="john@example.com" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number *</Label>
-                <Input id="phone" name="phone" type="tel" required placeholder="(555) 123-4567" />
+                <Input id="phone" name="phone" type="tel" required value={phone} onChange={handlePhoneChange} maxLength={LIMITS.phone} placeholder="000-000-0000" />
               </div>
             </div>
 
@@ -111,11 +172,11 @@ export default function InquiryPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="childName">Child's Name *</Label>
-                  <Input id="childName" name="childName" required placeholder="Child's first name" />
+                  <Input id="childName" name="childName" required maxLength={LIMITS.name} pattern="[a-zA-Z\s'-]+" placeholder="Child's first name" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="childAge">Child's Age *</Label>
-                  <Input id="childAge" name="childAge" type="number" min="3" max="6" required placeholder="3-6" />
+                  <Input id="childAge" name="childAge" type="number" min="3" max="12" required placeholder="3-12" />
                 </div>
               </div>
             </div>
@@ -126,12 +187,12 @@ export default function InquiryPage() {
               
               <div className="space-y-2">
                 <Label htmlFor="daycareName">Daycare Name *</Label>
-                <Input id="daycareName" name="daycareName" required placeholder="ABC Daycare Center" />
+                <Input id="daycareName" name="daycareName" required maxLength={LIMITS.name} placeholder="ABC Daycare Center" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="daycareAddress">Daycare Address</Label>
-                <Input id="daycareAddress" name="daycareAddress" placeholder="123 Main St, Dallas, TX" />
+                <Input id="daycareAddress" name="daycareAddress" maxLength={LIMITS.address} placeholder="123 Main St, Dallas, TX" />
               </div>
             </div>
 
@@ -144,9 +205,11 @@ export default function InquiryPage() {
                 <Textarea 
                   id="message" 
                   name="message" 
+                  maxLength={LIMITS.message}
                   placeholder="Tell us anything else you'd like us to know..."
                   rows={4}
                 />
+                <p className="text-xs text-muted-foreground text-right">Max {LIMITS.message} characters</p>
               </div>
 
               <div className="space-y-2">

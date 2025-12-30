@@ -147,24 +147,24 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="bg-foreground text-background overflow-hidden">
+    <div className="bg-background text-foreground overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-background to-background" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mb-6">
               Got Questions?
             </p>
             <h1 className="text-5xl md:text-7xl font-display font-black leading-[0.9] tracking-tight">
               Frequently Asked<br />
               <span className="font-serif italic font-normal text-brand">Questions.</span>
             </h1>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Everything you need to know about Little Grapplers. Can't find what you're looking
               for? Reach out to our team.
             </p>
@@ -188,17 +188,17 @@ export default function FAQPage() {
                       return (
                         <div
                           key={itemId}
-                          className="overflow-hidden rounded-lg border border-background/10 bg-background/5"
+                          className="overflow-hidden rounded-lg border border-border bg-card"
                         >
                           <button
                             onClick={() => toggleItem(itemId)}
-                            className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-background/10"
+                            className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-muted"
                             aria-expanded={isOpen}
                           >
-                            <span className="font-medium pr-4 text-background">{item.question}</span>
+                            <span className="font-medium pr-4 text-foreground">{item.question}</span>
                             <ChevronDown
                               className={cn(
-                                'h-5 w-5 shrink-0 text-background/50 transition-transform duration-200',
+                                'h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200',
                                 isOpen && 'rotate-180'
                               )}
                             />
@@ -210,7 +210,7 @@ export default function FAQPage() {
                             )}
                           >
                             <div className="overflow-hidden">
-                              <div className="border-t border-background/10 px-6 py-4 text-background/60">
+                              <div className="border-t border-border px-6 py-4 text-muted-foreground">
                                 {item.answer}
                               </div>
                             </div>
@@ -228,19 +228,19 @@ export default function FAQPage() {
 
       {/* Still have questions */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground via-foreground to-[#0a0f1a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-muted via-muted to-muted" />
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-3xl mx-auto text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand/20 mb-8">
               <HelpCircle className="h-8 w-8 text-brand" />
             </div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
               Need More Help?
             </p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
               Still Have <span className="font-serif italic font-normal text-brand">Questions?</span>
             </h2>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto">
+            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto">
               We're here to help! Reach out to our team and we'll get back to you within 24
               hours.
             </p>
@@ -254,7 +254,7 @@ export default function FAQPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-background/20 text-background hover:bg-background hover:text-foreground h-12 px-8"
+                className="border-border text-foreground hover:bg-muted h-12 px-8"
                 asChild
               >
                 <Link href="/locations">Find a Location</Link>

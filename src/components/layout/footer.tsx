@@ -4,6 +4,7 @@ import { Mail, Phone, MapPin, Instagram, Facebook } from 'lucide-react';
 import { Container } from './container';
 import { Logo } from './logo';
 import { Separator } from '@/components/ui/separator';
+import { NewsletterSignup } from './newsletter-signup';
 
 type FooterLink = { label: string; href: Route };
 
@@ -31,14 +32,14 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="bg-muted text-foreground">
       <Container className="py-16 lg:py-20">
         {/* Main Footer Grid */}
         <div className="grid gap-12 lg:grid-cols-4 lg:gap-8">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Logo variant="light" />
-            <p className="mt-4 text-sm text-background/70">
+            <Logo variant="default" />
+            <p className="mt-4 text-sm text-muted-foreground">
               Building confident, disciplined, and resilient children through the art of Brazilian
               Jiu-Jitsu at partnered daycare facilities.
             </p>
@@ -47,7 +48,7 @@ export function Footer() {
                 href="https://instagram.com/littlegrapplers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-background/10 p-2.5 transition-colors hover:bg-background/20"
+                className="rounded-full bg-foreground/10 p-2.5 transition-colors hover:bg-foreground/20"
                 aria-label="Follow us on Instagram"
               >
                 <Instagram className="h-5 w-5" />
@@ -56,7 +57,7 @@ export function Footer() {
                 href="https://facebook.com/littlegrapplers"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-background/10 p-2.5 transition-colors hover:bg-background/20"
+                className="rounded-full bg-foreground/10 p-2.5 transition-colors hover:bg-foreground/20"
                 aria-label="Follow us on Facebook"
               >
                 <Facebook className="h-5 w-5" />
@@ -72,7 +73,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-background/70 transition-colors hover:text-background"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -89,7 +90,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-background/70 transition-colors hover:text-background"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -105,7 +106,7 @@ export function Footer() {
               <li>
                 <a
                   href="mailto:sshnaydbjj@gmail.com"
-                  className="inline-flex items-center gap-2 text-sm text-background/70 transition-colors hover:text-background"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Mail className="h-4 w-4" />
                   sshnaydbjj@gmail.com
@@ -114,27 +115,36 @@ export function Footer() {
               <li>
                 <a
                   href="tel:+14692095814"
-                  className="inline-flex items-center gap-2 text-sm text-background/70 transition-colors hover:text-background"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Phone className="h-4 w-4" />
                   +1 (469) 209-5814
                 </a>
               </li>
               <li>
-                <span className="inline-flex items-start gap-2 text-sm text-background/70">
+                <span className="inline-flex items-start gap-2 text-sm text-muted-foreground">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
                   Multiple locations across the city
                 </span>
               </li>
             </ul>
+
+            {/* Newsletter Signup */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <h4 className="mb-3 text-sm font-semibold">Stay Updated</h4>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Get news about programs, events, and promotions.
+              </p>
+              <NewsletterSignup variant="footer" source="footer" />
+            </div>
           </div>
         </div>
 
-        <Separator className="my-10 bg-background/20" />
+        <Separator className="my-10 bg-border" />
 
         {/* Bottom Bar */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-background/60">
+          <p className="text-sm text-muted-foreground">
             © {currentYear} Little Grapplers. All rights reserved.
           </p>
           <div className="flex gap-6">
@@ -142,7 +152,7 @@ export function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-background/60 transition-colors hover:text-background"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
               </Link>

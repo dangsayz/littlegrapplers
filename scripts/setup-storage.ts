@@ -6,8 +6,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 
-// Load environment variables from .env file
-config();
+// Load environment variables from .env.local file
+config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;

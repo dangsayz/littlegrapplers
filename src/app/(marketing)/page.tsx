@@ -363,50 +363,114 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          BENEFITS - Grid layout (no horizontal scroll)
+          BENEFITS - World-Class Premium Cards
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-white">
-        <Container>
-          <FadeIn direction="up" className="mb-16">
-            <span className="text-[#2EC4B6] text-sm font-bold tracking-[0.2em] uppercase">The Art</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-[#1F2A44]">
+      <section className="py-24 md:py-32 bg-gradient-to-b from-white via-[#F7F9F9] to-white relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#2EC4B6]/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F7931E]/10 rounded-full blur-[120px]" />
+        
+        <Container className="relative z-10">
+          <FadeIn direction="up" className="mb-20 text-center">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2EC4B6]/10 border border-[#2EC4B6]/20 mb-6"
+              whileHover={{ scale: 1.05 }}
+            >
+              <Sparkles className="h-4 w-4 text-[#2EC4B6]" />
+              <span className="text-[#2EC4B6] text-sm font-bold tracking-wide">The Art</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-[#1F2A44]">
               What is
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] to-[#FFC857]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] via-[#FF5A5F] to-[#FFC857] animate-gradient-x">
                 Brazilian Jiu-Jitsu?
               </span>
             </h2>
+            <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-2xl mx-auto">
+              More than martial arts — it's a journey of self-discovery that builds champions in life.
+            </p>
           </FadeIn>
 
-          {/* Grid layout */}
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={0.1}>
+          {/* Premium Cards Grid */}
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" staggerDelay={0.1}>
             {[
-              { icon: Dumbbell, title: 'Full-Body Fitness', desc: 'Develops strength, flexibility, and coordination', color: '#2EC4B6' },
-              { icon: Brain, title: 'Strategic Thinking', desc: 'Problem-solving skills through technique', color: '#F7931E' },
-              { icon: Heart, title: 'Teamwork & Respect', desc: 'Building friendships and social skills', color: '#FF5A5F' },
-              { icon: Shield, title: 'Bully-Proof Skills', desc: 'Confidence to handle any situation', color: '#FFC857' },
-            ].map((item) => (
+              { 
+                icon: Dumbbell, 
+                title: 'Full-Body Fitness', 
+                desc: 'Develops strength, flexibility, and coordination through dynamic movements', 
+                color: '#2EC4B6',
+                gradient: 'from-[#2EC4B6] to-[#8FE3CF]',
+                bgGradient: 'from-[#E8F8F5] to-white'
+              },
+              { 
+                icon: Brain, 
+                title: 'Strategic Thinking', 
+                desc: 'Problem-solving skills through technique — like physical chess', 
+                color: '#F7931E',
+                gradient: 'from-[#F7931E] to-[#FFC857]',
+                bgGradient: 'from-[#FFF8E8] to-white'
+              },
+              { 
+                icon: Heart, 
+                title: 'Teamwork & Respect', 
+                desc: 'Building lifelong friendships and essential social skills', 
+                color: '#FF5A5F',
+                gradient: 'from-[#FF5A5F] to-[#FF8A8F]',
+                bgGradient: 'from-[#FFF0F0] to-white'
+              },
+              { 
+                icon: Shield, 
+                title: 'Bully-Proof Skills', 
+                desc: 'Confidence to handle any situation with calm and control', 
+                color: '#6C63FF',
+                gradient: 'from-[#6C63FF] to-[#A29BFE]',
+                bgGradient: 'from-[#F0EFFF] to-white'
+              },
+            ].map((item, index) => (
               <StaggerItem key={item.title}>
-                <div className="group relative h-full rounded-3xl bg-[#F7F9F9] border border-[#1F2A44]/10 p-8 overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300">
-                  <div 
-                    className="absolute top-0 left-0 w-full h-1 rounded-t-3xl"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <div 
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px] opacity-0 group-hover:opacity-20 transition-opacity duration-500"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  
-                  <div 
-                    className="flex h-16 w-16 items-center justify-center rounded-2xl mb-6"
-                    style={{ backgroundColor: `${item.color}15` }}
-                  >
-                    <item.icon className="h-8 w-8" style={{ color: item.color }} />
+                <motion.div 
+                  className="group relative h-full rounded-[2rem] bg-white shadow-lg shadow-gray-200/50 overflow-hidden"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                >
+                  {/* Inner card */}
+                  <div className="relative h-full rounded-[2rem] bg-white p-8 overflow-hidden">
+                    {/* Floating background orb */}
+                    <motion.div 
+                      className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-30"
+                      style={{ background: `radial-gradient(circle, ${item.color}40 0%, transparent 70%)` }}
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 180, 360],
+                      }}
+                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                    />
+                    
+                    {/* Number indicator */}
+                    <div className="absolute top-6 right-6 text-6xl font-black text-[#1F2A44]/5 group-hover:text-[#1F2A44]/10 transition-colors">
+                      0{index + 1}
+                    </div>
+                    
+                    {/* Icon with animated background */}
+                    <motion.div 
+                      className={`relative flex h-20 w-20 items-center justify-center rounded-2xl mb-8 bg-gradient-to-br ${item.gradient} shadow-lg`}
+                      whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{ boxShadow: `0 10px 40px ${item.color}40` }}
+                    >
+                      <item.icon className="h-10 w-10 text-white" />
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                      </div>
+                    </motion.div>
+                    
+                    <h3 className="text-xl font-bold text-[#1F2A44] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r transition-all duration-300" style={{ '--tw-gradient-from': item.color, '--tw-gradient-to': item.color } as React.CSSProperties}>
+                      {item.title}
+                    </h3>
+                    <p className="text-[#1F2A44]/60 text-sm leading-relaxed">{item.desc}</p>
                   </div>
-                  
-                  <h3 className="text-xl font-bold text-[#1F2A44] mb-3">{item.title}</h3>
-                  <p className="text-[#1F2A44]/60 text-sm">{item.desc}</p>
-                </div>
+                </motion.div>
               </StaggerItem>
             ))}
           </StaggerContainer>

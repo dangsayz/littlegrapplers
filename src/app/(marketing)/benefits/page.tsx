@@ -108,24 +108,24 @@ const testimonials = [
 
 export default function BenefitsPage() {
   return (
-    <div className="bg-foreground text-background overflow-hidden dark">
+    <div className="bg-background text-foreground overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground dark:from-brand/40 dark:via-foreground dark:to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-background to-background" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mb-6">
               Why BJJ?
             </p>
             <h1 className="text-5xl md:text-7xl font-display font-black leading-[0.9] tracking-tight">
               Benefits That Last<br />
               <span className="font-serif italic font-normal text-brand">A Lifetime.</span>
             </h1>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Brazilian Jiu-Jitsu offers children far more than physical fitness. It's a complete
               developmental system that builds character, confidence, and capability.
             </p>
@@ -145,32 +145,32 @@ export default function BenefitsPage() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                 }} />
               </div>
             </FadeIn>
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
                 Physical Development
               </p>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
                 Build a Strong <span className="font-serif italic font-normal text-brand">Foundation</span>
               </h2>
-              <p className="mt-6 text-lg text-background/60 leading-relaxed">
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                 BJJ training develops physical capabilities that benefit children in all areas of
                 life, from sports to everyday activities.
               </p>
               <div className="mt-8 space-y-6">
                 {physicalBenefits.map((benefit) => (
                   <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background/10">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
                       <benefit.icon className="h-6 w-6 text-brand" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-background">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-background/60">{benefit.description}</p>
+                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
                     </div>
                   </div>
                 ))}
@@ -182,7 +182,7 @@ export default function BenefitsPage() {
 
       {/* Mental Benefits */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-muted to-muted" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
@@ -197,7 +197,7 @@ export default function BenefitsPage() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                 }} />
@@ -210,18 +210,18 @@ export default function BenefitsPage() {
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
                 Sharpen the <span className="font-serif italic font-normal text-brand">Mind</span>
               </h2>
-              <p className="mt-6 text-lg text-background/60 leading-relaxed">
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                 The mental challenges of BJJ translate directly to academic success and life skills.
               </p>
               <div className="mt-8 space-y-6">
                 {mentalBenefits.map((benefit) => (
                   <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background/10">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
                       <benefit.icon className="h-6 w-6 text-brand" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-background">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-background/60">{benefit.description}</p>
+                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
                     </div>
                   </div>
                 ))}
@@ -243,31 +243,31 @@ export default function BenefitsPage() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
                 }} />
               </div>
             </FadeIn>
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
                 Social Development
               </p>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
                 Learn to Work <span className="font-serif italic font-normal text-brand">Together</span>
               </h2>
-              <p className="mt-6 text-lg text-background/60 leading-relaxed">
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                 The unique partner-based nature of BJJ naturally develops important social skills.
               </p>
               <div className="mt-8 space-y-6">
                 {socialBenefits.map((benefit) => (
                   <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background/10">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
                       <benefit.icon className="h-6 w-6 text-brand" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-background">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-background/60">{benefit.description}</p>
+                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
                     </div>
                   </div>
                 ))}
@@ -279,20 +279,20 @@ export default function BenefitsPage() {
 
       {/* Self-Defense Section */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-foreground to-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-muted to-muted" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
               Self-Defense
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black">
               Real Self-Defense <span className="font-serif italic font-normal text-brand">Skills</span>
             </h2>
-            <p className="mt-6 text-lg text-background/60">
+            <p className="mt-6 text-lg text-muted-foreground">
               While we hope they never need it, children gain practical skills to protect themselves.
             </p>
           </FadeIn>
@@ -316,9 +316,9 @@ export default function BenefitsPage() {
               },
             ].map((item) => (
               <StaggerItem key={item.title}>
-                <div className="rounded-lg border border-background/10 bg-background/5 p-6 h-full">
-                  <h3 className="text-lg font-semibold text-background">{item.title}</h3>
-                  <p className="mt-2 text-background/60">{item.description}</p>
+                <div className="rounded-lg border border-border bg-card p-6 h-full">
+                  <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-muted-foreground">{item.description}</p>
                 </div>
               </StaggerItem>
             ))}
@@ -330,13 +330,13 @@ export default function BenefitsPage() {
       <section className="py-32 md:py-40">
         <Container>
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
               Testimonials
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black">
               What Parents <span className="font-serif italic font-normal text-brand">Say</span>
             </h2>
-            <p className="mt-6 text-lg text-background/60">
+            <p className="mt-6 text-lg text-muted-foreground">
               Real stories from real families in our program.
             </p>
           </FadeIn>
@@ -344,7 +344,7 @@ export default function BenefitsPage() {
           <StaggerContainer className="mt-16 grid gap-8 md:grid-cols-3" staggerDelay={0.1}>
             {testimonials.map((testimonial, index) => (
               <StaggerItem key={index}>
-                <div className="rounded-lg border border-background/10 bg-background/5 p-6 h-full">
+                <div className="rounded-lg border border-border bg-card p-6 h-full">
                   <svg
                     className="h-8 w-8 text-brand/50"
                     fill="currentColor"
@@ -352,10 +352,10 @@ export default function BenefitsPage() {
                   >
                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                   </svg>
-                  <p className="mt-4 text-background/70">{testimonial.quote}</p>
-                  <div className="mt-6 border-t border-background/10 pt-4">
-                    <div className="font-medium text-background">{testimonial.author}</div>
-                    <div className="text-sm text-background/50">{testimonial.role}</div>
+                  <p className="mt-4 text-foreground/70">{testimonial.quote}</p>
+                  <div className="mt-6 border-t border-border pt-4">
+                    <div className="font-medium text-foreground">{testimonial.author}</div>
+                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
                   </div>
                 </div>
               </StaggerItem>
@@ -366,16 +366,16 @@ export default function BenefitsPage() {
 
       {/* CTA Section */}
       <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground via-foreground to-[#0a0f1a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-muted via-muted to-muted" />
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-3xl mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/40 mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
               Get Started
             </p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
               Ready to Get <span className="font-serif italic font-normal text-brand">Started?</span>
             </h2>
-            <p className="mt-8 text-xl text-background/60 max-w-xl mx-auto">
+            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto">
               Give your child the gift of confidence, discipline, and self-defense skills. Find a
               location near you and enroll today.
             </p>
@@ -389,7 +389,7 @@ export default function BenefitsPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-background/20 text-background hover:bg-background hover:text-foreground h-12 px-8"
+                className="border-border text-foreground hover:bg-muted h-12 px-8"
                 asChild
               >
                 <Link href="/programs">View Programs</Link>
