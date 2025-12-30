@@ -28,78 +28,145 @@ const galleryImages = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-[#F7F9F9] text-[#1F2A44] overflow-hidden">
-      {/* Hero - Full Screen Cinematic */}
+    <div className="bg-[#FFF9F5] text-[#1F2A44] overflow-hidden">
+      {/* Hero - Full Screen with Pastel Magic */}
       <section className="relative min-h-screen flex items-center justify-center">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/images/highlights/LittleGrapplers-05865.jpg"
-            alt="Coach Stephen"
-            fill
-            className="object-cover object-top"
-            priority
-          />
-          {/* Light mode overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#F7F9F9] via-[#F7F9F9]/70 to-[#F7F9F9]/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F7F9F9]/90 via-transparent to-[#F7F9F9]/50" />
+        {/* Pastel gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFE5EC] via-[#E8F4F8] to-[#FFF0E5]" />
+        
+        {/* Premium grain texture overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.4] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat',
+          }}
+        />
+        
+        {/* Floating pastel shapes - playful & kid-friendly */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Large soft circle - top right */}
+          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-gradient-to-br from-[#FFD6E0]/60 to-[#FFAEC9]/40 blur-3xl animate-float" />
+          {/* Medium circle - left */}
+          <div className="absolute top-1/3 -left-32 w-72 h-72 rounded-full bg-gradient-to-tr from-[#B8E4F0]/50 to-[#87CEEB]/30 blur-2xl animate-float-delayed" />
+          {/* Small accent - bottom */}
+          <div className="absolute bottom-20 right-1/4 w-48 h-48 rounded-full bg-gradient-to-r from-[#FFE4B5]/50 to-[#FFDAB9]/40 blur-2xl animate-float" style={{ animationDelay: '1s' }} />
+          {/* Tiny floating dots */}
+          <div className="absolute top-1/4 right-1/3 w-4 h-4 rounded-full bg-[#FFB6C1] animate-bounce" style={{ animationDuration: '3s' }} />
+          <div className="absolute top-1/2 left-1/4 w-3 h-3 rounded-full bg-[#98D8C8] animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+          <div className="absolute bottom-1/3 right-1/5 w-5 h-5 rounded-full bg-[#FFE4B5] animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
         </div>
 
         {/* Hero Content */}
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-4xl">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#2EC4B6] mb-6">
-              The Man Behind the Mission
-            </p>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[0.9] tracking-tight text-[#1F2A44]">
-              Coach<br />
-              <span className="font-serif italic font-normal text-[#2EC4B6]">Stephen.</span>
+            {/* Playful badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 backdrop-blur-sm border border-[#FFB6C1]/30 shadow-lg shadow-[#FFB6C1]/10 mb-8">
+              <span className="w-2 h-2 rounded-full bg-[#FF6B9D] animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/70">
+                The Man Behind the Mission
+              </span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[0.9] tracking-tight">
+              <span className="text-[#1F2A44]">Coach</span><br />
+              <span className="font-serif italic font-normal bg-gradient-to-r from-[#2EC4B6] via-[#5BD4C8] to-[#F7931E] bg-clip-text text-transparent">Stephen.</span>
             </h1>
             <p className="mt-8 text-xl md:text-2xl text-[#1F2A44]/70 max-w-xl leading-relaxed">
               Brown belt. Educator. On a mission to build confident, 
               resilient kids through the art of Jiu-Jitsu.
             </p>
+            
+            {/* Playful decorative element */}
+            <div className="mt-10 flex items-center gap-3">
+              <div className="h-1 w-12 rounded-full bg-[#FFB6C1]" />
+              <div className="h-1 w-8 rounded-full bg-[#98D8C8]" />
+              <div className="h-1 w-4 rounded-full bg-[#FFE4B5]" />
+            </div>
           </FadeIn>
         </Container>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator - playful */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
-          <span className="text-xs uppercase tracking-widest text-[#1F2A44]/50">Scroll</span>
-          <div className="w-px h-16 bg-gradient-to-b from-[#2EC4B6] to-transparent" />
+          <span className="text-xs uppercase tracking-widest text-[#1F2A44]/40 font-medium">Scroll</span>
+          <div className="relative">
+            <div className="w-6 h-10 rounded-full border-2 border-[#2EC4B6]/40 flex justify-center pt-2">
+              <div className="w-1.5 h-3 rounded-full bg-[#2EC4B6] animate-bounce" />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-16 border-y border-[#1F2A44]/10 bg-white">
-        <Container>
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8" staggerDelay={0.1}>
-            {stats.map((stat) => (
-              <StaggerItem key={stat.label}>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-display font-black text-[#2EC4B6]">
-                    {stat.value}
+      {/* Stats Bar - Pastel cards */}
+      <section className="py-20 relative">
+        {/* Soft gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF5F7] via-white to-[#F0FAFA]" />
+        {/* Grain overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        
+        <Container className="relative z-10">
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6" staggerDelay={0.1}>
+            {stats.map((stat, i) => {
+              const colors = [
+                { bg: 'from-[#FFE5EC] to-[#FFF0F5]', accent: '#FF6B9D', border: '#FFB6C1' },
+                { bg: 'from-[#E5F4F1] to-[#F0FAFA]', accent: '#2EC4B6', border: '#98D8C8' },
+                { bg: 'from-[#FFF4E5] to-[#FFFAF0]', accent: '#F7931E', border: '#FFE4B5' },
+                { bg: 'from-[#EDE5FF] to-[#F5F0FF]', accent: '#8B5CF6', border: '#C4B5FD' },
+              ];
+              const color = colors[i % colors.length];
+              return (
+                <StaggerItem key={stat.label}>
+                  <div className={`relative p-6 rounded-3xl bg-gradient-to-br ${color.bg} border border-[${color.border}]/30 shadow-lg shadow-[${color.accent}]/5 hover:shadow-xl hover:scale-105 transition-all duration-300`}>
+                    <div className="text-center">
+                      <div className="text-4xl md:text-5xl font-display font-black" style={{ color: color.accent }}>
+                        {stat.value}
+                      </div>
+                      <div className="mt-2 text-sm uppercase tracking-widest text-[#1F2A44]/50 font-medium">
+                        {stat.label}
+                      </div>
+                    </div>
+                    {/* Decorative corner dot */}
+                    <div className="absolute top-3 right-3 w-2 h-2 rounded-full" style={{ backgroundColor: color.accent, opacity: 0.5 }} />
                   </div>
-                  <div className="mt-2 text-sm uppercase tracking-widest text-[#1F2A44]/50">
-                    {stat.label}
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
+                </StaggerItem>
+              );
+            })}
           </StaggerContainer>
         </Container>
       </section>
 
-      {/* Story Section - Asymmetric Layout */}
-      <section className="py-32 md:py-40 bg-[#F7F9F9]">
-        <Container>
+      {/* Story Section - Playful Asymmetric Layout */}
+      <section className="py-32 md:py-40 relative">
+        {/* Pastel background with floating shapes */}
+        <div className="absolute inset-0 bg-gradient-to-bl from-[#FFF9F5] via-[#FFFAF8] to-[#F5FFFA]" />
+        {/* Grain */}
+        <div 
+          className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        {/* Floating decorative blobs */}
+        <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-gradient-to-br from-[#FFE4B5]/40 to-[#FFDAB9]/20 blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full bg-gradient-to-tr from-[#B8E4F0]/30 to-[#98D8C8]/20 blur-2xl" />
+        
+        <Container className="relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             {/* Text */}
             <FadeIn direction="up" className="order-2 lg:order-1">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#F7931E] mb-6">
-                The Journey
-              </p>
+              <div className="inline-flex items-center gap-2 mb-6">
+                <div className="h-1 w-8 rounded-full bg-[#F7931E]" />
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#F7931E]">
+                  The Journey
+                </p>
+              </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight text-[#1F2A44]">
-                From the mats to the <span className="font-serif italic font-normal text-[#2EC4B6]">mission.</span>
+                From the mats to the <span className="font-serif italic font-normal bg-gradient-to-r from-[#2EC4B6] to-[#5BD4C8] bg-clip-text text-transparent">mission.</span>
               </h2>
               <div className="mt-8 space-y-6 text-lg text-[#1F2A44]/70 leading-relaxed">
                 <p>
@@ -115,44 +182,82 @@ export default function AboutPage() {
               </div>
             </FadeIn>
 
-            {/* Image */}
+            {/* Image with playful frame */}
             <FadeIn direction="up" delay={0.2} className="order-1 lg:order-2">
-              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-[#2EC4B6]/20">
-                <Image
-                  src="/images/highlights/LittleGrapplers-05858.jpg"
-                  alt="Coach Stephen teaching"
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative">
+                {/* Decorative background shape */}
+                <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[#FFB6C1]/30 via-[#98D8C8]/20 to-[#FFE4B5]/30 blur-sm" />
+                <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-[#FF6B9D]/10 border-4 border-white">
+                  <Image
+                    src="/images/highlights/LittleGrapplers-05858.jpg"
+                    alt="Coach Stephen teaching"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {/* Floating accent badges */}
+                <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full bg-[#FFE4B5] border-4 border-white shadow-lg flex items-center justify-center">
+                  <span className="text-lg">⭐</span>
+                </div>
+                <div className="absolute -bottom-3 -left-3 w-10 h-10 rounded-full bg-[#98D8C8] border-4 border-white shadow-lg flex items-center justify-center">
+                  <span className="text-sm">🥋</span>
+                </div>
               </div>
             </FadeIn>
           </div>
         </Container>
       </section>
 
-      {/* Vision Section - Full Width */}
-      <section className="relative py-32 md:py-40 bg-gradient-to-br from-[#8FE3CF]/20 via-white to-[#2EC4B6]/10">
+      {/* Vision Section - Dreamy pastel world */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
+        {/* Beautiful pastel gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E8F8F5] via-[#FFF5F8] to-[#FFF8E7]" />
+        {/* Premium grain texture */}
+        <div 
+          className="absolute inset-0 opacity-[0.4] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        {/* Floating dream shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-10 left-1/4 w-72 h-72 rounded-full bg-gradient-to-br from-[#98D8C8]/40 to-[#B8E4F0]/20 blur-3xl animate-float" />
+          <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-gradient-to-tr from-[#FFB6C1]/30 to-[#FFD6E0]/20 blur-3xl animate-float-delayed" />
+          <div className="absolute top-1/2 left-10 w-40 h-40 rounded-full bg-gradient-to-r from-[#FFE4B5]/40 to-[#FFDAB9]/20 blur-2xl" />
+        </div>
+        
         <Container className="relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            {/* Image */}
+            {/* Image with dreamy frame */}
             <FadeIn direction="up">
-              <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-[#2EC4B6]/20">
-                <Image
-                  src="/images/highlights/LittleGrapplers-05971.jpg"
-                  alt="Little Grapplers training"
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative">
+                <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-tr from-[#98D8C8]/40 via-[#FFB6C1]/30 to-[#FFE4B5]/40 blur-md" />
+                <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl shadow-[#2EC4B6]/15 border-4 border-white/80">
+                  <Image
+                    src="/images/highlights/LittleGrapplers-05971.jpg"
+                    alt="Little Grapplers training"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {/* Playful floating elements */}
+                <div className="absolute -top-4 left-1/4 w-8 h-8 rounded-full bg-[#2EC4B6] shadow-lg flex items-center justify-center animate-bounce" style={{ animationDuration: '2s' }}>
+                  <span className="text-white text-xs">✨</span>
+                </div>
+                <div className="absolute -bottom-2 right-1/3 w-6 h-6 rounded-full bg-[#F7931E] shadow-lg animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
               </div>
             </FadeIn>
 
             {/* Text */}
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2EC4B6] mb-6">
-                The Vision
-              </p>
+              <div className="inline-flex items-center gap-2 mb-6">
+                <div className="h-1 w-8 rounded-full bg-[#2EC4B6]" />
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2EC4B6]">
+                  The Vision
+                </p>
+              </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight text-[#1F2A44]">
-                BJJ where kids <span className="font-serif italic font-normal text-[#F7931E]">already are.</span>
+                BJJ where kids <span className="font-serif italic font-normal bg-gradient-to-r from-[#F7931E] to-[#FFC857] bg-clip-text text-transparent">already are.</span>
               </h2>
               <div className="mt-8 space-y-6 text-lg text-[#1F2A44]/70 leading-relaxed">
                 <p>
@@ -164,7 +269,8 @@ export default function AboutPage() {
                   Little Grapplers introduces children to a discipline that promotes both mental 
                   and physical growth—an offering that sets the program apart.
                 </p>
-                <p className="text-[#1F2A44] font-medium">
+                <p className="text-[#1F2A44] font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#FF6B9D]" />
                   One confident, disciplined child at a time.
                 </p>
               </div>
@@ -173,37 +279,55 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Photo Gallery */}
-      <section className="py-32 md:py-40 bg-white">
-        <Container>
+      {/* Photo Gallery - Playful mosaic */}
+      <section className="py-32 md:py-40 relative">
+        {/* Soft background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFAF8] via-white to-[#FFF5F7]" />
+        {/* Grain */}
+        <div 
+          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        
+        <Container className="relative z-10">
           <FadeIn direction="up" className="text-center mb-16">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFC857] mb-6">
-              On The Mats
-            </p>
+            <div className="inline-flex items-center gap-2 mb-6">
+              <div className="h-1 w-4 rounded-full bg-[#FFC857]" />
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFC857]">
+                On The Mats
+              </p>
+              <div className="h-1 w-4 rounded-full bg-[#FFC857]" />
+            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black text-[#1F2A44]">
-              Where the <span className="font-serif italic font-normal text-[#2EC4B6]">magic</span> happens.
+              Where the <span className="font-serif italic font-normal bg-gradient-to-r from-[#2EC4B6] to-[#98D8C8] bg-clip-text text-transparent">magic</span> happens.
             </h2>
           </FadeIn>
 
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4" staggerDelay={0.1}>
-            {galleryImages.map((src, i) => (
-              <StaggerItem key={src}>
-                <div className={`relative overflow-hidden rounded-2xl shadow-lg ${i === 0 ? 'md:col-span-2 md:row-span-2 aspect-square' : 'aspect-square'}`}>
-                  <Image
-                    src={src}
-                    alt={`Little Grapplers training ${i + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-700 hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-[#1F2A44]/10 hover:bg-transparent transition-colors duration-500" />
-                </div>
-              </StaggerItem>
-            ))}
+            {galleryImages.map((src, i) => {
+              const borderColors = ['#FFB6C1', '#98D8C8', '#FFE4B5', '#B8E4F0'];
+              return (
+                <StaggerItem key={src}>
+                  <div className={`relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] ${i === 0 ? 'md:col-span-2 md:row-span-2 aspect-square' : 'aspect-square'}`}
+                    style={{ border: `4px solid ${borderColors[i % borderColors.length]}40` }}>
+                    <Image
+                      src={src}
+                      alt={`Little Grapplers training ${i + 1}`}
+                      fill
+                      className="object-cover transition-transform duration-700 hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44]/20 via-transparent to-transparent hover:from-transparent transition-all duration-500" />
+                  </div>
+                </StaggerItem>
+              );
+            })}
           </StaggerContainer>
         </Container>
       </section>
 
-      {/* Signature Section - Cinematic Split */}
+      {/* Signature Section - Dreamy Split with Pastel */}
       <section className="relative overflow-hidden">
         <div className="grid lg:grid-cols-2 min-h-[70vh]">
           {/* Left - Image */}
@@ -214,25 +338,38 @@ export default function AboutPage() {
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#F7F9F9]/80 lg:block hidden" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#F7F9F9] via-[#F7F9F9]/60 to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFF9F5]/40 to-[#FFF9F5] lg:block hidden" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#FFF9F5] via-[#FFF9F5]/60 to-transparent lg:hidden" />
           </div>
 
-          {/* Right - Content */}
-          <div className="relative flex items-center bg-[#F7F9F9] py-20 lg:py-32">
+          {/* Right - Content with pastel background */}
+          <div className="relative flex items-center py-20 lg:py-32">
+            {/* Pastel background */}
+            <div className="absolute inset-0 bg-gradient-to-bl from-[#FFE5EC]/50 via-[#FFF9F5] to-[#E8F8F5]/30" />
+            {/* Grain */}
+            <div 
+              className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+              }}
+            />
+            {/* Floating accent */}
+            <div className="absolute top-20 right-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#FFB6C1]/30 to-[#FFD6E0]/20 blur-2xl" />
+            
             <Container className="relative z-10">
               <FadeIn direction="up" className="max-w-lg">
-                {/* Belt rank indicator */}
+                {/* Belt rank indicator - playful */}
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1 w-12 rounded-full bg-[#8B4513]" />
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/50">
+                  <div className="h-2 w-16 rounded-full bg-gradient-to-r from-[#8B4513] to-[#A0522D]" />
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/60">
                     Brown Belt
                   </span>
+                  <span className="text-sm">🥋</span>
                 </div>
 
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#1F2A44] leading-[0.95]">
                   Stephen<br />
-                  <span className="font-serif italic font-normal text-[#2EC4B6]">Shnayderman</span>
+                  <span className="font-serif italic font-normal bg-gradient-to-r from-[#2EC4B6] to-[#5BD4C8] bg-clip-text text-transparent">Shnayderman</span>
                 </h2>
 
                 <p className="mt-8 text-lg text-[#1F2A44]/70 leading-relaxed">
@@ -240,16 +377,16 @@ export default function AboutPage() {
                   of confident, disciplined martial artists—one class at a time.
                 </p>
 
-                {/* Credentials */}
+                {/* Credentials - playful pastel badges */}
                 <div className="mt-10 flex flex-wrap gap-3">
-                  <span className="px-4 py-2 rounded-full border border-[#2EC4B6]/30 bg-[#2EC4B6]/10 text-sm text-[#1F2A44]/80">
-                    10+ Years Training
+                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#E5F4F1] to-[#D4F1ED] border border-[#98D8C8]/40 text-sm text-[#1F2A44]/80 shadow-sm">
+                    ⭐ 10+ Years Training
                   </span>
-                  <span className="px-4 py-2 rounded-full border border-[#F7931E]/30 bg-[#F7931E]/10 text-sm text-[#1F2A44]/80">
-                    BJJ Brown Belt
+                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF4E5] to-[#FFEDD5] border border-[#FFE4B5]/40 text-sm text-[#1F2A44]/80 shadow-sm">
+                    🥋 BJJ Brown Belt
                   </span>
-                  <span className="px-4 py-2 rounded-full border border-[#FFC857]/30 bg-[#FFC857]/10 text-sm text-[#1F2A44]/80">
-                    Youth Specialist
+                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFE5EC] to-[#FFD6E0] border border-[#FFB6C1]/40 text-sm text-[#1F2A44]/80 shadow-sm">
+                    💪 Youth Specialist
                   </span>
                 </div>
               </FadeIn>
@@ -258,13 +395,35 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 md:py-40 relative bg-gradient-to-br from-[#2EC4B6] to-[#1a9e92]">
+      {/* CTA Section - Playful pastel with wow factor */}
+      <section className="py-32 md:py-40 relative overflow-hidden">
+        {/* Dreamy gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6] via-[#3DD4C6] to-[#5BD4C8]" />
+        {/* Premium grain texture */}
+        <div 
+          className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        {/* Floating shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-white/10 blur-2xl animate-float" />
+          <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-[#FFC857]/20 blur-3xl animate-float-delayed" />
+          <div className="absolute top-1/3 right-1/4 w-20 h-20 rounded-full bg-[#FFB6C1]/20 blur-xl" />
+          {/* Playful dots */}
+          <div className="absolute top-1/4 left-1/3 w-4 h-4 rounded-full bg-white/40 animate-bounce" style={{ animationDuration: '3s' }} />
+          <div className="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-[#FFC857]/60 animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+        </div>
+        
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-3xl mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/70 mb-6">
-              Ready to Start?
-            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-8">
+              <span className="w-2 h-2 rounded-full bg-[#FFC857] animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/90">
+                Ready to Start?
+              </span>
+            </div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight text-white">
               Let's build something <span className="font-serif italic font-normal text-[#FFC857]">great</span> together.
             </h2>
@@ -273,13 +432,13 @@ export default function AboutPage() {
               Coach Stephen would love to hear from you.
             </p>
             <div className="mt-12 flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-white hover:bg-white/90 text-[#1F2A44] h-12 px-8" asChild>
+              <Button size="lg" className="bg-white hover:bg-white/90 text-[#1F2A44] h-14 px-10 rounded-full shadow-xl shadow-black/10 hover:scale-105 transition-all duration-300" asChild>
                 <Link href="/contact">
                   Get in Touch
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white hover:text-[#1F2A44] h-12 px-8" asChild>
+              <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white hover:text-[#1F2A44] h-14 px-10 rounded-full backdrop-blur-sm hover:scale-105 transition-all duration-300" asChild>
                 <Link href="/inquiry">
                   Enroll Now
                   <ArrowRight className="h-5 w-5" />

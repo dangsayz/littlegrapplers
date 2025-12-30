@@ -67,6 +67,60 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			/* ============================================
+  			   PASTEL DESIGN SYSTEM
+  			   See docs/PASTEL-DESIGN-SYSTEM.md
+  			   ============================================ */
+  			pastel: {
+  				pink: {
+  					50: '#FFF0F5',
+  					100: '#FFE5EC',
+  					200: '#FFD6E0',
+  					300: '#FFB6C1',
+  					400: '#FF8FAB',
+  					500: '#FF6B9D',
+  				},
+  				mint: {
+  					50: '#F0FAFA',
+  					100: '#E5F4F1',
+  					200: '#D4F1ED',
+  					300: '#98D8C8',
+  					400: '#5BD4C8',
+  					500: '#2EC4B6',
+  				},
+  				peach: {
+  					50: '#FFFAF0',
+  					100: '#FFF4E5',
+  					200: '#FFEDD5',
+  					300: '#FFE4B5',
+  					400: '#FFC857',
+  					500: '#F7931E',
+  				},
+  				lavender: {
+  					50: '#F5F0FF',
+  					100: '#EDE5FF',
+  					200: '#DDD6FE',
+  					300: '#C4B5FD',
+  					400: '#A78BFA',
+  					500: '#8B5CF6',
+  				},
+  				sky: {
+  					50: '#F0F8FF',
+  					100: '#E5F3FF',
+  					200: '#BAE6FD',
+  					300: '#87CEEB',
+  					400: '#38BDF8',
+  					500: '#0EA5E9',
+  				},
+  				cream: {
+  					50: '#FFFEF5',
+  					100: '#FFFBEB',
+  					200: '#FEF3C7',
+  					300: '#FDE68A',
+  					400: '#FBBF24',
+  					500: '#EAB308',
+  				},
   			}
   		},
   		borderRadius: {

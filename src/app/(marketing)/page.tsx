@@ -287,74 +287,192 @@ export default function HomePage() {
 
       
       {/* ═══════════════════════════════════════════════════════════════════════
-          BENTO GRID - Mission & Video
+          BENTO GRID - Mission & Video (Enhanced with Pastel Design System)
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="story" className="py-24 md:py-32">
-        <Container>
+      <section id="story" className="py-24 md:py-32 relative overflow-hidden">
+        {/* Section background with pastel gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F5] via-[#F7F9F9] to-[#F0FAFA]" />
+        {/* Premium grain texture */}
+        <div 
+          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        {/* Floating decorative blobs */}
+        <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-gradient-to-br from-[#FFB6C1]/30 to-[#FFD6E0]/20 blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-gradient-to-tr from-[#98D8C8]/25 to-[#B8E4F0]/15 blur-3xl animate-float-delayed" />
+        
+        <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Large mission card */}
+            {/* Large mission card - Enhanced */}
             <FadeIn direction="up" className="lg:col-span-7">
-              <div className="relative h-full min-h-[400px] rounded-3xl bg-gradient-to-br from-[#2EC4B6] to-[#1a9e92] p-8 md:p-12 overflow-hidden group shadow-2xl shadow-[#2EC4B6]/20">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] group-hover:bg-white/20 transition-all duration-700" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#8FE3CF]/30 rounded-full blur-[60px]" />
+              <div className="relative h-full min-h-[400px] rounded-[2rem] overflow-hidden group shadow-2xl shadow-[#2EC4B6]/20">
+                {/* Multi-layer gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6] via-[#3DD4C6] to-[#1a9e92]" />
+                {/* Grain texture on card */}
+                <div 
+                  className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                  }}
+                />
+                {/* Floating pastel accents */}
+                <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-white/20 to-[#FFE4B5]/20 rounded-full blur-[80px] group-hover:from-white/30 transition-all duration-700" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[#FFB6C1]/20 to-[#8FE3CF]/30 rounded-full blur-[60px]" />
+                <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-[#FFC857]/20 rounded-full blur-[40px]" />
+                {/* Playful floating dots */}
+                <motion.div 
+                  className="absolute top-8 right-8 w-3 h-3 rounded-full bg-[#FFC857]"
+                  animate={{ y: [0, -8, 0], scale: [1, 1.2, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <motion.div 
+                  className="absolute bottom-16 right-16 w-2 h-2 rounded-full bg-[#FFB6C1]"
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                />
+                <motion.div 
+                  className="absolute top-1/3 left-8 w-2 h-2 rounded-full bg-white/60"
+                  animate={{ y: [0, -10, 0], opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                />
                 
-                <div className="relative z-10 h-full flex flex-col justify-between">
+                <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12">
                   <div>
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider mb-6">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wider mb-6 border border-white/10">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FFC857] animate-pulse" />
                       Our Mission
                     </span>
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-white">
                       Empower
                       <br />
-                      <span className="text-[#FFC857]">
+                      <span className="bg-gradient-to-r from-[#FFC857] via-[#FFE4B5] to-[#FFC857] bg-clip-text text-transparent">
                         your kids.
                       </span>
                     </h2>
                   </div>
                   
-                  <p className="mt-8 text-lg text-white/80 max-w-md leading-relaxed">
-                    We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
-                  </p>
+                  <div>
+                    <p className="text-lg text-white/85 max-w-md leading-relaxed">
+                      We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
+                    </p>
+                    {/* Decorative line */}
+                    <div className="mt-6 flex items-center gap-2">
+                      <div className="h-1 w-12 rounded-full bg-[#FFC857]" />
+                      <div className="h-1 w-6 rounded-full bg-white/40" />
+                      <div className="h-1 w-3 rounded-full bg-[#FFB6C1]/60" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </FadeIn>
 
-            {/* Video card */}
+            {/* Video card - Enhanced */}
             <FadeIn direction="up" delay={0.1} className="lg:col-span-5">
-              <div className="relative h-full min-h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
-                <Image
-                  src="/images/highlights/LittleGrapplers-05971.jpg"
-                  alt="Training session"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+              <div className="relative h-full min-h-[400px]">
+                {/* Decorative pastel frame */}
+                <div className="absolute -inset-2 rounded-[2.5rem] bg-gradient-to-br from-[#FFB6C1]/40 via-[#98D8C8]/30 to-[#FFE4B5]/40 blur-sm" />
                 
-                {/* Play button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:scale-110 group-hover:bg-[#2EC4B6] transition-all duration-300">
-                    <Play className="h-8 w-8 text-white ml-1" />
+                <div className="relative h-full rounded-[2rem] overflow-hidden group cursor-pointer border-4 border-white shadow-2xl shadow-[#FF6B9D]/10">
+                  <Image
+                    src="/images/highlights/LittleGrapplers-05971.jpg"
+                    alt="Training session"
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44]/60 via-[#1F2A44]/20 to-transparent group-hover:from-[#1F2A44]/50 transition-colors duration-500" />
+                  
+                  {/* Play button - Enhanced */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div 
+                      className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border-2 border-white/30 shadow-2xl"
+                      whileHover={{ scale: 1.1, backgroundColor: 'rgba(46, 196, 182, 0.9)' }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
+                      <Play className="h-8 w-8 text-white ml-1" />
+                    </motion.div>
+                  </div>
+                  
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <span className="inline-flex items-center gap-1.5 text-white/80 text-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
+                      Watch our story
+                    </span>
+                    <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
                   </div>
                 </div>
                 
-                <div className="absolute bottom-6 left-6 right-6">
-                  <span className="text-white/70 text-sm">Watch our story</span>
-                  <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
-                </div>
+                {/* Floating accent badges */}
+                <motion.div 
+                  className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[#FFE4B5] border-4 border-white shadow-lg flex items-center justify-center z-10"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <span className="text-sm">✨</span>
+                </motion.div>
+                <motion.div 
+                  className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-[#98D8C8] border-4 border-white shadow-lg z-10"
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                />
               </div>
             </FadeIn>
 
-            {/* Quote card */}
+            {/* Quote card - Premium Pastel Enhancement */}
             <FadeIn direction="up" delay={0.2} className="lg:col-span-12">
-              <div className="relative rounded-3xl bg-[#FFC857] p-8 md:p-12 overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#F7931E]/30 rounded-full" />
-                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-[#FF5A5F]/20 rounded-full" />
+              <div className="relative rounded-[2rem] overflow-hidden">
+                {/* Multi-color pastel gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#FFE4B5] via-[#FFC857] to-[#FFDAB9]" />
+                {/* Premium grain texture */}
+                <div 
+                  className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                  }}
+                />
+                {/* Floating decorative shapes */}
+                <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-[#F7931E]/30 to-[#FF6B9D]/20 rounded-full blur-2xl" />
+                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#FF5A5F]/15 to-[#FFB6C1]/20 rounded-full blur-3xl" />
+                <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-[#98D8C8]/20 rounded-full blur-2xl" />
+                {/* Playful floating dots */}
+                <motion.div 
+                  className="absolute top-6 left-12 w-3 h-3 rounded-full bg-[#FF6B9D]/60"
+                  animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <motion.div 
+                  className="absolute bottom-8 right-16 w-2 h-2 rounded-full bg-[#2EC4B6]/50"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+                />
+                <motion.div 
+                  className="absolute top-1/3 right-1/4 w-2 h-2 rounded-full bg-[#8B5CF6]/40"
+                  animate={{ y: [0, -5, 0], opacity: [0.4, 0.8, 0.4] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+                />
                 
-                <div className="relative z-10 max-w-4xl mx-auto text-center">
-                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-[#1F2A44] leading-tight">
-                    "Sometimes it is the people no one can imagine anything of who do the things
-                    <span className="font-black not-italic"> no one can imagine.</span>"
-                  </p>
+                <div className="relative z-10 p-8 md:p-12 lg:p-16">
+                  {/* Quote icon */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                      <span className="text-2xl text-[#1F2A44]/60">"</span>
+                    </div>
+                  </div>
+                  
+                  <div className="max-w-4xl mx-auto text-center">
+                    <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-[#1F2A44] leading-tight">
+                      "Sometimes it is the people no one can imagine anything of who do the things
+                      <span className="font-black not-italic bg-gradient-to-r from-[#1F2A44] to-[#3D4A63] bg-clip-text text-transparent"> no one can imagine.</span>"
+                    </p>
+                    
+                    {/* Decorative bottom accent */}
+                    <div className="mt-8 flex items-center justify-center gap-2">
+                      <div className="h-1 w-8 rounded-full bg-[#FF6B9D]/50" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#2EC4B6]/60" />
+                      <div className="h-1 w-8 rounded-full bg-[#8B5CF6]/40" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </FadeIn>
@@ -363,20 +481,47 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          BENEFITS - World-Class Premium Cards
+          BENEFITS - World-Class Premium Cards (Enhanced with Pastel Design System)
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-gradient-to-b from-white via-[#F7F9F9] to-white relative overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#2EC4B6]/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F7931E]/10 rounded-full blur-[120px]" />
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        {/* Pastel gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F0FAFA] via-[#FFF9F5] to-[#F5F0FF]" />
+        {/* Premium grain texture */}
+        <div 
+          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        {/* Floating decorative blobs */}
+        <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-gradient-to-br from-[#98D8C8]/30 to-[#B8E4F0]/20 blur-3xl animate-float" />
+        <div className="absolute bottom-10 right-10 w-80 h-80 rounded-full bg-gradient-to-tr from-[#FFB6C1]/25 to-[#FFD6E0]/15 blur-3xl animate-float-delayed" />
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 rounded-full bg-gradient-to-r from-[#C4B5FD]/20 to-[#DDD6FE]/15 blur-2xl" />
+        {/* Playful floating dots */}
+        <motion.div 
+          className="absolute top-20 right-1/4 w-3 h-3 rounded-full bg-[#2EC4B6]/50"
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div 
+          className="absolute bottom-32 left-1/4 w-2 h-2 rounded-full bg-[#FFB6C1]/60"
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        />
+        <motion.div 
+          className="absolute top-1/3 right-10 w-2 h-2 rounded-full bg-[#FFC857]/50"
+          animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mb-20 text-center">
+            {/* Enhanced badge - removed icon */}
             <motion.div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2EC4B6]/10 border border-[#2EC4B6]/20 mb-6"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#98D8C8]/30 shadow-lg shadow-[#2EC4B6]/5 mb-6"
               whileHover={{ scale: 1.05 }}
             >
-              <Sparkles className="h-4 w-4 text-[#2EC4B6]" />
+              <span className="w-2 h-2 rounded-full bg-[#2EC4B6] animate-pulse" />
               <span className="text-[#2EC4B6] text-sm font-bold tracking-wide">The Art</span>
             </motion.div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-[#1F2A44]">
@@ -389,86 +534,115 @@ export default function HomePage() {
             <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-2xl mx-auto">
               More than martial arts — it's a journey of self-discovery that builds champions in life.
             </p>
+            {/* Decorative accent */}
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <div className="h-1 w-8 rounded-full bg-[#98D8C8]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-[#FFB6C1]" />
+              <div className="h-1 w-8 rounded-full bg-[#C4B5FD]" />
+            </div>
           </FadeIn>
 
-          {/* Premium Cards Grid */}
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" staggerDelay={0.1}>
+          {/* Premium Cards Grid - Pastel Design System */}
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={0.1}>
             {[
               { 
-                icon: Dumbbell, 
                 title: 'Full-Body Fitness', 
                 desc: 'Develops strength, flexibility, and coordination through dynamic movements', 
-                color: '#2EC4B6',
-                gradient: 'from-[#2EC4B6] to-[#8FE3CF]',
-                bgGradient: 'from-[#E8F8F5] to-white'
+                icon: Dumbbell,
+                bgFrom: '#E5F4F1',
+                bgTo: '#F0FAFA',
+                border: '#98D8C8',
+                accent: '#2EC4B6',
               },
               { 
-                icon: Brain, 
                 title: 'Strategic Thinking', 
                 desc: 'Problem-solving skills through technique — like physical chess', 
-                color: '#F7931E',
-                gradient: 'from-[#F7931E] to-[#FFC857]',
-                bgGradient: 'from-[#FFF8E8] to-white'
+                icon: Brain,
+                bgFrom: '#FFF4E5',
+                bgTo: '#FFFAF0',
+                border: '#FFE4B5',
+                accent: '#F7931E',
               },
               { 
-                icon: Heart, 
                 title: 'Teamwork & Respect', 
                 desc: 'Building lifelong friendships and essential social skills', 
-                color: '#FF5A5F',
-                gradient: 'from-[#FF5A5F] to-[#FF8A8F]',
-                bgGradient: 'from-[#FFF0F0] to-white'
+                icon: Heart,
+                bgFrom: '#FFE5EC',
+                bgTo: '#FFF0F5',
+                border: '#FFB6C1',
+                accent: '#FF6B9D',
               },
               { 
-                icon: Shield, 
                 title: 'Bully-Proof Skills', 
                 desc: 'Confidence to handle any situation with calm and control', 
-                color: '#6C63FF',
-                gradient: 'from-[#6C63FF] to-[#A29BFE]',
-                bgGradient: 'from-[#F0EFFF] to-white'
+                icon: Shield,
+                bgFrom: '#EDE5FF',
+                bgTo: '#F5F0FF',
+                border: '#C4B5FD',
+                accent: '#8B5CF6',
               },
             ].map((item, index) => (
               <StaggerItem key={item.title}>
                 <motion.div 
-                  className="group relative h-full rounded-[2rem] bg-white shadow-lg shadow-gray-200/50 overflow-hidden"
+                  className="group relative h-full"
                   whileHover={{ y: -8, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                  {/* Inner card */}
-                  <div className="relative h-full rounded-[2rem] bg-white p-8 overflow-hidden">
-                    {/* Floating background orb */}
-                    <motion.div 
-                      className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-30"
-                      style={{ background: `radial-gradient(circle, ${item.color}40 0%, transparent 70%)` }}
-                      animate={{ 
-                        scale: [1, 1.2, 1],
-                        rotate: [0, 180, 360],
+                  {/* Pastel card with unique gradient */}
+                  <div 
+                    className="relative h-full rounded-[1.5rem] p-6 border shadow-lg hover:shadow-xl transition-all duration-300"
+                    style={{ 
+                      background: `linear-gradient(to bottom right, ${item.bgFrom}, ${item.bgTo})`,
+                      borderColor: `${item.border}40`,
+                      boxShadow: `0 10px 40px -10px ${item.accent}15`
+                    }}
+                  >
+                    {/* Grain texture on card */}
+                    <div 
+                      className="absolute inset-0 rounded-[1.5rem] opacity-[0.2] mix-blend-overlay pointer-events-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
                       }}
-                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                     />
                     
-                    {/* Number indicator */}
-                    <div className="absolute top-6 right-6 text-6xl font-black text-[#1F2A44]/5 group-hover:text-[#1F2A44]/10 transition-colors">
-                      0{index + 1}
-                    </div>
+                    {/* Floating blob on card */}
+                    <div 
+                      className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"
+                      style={{ backgroundColor: item.accent }}
+                    />
                     
-                    {/* Icon with animated background */}
-                    <motion.div 
-                      className={`relative flex h-20 w-20 items-center justify-center rounded-2xl mb-8 bg-gradient-to-br ${item.gradient} shadow-lg`}
-                      whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                      style={{ boxShadow: `0 10px 40px ${item.color}40` }}
-                    >
-                      <item.icon className="h-10 w-10 text-white" />
-                      {/* Shine effect */}
-                      <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                        <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    {/* Decorative corner dot */}
+                    <div 
+                      className="absolute top-4 right-4 w-2 h-2 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-300"
+                      style={{ backgroundColor: item.accent }}
+                    />
+                    
+                    <div className="relative z-10">
+                      {/* Custom icon */}
+                      <div 
+                        className="flex h-12 w-12 items-center justify-center rounded-2xl mb-5 bg-white/60 backdrop-blur-sm border shadow-sm group-hover:scale-110 transition-transform duration-300"
+                        style={{ borderColor: `${item.border}50` }}
+                      >
+                        <item.icon className="h-5 w-5" style={{ color: item.accent }} />
                       </div>
-                    </motion.div>
-                    
-                    <h3 className="text-xl font-bold text-[#1F2A44] mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r transition-all duration-300" style={{ '--tw-gradient-from': item.color, '--tw-gradient-to': item.color } as React.CSSProperties}>
-                      {item.title}
-                    </h3>
-                    <p className="text-[#1F2A44]/60 text-sm leading-relaxed">{item.desc}</p>
+                      
+                      <h3 className="text-lg font-bold text-[#1F2A44] mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-[#1F2A44]/60 text-sm leading-relaxed">{item.desc}</p>
+                      
+                      {/* Bottom accent line */}
+                      <div className="mt-4 flex items-center gap-1.5">
+                        <div 
+                          className="h-0.5 w-8 rounded-full opacity-60"
+                          style={{ backgroundColor: item.accent }}
+                        />
+                        <div 
+                          className="h-1 w-1 rounded-full opacity-40"
+                          style={{ backgroundColor: item.accent }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </StaggerItem>

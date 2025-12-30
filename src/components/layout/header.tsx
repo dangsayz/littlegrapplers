@@ -191,23 +191,62 @@ export function Header() {
             
             {/* Logo */}
             <Link href="/" className="relative z-10 flex items-center gap-3 group">
-              {/* Animated logo mark */}
+              {/* Playful Kid-Friendly Logo */}
               <div className="relative">
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
-                <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#2EC4B6] via-[#2EC4B6] to-[#8FE3CF] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/30 transition-all duration-500 group-hover:scale-105">
-                  {/* Inner glow ring */}
-                  <div className="absolute inset-[2px] rounded-[10px] bg-gradient-to-br from-white/20 to-transparent" />
-                  <span className="relative text-lg font-black text-white tracking-tight">LG</span>
+                {/* Floating sparkles */}
+                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FFC857] animate-bounce opacity-80" style={{ animationDelay: '0s', animationDuration: '2s' }} />
+                <div className="absolute -bottom-0.5 -left-1 w-1.5 h-1.5 rounded-full bg-[#FF5A5F] animate-bounce opacity-70" style={{ animationDelay: '0.5s', animationDuration: '2.5s' }} />
+                <div className="absolute top-0 -left-2 w-1 h-1 rounded-full bg-[#8FE3CF] animate-ping opacity-60" style={{ animationDuration: '3s' }} />
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#2EC4B6] via-[#8FE3CF] to-[#FFC857] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 group-hover:scale-110" />
+                
+                {/* Main logo container - playful rounded shape */}
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2EC4B6] via-[#3DD4C6] to-[#8FE3CF] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/40 transition-all duration-500 group-hover:scale-105 group-hover:rotate-[-3deg]">
+                  {/* Inner shine effect */}
+                  <div className="absolute inset-[2px] rounded-[14px] bg-gradient-to-br from-white/30 via-transparent to-transparent" />
+                  
+                  {/* Cute grappling kid icon - simplified as playful figure */}
+                  <svg viewBox="0 0 32 32" className="relative w-7 h-7 text-white drop-shadow-sm">
+                    {/* Happy kid figure doing BJJ pose */}
+                    <circle cx="16" cy="8" r="5" fill="currentColor" className="group-hover:animate-pulse" style={{ animationDuration: '2s' }} />
+                    {/* Body in playful grappling stance */}
+                    <path d="M10 14 Q16 12 22 14 L20 22 Q16 24 12 22 Z" fill="currentColor" opacity="0.9" />
+                    {/* Arms reaching out playfully */}
+                    <path d="M10 14 Q6 12 4 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" className="origin-center group-hover:animate-[wave_1s_ease-in-out_infinite]" />
+                    <path d="M22 14 Q26 12 28 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                    {/* Legs in action pose */}
+                    <path d="M12 22 Q10 26 8 28" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                    <path d="M20 22 Q22 26 24 28" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                    {/* Happy smile */}
+                    <path d="M13 9 Q16 12 19 9" stroke="white" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.5" />
+                  </svg>
+                  
+                  {/* Playful corner accent */}
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FFC857] border-2 border-white shadow-sm group-hover:scale-125 transition-transform duration-300" />
                 </div>
               </div>
-              {/* Text with hover animation */}
+              
+              {/* Text with playful animation */}
               <div className="hidden sm:flex flex-col overflow-hidden">
-                <span className="text-[15px] font-bold text-[#1F2A44] leading-tight tracking-tight group-hover:tracking-normal transition-all duration-500">
-                  Little Grapplers
-                </span>
-                <span className="text-[10px] text-[#2EC4B6] font-semibold tracking-[0.15em] uppercase opacity-80 group-hover:opacity-100 group-hover:tracking-[0.2em] transition-all duration-500">
-                  Youth BJJ
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[16px] font-extrabold text-[#1F2A44] leading-tight tracking-tight group-hover:tracking-normal transition-all duration-500">
+                    Little
+                  </span>
+                  <span className="text-[16px] font-extrabold bg-gradient-to-r from-[#2EC4B6] to-[#F7931E] bg-clip-text text-transparent leading-tight">
+                    Grapplers
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-[#F7931E] font-bold tracking-[0.12em] uppercase">
+                    Youth BJJ
+                  </span>
+                  <div className="flex gap-0.5">
+                    <span className="w-1 h-1 rounded-full bg-[#2EC4B6] group-hover:animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 rounded-full bg-[#FFC857] group-hover:animate-bounce" style={{ animationDelay: '100ms' }} />
+                    <span className="w-1 h-1 rounded-full bg-[#FF5A5F] group-hover:animate-bounce" style={{ animationDelay: '200ms' }} />
+                  </div>
+                </div>
               </div>
             </Link>
 
