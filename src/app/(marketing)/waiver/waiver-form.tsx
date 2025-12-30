@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar } from 'lucide-react';
+import Link from 'next/link';
+
+const STORAGE_KEY = 'littlegrapplers_waiver_draft';
 
 // Format phone number as user types: 000-000-0000
 function formatPhoneInput(value: string): string {
@@ -55,6 +58,52 @@ export function WaiverForm() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [formLoadTime] = useState(Date.now());
+  const [hasDraft, setHasDraft] = useState(false);
+
+  // Load saved draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Don't restore checkboxes for legal compliance
+        setFormData({
+          ...parsed,
+          photoMediaConsent: false,
+          agreedToTerms: false,
+        });
+        setHasDraft(true);
+      }
+    } catch (e) {
+      console.error('Failed to load draft:', e);
+    }
+  }, []);
+
+  // Auto-save to localStorage on form changes (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      try {
+        // Only save if there's meaningful data
+        if (formData.guardianFullName || formData.childFullName || formData.guardianEmail) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        }
+      } catch (e) {
+        console.error('Failed to save draft:', e);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData]);
+
+  // Clear draft on successful submission
+  const clearDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      setHasDraft(false);
+    } catch (e) {
+      console.error('Failed to clear draft:', e);
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -123,6 +172,7 @@ export function WaiverForm() {
 
       setSubmitStatus('success');
       setFormData(initialFormData);
+      clearDraft();
     } catch (error) {
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'An error occurred');
@@ -133,22 +183,69 @@ export function WaiverForm() {
 
   if (submitStatus === 'success') {
     return (
-      <div className="rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
-          <Check className="h-8 w-8 text-brand" />
+      <div className="space-y-6">
+        {/* Success Message */}
+        <div className="rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
+            <Check className="h-8 w-8 text-brand" />
+          </div>
+          <h3 className="text-2xl font-display font-bold text-foreground">
+            Waiver Submitted Successfully
+          </h3>
+          <p className="mt-2 text-muted-foreground">
+            You&apos;re one step closer to starting your child&apos;s journey.
+          </p>
         </div>
-        <h3 className="text-2xl font-display font-bold text-foreground">
-          Waiver Submitted Successfully
-        </h3>
-        <p className="mt-2 text-muted-foreground">
-          Thank you for completing the enrollment waiver. We will be in touch shortly with next steps.
-        </p>
-        <button
-          onClick={() => setSubmitStatus('idle')}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-white transition-colors hover:bg-brand/90"
-        >
-          Submit Another Waiver
-        </button>
+
+        {/* Next Steps */}
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h4 className="text-lg font-display font-bold text-foreground mb-4">
+            Complete Your Enrollment
+          </h4>
+          <div className="space-y-3">
+            <Link
+              href="/sign-up"
+              className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-brand/50 hover:bg-brand/5 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
+                  <UserPlus className="h-5 w-5 text-brand" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Create Your Account</p>
+                  <p className="text-sm text-muted-foreground">Manage enrollments & track progress</p>
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-brand transition-colors" />
+            </Link>
+
+            <Link
+              href="/locations"
+              className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-brand/50 hover:bg-brand/5 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+                  <Calendar className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">View Class Schedules</p>
+                  <p className="text-sm text-muted-foreground">Find a location & time that works</p>
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-brand transition-colors" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Secondary Action */}
+        <div className="text-center">
+          <button
+            onClick={() => setSubmitStatus('idle')}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Need to submit another waiver?
+          </button>
+        </div>
       </div>
     );
   }

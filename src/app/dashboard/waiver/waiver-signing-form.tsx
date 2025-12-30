@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, Shield, Camera, CreditCard, MapPin } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+const STORAGE_KEY = 'littlegrapplers_dashboard_waiver_draft';
 
 interface Location {
   id: string;
@@ -50,6 +52,48 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName, locations 
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Load saved draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setFormData((prev) => ({
+          ...prev,
+          ...parsed,
+          guardianFullName: userName,
+          guardianEmail: userEmail,
+          photoMediaConsent: false,
+          agreedToTerms: false,
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to load draft:', e);
+    }
+  }, [userName, userEmail]);
+
+  // Auto-save to localStorage on form changes (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      try {
+        if (formData.childFullName || formData.guardianPhone) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        }
+      } catch (e) {
+        console.error('Failed to save draft:', e);
+      }
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData]);
+
+  const clearDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.error('Failed to clear draft:', e);
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
@@ -81,6 +125,7 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName, locations 
       }
 
       setSubmitStatus('success');
+      clearDraft();
       // Redirect to checkout after showing success message
       setTimeout(() => {
         router.push('/dashboard/checkout');

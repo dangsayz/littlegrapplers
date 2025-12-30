@@ -124,9 +124,11 @@ export default async function StudentPage({ params }: StudentPageProps) {
                 <h1 className="text-2xl font-display font-bold">
                   {student.firstName} {student.lastName}
                 </h1>
-                <Button variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Profile
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/dashboard/students/${student.id}/edit`}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Profile
+                  </Link>
                 </Button>
               </div>
 
