@@ -6,9 +6,10 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await currentUser();
     
     if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -18,7 +19,7 @@ export async function POST(
     const { error } = await supabaseAdmin
       .from('contact_submissions')
       .update({ is_read: true })
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

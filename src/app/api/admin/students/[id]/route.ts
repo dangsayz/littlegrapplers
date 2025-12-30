@@ -7,9 +7,10 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 // GET - Fetch single student
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await currentUser();
     
     if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -19,7 +20,7 @@ export async function GET(
     const { data: student, error } = await supabaseAdmin
       .from('signed_waivers')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error || !student) {
@@ -36,9 +37,10 @@ export async function GET(
 // PUT - Update student
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await currentUser();
     
     if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -92,7 +94,7 @@ export async function PUT(
     const { data: student, error } = await supabaseAdmin
       .from('signed_waivers')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -107,7 +109,7 @@ export async function PUT(
       .insert({
         action: 'student.updated',
         entity_type: 'student',
-        entity_id: params.id,
+        entity_id: id,
         details: { updated_by: user.emailAddresses[0]?.emailAddress },
       });
 
@@ -121,9 +123,10 @@ export async function PUT(
 // DELETE - Delete student
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await currentUser();
     
     if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -134,14 +137,14 @@ export async function DELETE(
     const { data: student } = await supabaseAdmin
       .from('signed_waivers')
       .select('child_full_name, parent_email')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     // Delete the student
     const { error } = await supabaseAdmin
       .from('signed_waivers')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Delete student error:', error);
@@ -154,7 +157,7 @@ export async function DELETE(
       .insert({
         action: 'student.deleted',
         entity_type: 'student',
-        entity_id: params.id,
+        entity_id: id,
         details: { 
           deleted_by: user.emailAddresses[0]?.emailAddress,
           child_name: student?.child_full_name,
