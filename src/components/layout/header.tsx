@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser, useAuth } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
 
@@ -185,6 +185,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { isLoaded: authLoaded } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -259,7 +260,7 @@ export function Header() {
 
             {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
-              {mounted ? (
+              {mounted && authLoaded ? (
                 <>
                   <SignedOut>
                     <SignInButton mode="modal">
