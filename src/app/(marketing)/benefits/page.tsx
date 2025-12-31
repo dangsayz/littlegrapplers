@@ -1,4 +1,5 @@
-import { Metadata } from 'next';
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -15,12 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 
-export const metadata: Metadata = {
-  title: 'Benefits',
-  description:
-    'Discover how Brazilian Jiu-Jitsu builds confidence, discipline, and physical fitness in children through our specialized youth programs.',
-};
 
 const physicalBenefits = [
   {
@@ -108,24 +105,25 @@ const testimonials = [
 
 export default function BenefitsPage() {
   return (
-    <div className="bg-background text-foreground overflow-hidden">
+    <div className="bg-[#F7F9F9] text-[#1F2A44] overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-background to-background" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-[#F7F9F9] to-[#F7F9F9]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
         }} />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-white/80 text-slate-600 text-xs font-semibold uppercase tracking-wider mb-8">
               Why BJJ?
-            </p>
-            <h1 className="text-5xl md:text-7xl font-display font-black leading-[0.9] tracking-tight">
-              Benefits That Last<br />
-              <span className="font-serif italic font-normal text-brand">A Lifetime.</span>
+            </span>
+            <h1 className="text-5xl md:text-7xl font-bold leading-[0.9] tracking-tight text-slate-800">
+              Benefits That Last
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">A Lifetime.</span>
             </h1>
-            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            <p className="mt-8 text-xl text-slate-500 max-w-xl mx-auto leading-relaxed">
               Brazilian Jiu-Jitsu offers children far more than physical fitness. It's a complete
               developmental system that builds character, confidence, and capability.
             </p>
@@ -134,45 +132,52 @@ export default function BenefitsPage() {
       </section>
 
       {/* Physical Benefits */}
-      <section className="py-32 md:py-40">
+      <section className="py-24 md:py-32 bg-gradient-to-b from-white to-slate-50">
         <Container>
-          <div className="grid gap-16 lg:grid-cols-2 lg:gap-24 items-center">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
             <FadeIn direction="up">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <motion.div 
+                className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/80 shadow-xl"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
                 <Image
                   src="/images/highlights/bjjlittlegrapplers2-10.jpg"
                   alt="Children developing physical skills through BJJ"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-                }} />
-              </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-white/10" />
+              </motion.div>
             </FadeIn>
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-600 text-xs font-semibold uppercase tracking-wider mb-6">
                 Physical Development
-              </p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
-                Build a Strong <span className="font-serif italic font-normal text-brand">Foundation</span>
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-800">
+                Build a Strong{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">Foundation</span>
               </h2>
-              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+              <p className="mt-6 text-lg text-slate-500 leading-relaxed">
                 BJJ training develops physical capabilities that benefit children in all areas of
                 life, from sports to everyday activities.
               </p>
-              <div className="mt-8 space-y-6">
+              <div className="mt-8 space-y-4">
                 {physicalBenefits.map((benefit) => (
-                  <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
-                      <benefit.icon className="h-6 w-6 text-brand" />
+                  <motion.div 
+                    key={benefit.title} 
+                    className="flex gap-4 p-4 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-sm"
+                    whileHover={{ x: 4 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 shadow-lg">
+                      <benefit.icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
+                      <h3 className="font-semibold text-slate-800">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-slate-500">{benefit.description}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </FadeIn>
@@ -181,49 +186,55 @@ export default function BenefitsPage() {
       </section>
 
       {/* Mental Benefits */}
-      <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-muted to-muted" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-        }} />
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-white" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-amber-200/30 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-orange-200/30 to-transparent rounded-full blur-3xl" />
         
         <Container className="relative z-10">
-          <div className="grid gap-16 lg:grid-cols-2 lg:gap-24 items-center">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
             <FadeIn direction="up" delay={0.2} className="lg:order-2">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <motion.div 
+                className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/80 shadow-xl"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
                 <Image
                   src="/images/highlights/bjjlittlegrapplers2-11.jpg"
                   alt="Child focused during BJJ training"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-                }} />
-              </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-white/10" />
+              </motion.div>
             </FadeIn>
             <FadeIn direction="up" className="lg:order-1">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-xs font-semibold uppercase tracking-wider mb-6">
                 Mental Development
-              </p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
-                Sharpen the <span className="font-serif italic font-normal text-brand">Mind</span>
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-800">
+                Sharpen the{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">Mind</span>
               </h2>
-              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+              <p className="mt-6 text-lg text-slate-500 leading-relaxed">
                 The mental challenges of BJJ translate directly to academic success and life skills.
               </p>
-              <div className="mt-8 space-y-6">
+              <div className="mt-8 space-y-4">
                 {mentalBenefits.map((benefit) => (
-                  <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
-                      <benefit.icon className="h-6 w-6 text-brand" />
+                  <motion.div 
+                    key={benefit.title} 
+                    className="flex gap-4 p-4 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-sm"
+                    whileHover={{ x: 4 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg">
+                      <benefit.icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
+                      <h3 className="font-semibold text-slate-800">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-slate-500">{benefit.description}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </FadeIn>
@@ -232,44 +243,51 @@ export default function BenefitsPage() {
       </section>
 
       {/* Social Benefits */}
-      <section className="py-32 md:py-40">
+      <section className="py-24 md:py-32 bg-gradient-to-b from-slate-50 to-white">
         <Container>
-          <div className="grid gap-16 lg:grid-cols-2 lg:gap-24 items-center">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
             <FadeIn direction="up">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+              <motion.div 
+                className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/80 shadow-xl"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
                 <Image
                   src="/images/highlights/bjjlittlegrapplers2-12.jpg"
                   alt="Children training together in BJJ"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-                }} />
-              </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-white/10" />
+              </motion.div>
             </FadeIn>
             <FadeIn direction="up" delay={0.2}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-xs font-semibold uppercase tracking-wider mb-6">
                 Social Development
-              </p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
-                Learn to Work <span className="font-serif italic font-normal text-brand">Together</span>
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-800">
+                Learn to Work{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">Together</span>
               </h2>
-              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
+              <p className="mt-6 text-lg text-slate-500 leading-relaxed">
                 The unique partner-based nature of BJJ naturally develops important social skills.
               </p>
-              <div className="mt-8 space-y-6">
+              <div className="mt-8 space-y-4">
                 {socialBenefits.map((benefit) => (
-                  <div key={benefit.title} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand/10">
-                      <benefit.icon className="h-6 w-6 text-brand" />
+                  <motion.div 
+                    key={benefit.title} 
+                    className="flex gap-4 p-4 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-sm"
+                    whileHover={{ x: 4 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg">
+                      <benefit.icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">{benefit.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p>
+                      <h3 className="font-semibold text-slate-800">{benefit.title}</h3>
+                      <p className="mt-1 text-sm text-slate-500">{benefit.description}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </FadeIn>
@@ -278,26 +296,26 @@ export default function BenefitsPage() {
       </section>
 
       {/* Self-Defense Section */}
-      <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-muted to-muted" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-        }} />
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-50/80 via-purple-50/40 to-white" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-violet-200/30 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-purple-200/30 to-transparent rounded-full blur-3xl" />
         
         <Container className="relative z-10">
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 border border-violet-100 text-violet-600 text-xs font-semibold uppercase tracking-wider mb-6">
               Self-Defense
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black">
-              Real Self-Defense <span className="font-serif italic font-normal text-brand">Skills</span>
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800">
+              Real Self-Defense{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-purple-500">Skills</span>
             </h2>
-            <p className="mt-6 text-lg text-muted-foreground">
+            <p className="mt-6 text-lg text-slate-500">
               While we hope they never need it, children gain practical skills to protect themselves.
             </p>
           </FadeIn>
 
-          <StaggerContainer className="mt-16 grid gap-6 md:grid-cols-3" staggerDelay={0.1}>
+          <StaggerContainer className="mt-12 grid gap-6 md:grid-cols-3" staggerDelay={0.1}>
             {[
               {
                 title: 'Escape Skills',
@@ -316,10 +334,23 @@ export default function BenefitsPage() {
               },
             ].map((item) => (
               <StaggerItem key={item.title}>
-                <div className="rounded-lg border border-border bg-card p-6 h-full">
-                  <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{item.description}</p>
-                </div>
+                <motion.div 
+                  className="relative h-full rounded-[24px] overflow-hidden"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-purple-50/50 to-white" />
+                  <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/70 via-white/30 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 rounded-[24px] border border-white/80 pointer-events-none" />
+                  <div className="absolute inset-[1px] rounded-[23px] border border-slate-200/40 pointer-events-none" />
+                  <div className="relative z-10 p-6 h-full">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 shadow-lg mb-5">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 mb-2">{item.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{item.description}</p>
+                  </div>
+                </motion.div>
               </StaggerItem>
             ))}
           </StaggerContainer>
@@ -327,37 +358,46 @@ export default function BenefitsPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 md:py-40">
+      <section className="py-24 md:py-32 bg-gradient-to-b from-white to-slate-50">
         <Container>
           <FadeIn direction="up" className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-50 border border-sky-100 text-sky-600 text-xs font-semibold uppercase tracking-wider mb-6">
               Testimonials
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black">
-              What Parents <span className="font-serif italic font-normal text-brand">Say</span>
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800">
+              What Parents{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-500">Say</span>
             </h2>
-            <p className="mt-6 text-lg text-muted-foreground">
+            <p className="mt-6 text-lg text-slate-500">
               Real stories from real families in our program.
             </p>
           </FadeIn>
 
-          <StaggerContainer className="mt-16 grid gap-8 md:grid-cols-3" staggerDelay={0.1}>
+          <StaggerContainer className="mt-12 grid gap-6 md:grid-cols-3" staggerDelay={0.1}>
             {testimonials.map((testimonial, index) => (
               <StaggerItem key={index}>
-                <div className="rounded-lg border border-border bg-card p-6 h-full">
-                  <svg
-                    className="h-8 w-8 text-brand/50"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                  </svg>
-                  <p className="mt-4 text-foreground/70">{testimonial.quote}</p>
-                  <div className="mt-6 border-t border-border pt-4">
-                    <div className="font-medium text-foreground">{testimonial.author}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                <motion.div 
+                  className="relative h-full rounded-[24px] overflow-hidden"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-blue-50/50 to-white" />
+                  <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/70 via-white/30 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 rounded-[24px] border border-white/80 pointer-events-none" />
+                  <div className="absolute inset-[1px] rounded-[23px] border border-slate-200/40 pointer-events-none" />
+                  <div className="relative z-10 p-6 h-full flex flex-col">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 shadow-lg mb-4">
+                      <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                      </svg>
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed flex-1">{testimonial.quote}</p>
+                    <div className="mt-6 pt-4 border-t border-slate-200/60">
+                      <div className="font-semibold text-slate-800">{testimonial.author}</div>
+                      <div className="text-xs text-slate-500">{testimonial.role}</div>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               </StaggerItem>
             ))}
           </StaggerContainer>
@@ -365,22 +405,27 @@ export default function BenefitsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 md:py-40 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-muted via-muted to-muted" />
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 via-transparent to-emerald-500/20" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-400/30 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-400/30 to-transparent rounded-full blur-3xl" />
+        
         <Container className="relative z-10">
           <FadeIn direction="up" className="max-w-3xl mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-xs font-semibold uppercase tracking-wider mb-8">
               Get Started
-            </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight">
-              Ready to Get <span className="font-serif italic font-normal text-brand">Started?</span>
+            </span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+              Ready to Get{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">Started?</span>
             </h2>
-            <p className="mt-8 text-xl text-muted-foreground max-w-xl mx-auto">
+            <p className="mt-8 text-xl text-slate-300 max-w-xl mx-auto leading-relaxed">
               Give your child the gift of confidence, discipline, and self-defense skills. Find a
               location near you and enroll today.
             </p>
             <div className="mt-12 flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-brand hover:bg-brand/90 text-white h-12 px-8" asChild>
+              <Button size="lg" className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white h-12 px-8 shadow-lg" asChild>
                 <Link href="/locations">
                   Find a Location
                   <ArrowRight className="h-5 w-5" />
@@ -389,7 +434,7 @@ export default function BenefitsPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-border text-foreground hover:bg-muted h-12 px-8"
+                className="border-white/30 text-white hover:bg-white/10 h-12 px-8 backdrop-blur-sm"
                 asChild
               >
                 <Link href="/programs">View Programs</Link>
