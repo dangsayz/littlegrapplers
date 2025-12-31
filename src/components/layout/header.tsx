@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
 
@@ -262,24 +262,26 @@ export function Header() {
               {mounted ? (
                 <>
                   <SignedOut>
-                    <SignInButton mode="modal">
-                      <button className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500">
-                        <span className="relative z-10">Log in</span>
-                        <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
-                      </button>
-                    </SignInButton>
-                    <SignUpButton mode="modal">
-                      <button className="group relative px-6 py-2.5 rounded-full overflow-hidden">
-                        {/* Animated gradient background */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
-                        {/* Glow effect */}
-                        <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
-                        <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
-                          Get Started
-                          <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        </span>
-                      </button>
-                    </SignUpButton>
+                    <Link 
+                      href="/login"
+                      className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500"
+                    >
+                      <span className="relative z-10">Log in</span>
+                      <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
+                    </Link>
+                    <Link 
+                      href="/signup"
+                      className="group relative px-6 py-2.5 rounded-full overflow-hidden"
+                    >
+                      {/* Animated gradient background */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
+                      {/* Glow effect */}
+                      <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
+                      <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
+                        Get Started
+                        <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </span>
+                    </Link>
                   </SignedOut>
                   <SignedIn>
                     <LocationDropdown />
@@ -376,16 +378,18 @@ export function Header() {
           {/* Mobile CTAs */}
           <div className="space-y-3 pt-6 border-t border-[#1F2A44]/10">
             <SignedOut>
-              <SignInButton mode="modal">
-                <button className="w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors">
-                  Sign In
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all">
-                  Get Started
-                </button>
-              </SignUpButton>
+              <Link 
+                href="/login"
+                className="block w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors text-center"
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/signup"
+                className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all text-center"
+              >
+                Get Started
+              </Link>
             </SignedOut>
             <SignedIn>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-3">
