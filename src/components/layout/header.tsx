@@ -183,7 +183,12 @@ function LocationDropdown() {
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -254,37 +259,48 @@ export function Header() {
 
             {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500">
-                    <span className="relative z-10">Log in</span>
-                    <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="group relative px-6 py-2.5 rounded-full overflow-hidden">
-                    {/* Animated gradient background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
-                    <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
-                      Get Started
-                      <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </span>
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <LocationDropdown />
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: 'w-9 h-9 ring-2 ring-[#2EC4B6]/20 hover:ring-[#2EC4B6]/50 transition-all',
-                    },
-                  }}
-                />
-              </SignedIn>
+              {mounted ? (
+                <>
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <button className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500">
+                        <span className="relative z-10">Log in</span>
+                        <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="group relative px-6 py-2.5 rounded-full overflow-hidden">
+                        {/* Animated gradient background */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
+                        <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
+                          Get Started
+                          <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </span>
+                      </button>
+                    </SignUpButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <LocationDropdown />
+                    <UserButton
+                      afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                          avatarBox: 'w-9 h-9 ring-2 ring-[#2EC4B6]/20 hover:ring-[#2EC4B6]/50 transition-all',
+                        },
+                      }}
+                    />
+                  </SignedIn>
+                </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="px-4 py-2 text-sm font-medium text-[#1F2A44]/60">Log in</span>
+                  <span className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-sm font-bold text-white">
+                    Get Started
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
