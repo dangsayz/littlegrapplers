@@ -21,6 +21,18 @@ import {
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
+import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+
+// Clerk passes `component` prop to children which is invalid on native button elements
+// This wrapper filters it out to prevent hydration mismatches
+interface ClerkButtonProps extends ComponentPropsWithoutRef<'button'> {
+  component?: string;
+}
+
+const ClerkButton = forwardRef<HTMLButtonElement, ClerkButtonProps>(
+  ({ component, ...props }, ref) => <button ref={ref} {...props} />
+);
+ClerkButton.displayName = 'ClerkButton';
 
 const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
@@ -213,7 +225,7 @@ export function MobileBottomNav() {
           {showSignIn && (
             <SignedOut>
               <SignInButton mode="modal">
-                <button
+                <ClerkButton
                   aria-label="Sign in to your account"
                   className={cn(
                     'relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-2xl transition-all duration-300',
@@ -223,7 +235,7 @@ export function MobileBottomNav() {
                 >
                   <User className="h-5 w-5" aria-hidden="true" />
                   <span className="text-[10px] font-semibold opacity-70">Sign In</span>
-                </button>
+                </ClerkButton>
               </SignInButton>
             </SignedOut>
           )}
