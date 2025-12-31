@@ -63,49 +63,58 @@ export default async function AdminCommunityPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-          <MessageSquare className="h-5 w-5 text-green-500" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            Community Moderation
-          </h1>
-          <p className="text-muted-foreground">
-            Moderate discussions and manage reported content
-          </p>
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-emerald-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 shadow-sm">
+            <MessageSquare className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Community
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Moderate discussions and manage reported content
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{totalThreads || 0}</div>
-            <p className="text-sm text-muted-foreground">Total Threads</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-green-700">{totalThreads || 0}</div>
+            <p className="text-sm text-slate-500">Total Threads</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-600">{hiddenThreads || 0}</div>
-            <p className="text-sm text-muted-foreground">Hidden</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-amber-700">{hiddenThreads || 0}</div>
+            <p className="text-sm text-slate-500">Hidden</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600">{pendingReports || 0}</div>
-            <p className="text-sm text-muted-foreground">Pending Reports</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-rose-50/80 via-red-50/60 to-pink-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-rose-700">{pendingReports || 0}</div>
+            <p className="text-sm text-slate-500">Pending Reports</p>
           </CardContent>
         </Card>
       </div>

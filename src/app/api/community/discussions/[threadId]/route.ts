@@ -98,6 +98,7 @@ export async function GET(
         type: m.file_type,
         name: m.file_name,
       })),
+      videoLinks: thread.video_links || [],
       replies: (replies || []).map(reply => {
         const replyAuthor = authorMap.get(reply.author_id);
         const media = replyMediaMap.get(reply.id) || [];

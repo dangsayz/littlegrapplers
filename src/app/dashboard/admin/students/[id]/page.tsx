@@ -24,8 +24,9 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 export default async function AdminStudentDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const user = await currentUser();
   
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -36,7 +37,7 @@ export default async function AdminStudentDetailPage({
   const { data: student, error } = await supabaseAdmin
     .from('signed_waivers')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !student) {
@@ -92,7 +93,7 @@ export default async function AdminStudentDetailPage({
           </div>
         </div>
         <Button asChild>
-          <Link href={`/dashboard/admin/students/${params.id}/edit`}>
+          <Link href={`/dashboard/admin/students/${id}/edit`}>
             <Pencil className="h-4 w-4 mr-2" />
             Edit Student
           </Link>
@@ -285,13 +286,13 @@ export default async function AdminStudentDetailPage({
               </a>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={`/dashboard/admin/students/${params.id}/edit`}>
+              <Link href={`/dashboard/admin/students/${id}/edit`}>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit Details
               </Link>
             </Button>
             <Button variant="destructive" asChild>
-              <Link href={`/dashboard/admin/students/${params.id}/delete`}>
+              <Link href={`/dashboard/admin/students/${id}/delete`}>
                 Delete Student
               </Link>
             </Button>

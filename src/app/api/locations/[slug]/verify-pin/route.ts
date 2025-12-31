@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(
@@ -63,6 +64,38 @@ export async function POST(
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 
+    // Auto-add logged-in user as a member
+    const user = await currentUser();
+    if (user) {
+      // Get or create user in database
+      const { data: dbUser } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('clerk_user_id', user.id)
+        .single();
+
+      if (dbUser) {
+        // Check if already a member
+        const { data: existingMember } = await supabaseAdmin
+          .from('location_members')
+          .select('id')
+          .eq('location_id', location.id)
+          .eq('user_id', dbUser.id)
+          .single();
+
+        if (!existingMember) {
+          // Add as member
+          await supabaseAdmin
+            .from('location_members')
+            .insert({
+              location_id: location.id,
+              user_id: dbUser.id,
+              role: 'parent',
+            });
+        }
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: 'PIN verified successfully',
@@ -112,6 +145,35 @@ export async function GET(
 
     if (!access || new Date(access.expires_at) < new Date()) {
       return NextResponse.json({ verified: false });
+    }
+
+    // Auto-add logged-in user as a member if verified
+    const user = await currentUser();
+    if (user) {
+      const { data: dbUser } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('clerk_user_id', user.id)
+        .single();
+
+      if (dbUser) {
+        const { data: existingMember } = await supabaseAdmin
+          .from('location_members')
+          .select('id')
+          .eq('location_id', location.id)
+          .eq('user_id', dbUser.id)
+          .single();
+
+        if (!existingMember) {
+          await supabaseAdmin
+            .from('location_members')
+            .insert({
+              location_id: location.id,
+              user_id: dbUser.id,
+              role: 'parent',
+            });
+        }
+      }
     }
 
     return NextResponse.json({ verified: true });

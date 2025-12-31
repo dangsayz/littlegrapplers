@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import sharp from 'sharp';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_IMAGE_DIMENSION = 1920; // Max width or height for images
+const IMAGE_QUALITY = 85; // JPEG/WebP quality
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,11 +37,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
-    // Validate file size
-    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
-    if (file.size > maxSize) {
+    // Validate video file size (images will be resized, so no size limit)
+    if (isVideo && file.size > MAX_VIDEO_SIZE) {
       return NextResponse.json({ 
-        error: `File too large. Max ${isVideo ? '100MB' : '10MB'}` 
+        error: 'Video too large. Max 100MB' 
       }, { status: 400 });
     }
 
@@ -62,13 +63,42 @@ export async function POST(request: NextRequest) {
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    let buffer = Buffer.from(arrayBuffer);
+    let finalMimeType = file.type;
+
+    // Resize images if needed
+    if (isImage && file.type !== 'image/gif') {
+      try {
+        const image = sharp(buffer);
+        const metadata = await image.metadata();
+        
+        // Resize if image exceeds max dimensions
+        if (metadata.width && metadata.height && 
+            (metadata.width > MAX_IMAGE_DIMENSION || metadata.height > MAX_IMAGE_DIMENSION)) {
+          image.resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
+            fit: 'inside',
+            withoutEnlargement: true,
+          });
+        }
+        
+        // Convert to optimized format
+        if (file.type === 'image/png') {
+          buffer = await image.png({ quality: IMAGE_QUALITY }).toBuffer();
+        } else {
+          buffer = await image.jpeg({ quality: IMAGE_QUALITY }).toBuffer();
+          finalMimeType = 'image/jpeg';
+        }
+      } catch (resizeError) {
+        console.error('Image resize error:', resizeError);
+        // Continue with original buffer if resize fails
+      }
+    }
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('discussion-media')
       .upload(fileName, buffer, {
-        contentType: file.type,
+        contentType: finalMimeType,
         upsert: false,
       });
 
@@ -92,8 +122,8 @@ export async function POST(request: NextRequest) {
         file_url: urlData.publicUrl,
         file_type: isVideo ? 'video' : 'image',
         file_name: file.name,
-        file_size: file.size,
-        mime_type: file.type,
+        file_size: buffer.length,
+        mime_type: finalMimeType,
       })
       .select('id, file_url, file_type, file_name')
       .single();

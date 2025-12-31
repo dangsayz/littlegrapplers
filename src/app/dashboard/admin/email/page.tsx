@@ -90,56 +90,65 @@ export default async function AdminEmailPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/10">
-            <Mail className="h-5 w-5 text-pink-500" />
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-sky-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-sky-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-500 shadow-sm">
+              <Mail className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-display font-bold text-white">
+                Email Center
+              </h1>
+              <p className="text-slate-400 mt-1">
+                Send emails and manage campaigns
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Email Center
-            </h1>
-            <p className="text-muted-foreground">
-              Send emails and manage campaigns
-            </p>
-          </div>
+          <ComposeEmail 
+            templates={templates || []} 
+            users={users || []}
+            locations={locations || []}
+          />
         </div>
-        <ComposeEmail 
-          templates={templates || []} 
-          users={users || []}
-          locations={locations || []}
-        />
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{totalSent || 0}</div>
-            <p className="text-sm text-muted-foreground">Emails Sent</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-cyan-50/80 via-sky-50/60 to-blue-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-cyan-700">{totalSent || 0}</div>
+            <p className="text-sm text-slate-500">Emails Sent</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{totalCampaigns || 0}</div>
-            <p className="text-sm text-muted-foreground">Campaigns</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-indigo-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-sky-700">{totalCampaigns || 0}</div>
+            <p className="text-sm text-slate-500">Campaigns</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{templates?.length || 0}</div>
-            <p className="text-sm text-muted-foreground">Templates</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-indigo-50/80 via-violet-50/60 to-purple-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-indigo-700">{templates?.length || 0}</div>
+            <p className="text-sm text-slate-500">Templates</p>
           </CardContent>
         </Card>
       </div>

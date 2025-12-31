@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, GraduationCap, Save, Loader2 } from 'lucide-react';
@@ -37,8 +37,9 @@ interface StudentData {
 export default function AdminStudentEditPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -66,7 +67,7 @@ export default function AdminStudentEditPage({
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await fetch(`/api/admin/students/${params.id}`);
+        const res = await fetch(`/api/admin/students/${id}`);
         if (!res.ok) throw new Error('Failed to fetch student');
         const data = await res.json();
         setStudent(data);
@@ -92,7 +93,7 @@ export default function AdminStudentEditPage({
       }
     };
     fetchStudent();
-  }, [params.id]);
+  }, [id]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -106,7 +107,7 @@ export default function AdminStudentEditPage({
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/students/${params.id}`, {
+      const res = await fetch(`/api/admin/students/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -119,7 +120,7 @@ export default function AdminStudentEditPage({
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/dashboard/admin/students/${params.id}`);
+        router.push(`/dashboard/admin/students/${id}`);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save changes');
@@ -151,7 +152,7 @@ export default function AdminStudentEditPage({
     <div className="space-y-6">
       {/* Back Link */}
       <Link 
-        href={`/dashboard/admin/students/${params.id}`}
+        href={`/dashboard/admin/students/${id}`}
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -362,7 +363,7 @@ export default function AdminStudentEditPage({
             )}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href={`/dashboard/admin/students/${params.id}`}>Cancel</Link>
+            <Link href={`/dashboard/admin/students/${id}`}>Cancel</Link>
           </Button>
         </div>
       </form>

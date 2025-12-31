@@ -112,7 +112,7 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
   if (searchParams.consent) paginationParams.consent = searchParams.consent;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
@@ -121,17 +121,21 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
         ]}
       />
 
-      {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
-            <FileCheck className="h-5 w-5 text-brand" />
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-cyan-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 shadow-sm">
+            <FileCheck className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Signed Waivers
+            <h1 className="text-3xl font-display font-bold text-white">
+              Waivers
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-slate-400 mt-1">
               View all parents who signed enrollment waivers
             </p>
           </div>
@@ -140,33 +144,36 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-teal-50/80 via-cyan-50/60 to-sky-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <FileCheck className="h-4 w-4 text-brand" />
-              <span className="text-sm text-muted-foreground">Total Waivers</span>
+              <FileCheck className="h-4 w-4 text-teal-600" />
+              <span className="text-sm text-slate-500">Total Waivers</span>
             </div>
-            <div className="text-2xl font-bold mt-1">{totalWaivers || 0}</div>
+            <div className="text-3xl font-bold text-teal-700 mt-1">{totalWaivers || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-muted-foreground">Media Consent</span>
+              <User className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm text-slate-500">Media Consent</span>
             </div>
-            <div className="text-2xl font-bold text-green-600 mt-1">
+            <div className="text-3xl font-bold text-emerald-700 mt-1">
               {consentGranted || 0}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <Baby className="h-4 w-4 text-orange-500" />
-              <span className="text-sm text-muted-foreground">No Consent</span>
+              <Baby className="h-4 w-4 text-amber-600" />
+              <span className="text-sm text-slate-500">No Consent</span>
             </div>
-            <div className="text-2xl font-bold text-orange-500 mt-1">
+            <div className="text-3xl font-bold text-amber-700 mt-1">
               {(totalWaivers || 0) - (consentGranted || 0)}
             </div>
           </CardContent>
@@ -174,34 +181,36 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by parent name, email, or child name..."
                 defaultValue={searchParams.search}
-                className="pl-10"
+                className="pl-10 border-slate-200"
               />
             </div>
             <select
               name="consent"
               defaultValue={searchParams.consent || 'all'}
-              className="px-3 py-2 rounded-md border bg-background"
+              className="px-3 py-2 rounded-md border border-slate-200 bg-white/80 text-slate-600"
             >
               <option value="all">All Consent Status</option>
               <option value="granted">Media Consent Granted</option>
               <option value="not-granted">No Media Consent</option>
             </select>
-            <Button type="submit">Filter</Button>
+            <Button type="submit" className="bg-gradient-to-r from-teal-400 to-cyan-500 text-white border-0 shadow-sm">
+              Filter
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {/* Waivers Table */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="p-0">
           <Table>
             <TableHeader>

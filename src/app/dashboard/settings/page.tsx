@@ -140,31 +140,43 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-          <Settings className="h-6 w-6 text-brand" />
-          Settings
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your account information and preferences
-        </p>
+    <div className="space-y-8 max-w-3xl">
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-500/10 via-transparent to-gray-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-slate-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-gray-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-400 to-gray-500 shadow-sm">
+            <Settings className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Settings
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Manage your account information and preferences
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Error Banner */}
       {error && (
-        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
-          <p className="text-sm text-destructive">{error}</p>
+        <div className="p-4 rounded-xl bg-rose-50/80 border border-rose-200/60 flex items-center gap-3 backdrop-blur-sm">
+          <AlertCircle className="h-5 w-5 text-rose-600 flex-shrink-0" />
+          <p className="text-sm text-rose-700">{error}</p>
         </div>
       )}
 
       {/* Personal Information */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="h-5 w-5 text-brand" />
+          <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
+              <User className="h-4 w-4 text-white" />
+            </div>
             Personal Information
           </CardTitle>
         </CardHeader>
@@ -250,10 +262,12 @@ export default function SettingsPage() {
       </Card>
 
       {/* Address */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-brand" />
+          <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-sm">
+              <MapPin className="h-4 w-4 text-white" />
+            </div>
             Address
           </CardTitle>
         </CardHeader>
@@ -336,10 +350,12 @@ export default function SettingsPage() {
       </Card>
 
       {/* Emergency Contact */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Phone className="h-5 w-5 text-brand" />
+          <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+              <Phone className="h-4 w-4 text-white" />
+            </div>
             Emergency Contact
           </CardTitle>
         </CardHeader>
@@ -399,19 +415,21 @@ export default function SettingsPage() {
       </Card>
 
       {/* Account Security */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Shield className="h-5 w-5 text-brand" />
+          <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-sm">
+              <Shield className="h-4 w-4 text-white" />
+            </div>
             Account Security
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-slate-500 mb-4">
             Your account is secured through Clerk authentication. 
             Password and security settings are managed there.
           </p>
-          <Button variant="outline" onClick={() => window.open('https://accounts.clerk.dev/user', '_blank')}>
+          <Button variant="outline" className="border-slate-200 hover:bg-white/50" onClick={() => window.open('https://accounts.clerk.dev/user', '_blank')}>
             Manage Security Settings
           </Button>
         </CardContent>

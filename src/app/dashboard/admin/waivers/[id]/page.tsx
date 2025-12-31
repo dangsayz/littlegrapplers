@@ -9,10 +9,11 @@ import { Breadcrumb } from '@/components/ui/breadcrumb';
 const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function AdminWaiverDetailPage({ params }: PageProps) {
+  const { id } = await params;
   const user = await currentUser();
 
   if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
@@ -22,7 +23,7 @@ export default async function AdminWaiverDetailPage({ params }: PageProps) {
   const { data: waiver, error } = await supabaseAdmin
     .from('signed_waivers')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !waiver) {

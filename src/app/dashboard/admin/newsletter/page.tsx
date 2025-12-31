@@ -108,109 +108,121 @@ export default async function AdminNewsletterPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
-            <Mail className="h-5 w-5 text-brand" />
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-transparent to-rose-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-pink-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-rose-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 shadow-sm">
+              <Mail className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-display font-bold text-white">
+                Newsletter
+              </h1>
+              <p className="text-slate-400 mt-1">
+                Manage your email newsletter list
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Newsletter Subscribers
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your email newsletter list
-            </p>
-          </div>
+          <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
         </div>
-        <Button variant="outline" size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Export CSV
-        </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Total</span>
+              <Users className="h-4 w-4 text-slate-500" />
+              <span className="text-sm text-slate-500">Total</span>
             </div>
-            <div className="text-2xl font-bold mt-1">{totalSubscribers || 0}</div>
+            <div className="text-2xl font-bold mt-1 text-slate-700">{totalSubscribers || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">Active</span>
+              <Mail className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm text-slate-500">Active</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-green-600">{activeSubscribers || 0}</div>
+            <div className="text-2xl font-bold mt-1 text-emerald-700">{activeSubscribers || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-pink-50/80 via-rose-50/60 to-fuchsia-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-brand" />
-              <span className="text-sm text-muted-foreground">Last 30 Days</span>
+              <TrendingUp className="h-4 w-4 text-pink-600" />
+              <span className="text-sm text-slate-500">Last 30 Days</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-brand">{recentSubscribers || 0}</div>
+            <div className="text-2xl font-bold mt-1 text-pink-700">{recentSubscribers || 0}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <UserMinus className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Unsubscribed</span>
+              <UserMinus className="h-4 w-4 text-slate-500" />
+              <span className="text-sm text-slate-500">Unsubscribed</span>
             </div>
-            <div className="text-2xl font-bold mt-1">{unsubscribed || 0}</div>
+            <div className="text-2xl font-bold mt-1 text-slate-700">{unsubscribed || 0}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by email or name..."
                 defaultValue={searchParams.search || ''}
-                className="pl-9"
+                className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
               defaultValue={searchParams.status || 'all'}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="unsubscribed">Unsubscribed</option>
               <option value="bounced">Bounced</option>
             </select>
-            <Button type="submit">Filter</Button>
+            <Button type="submit" className="bg-gradient-to-r from-pink-400 to-rose-500 text-white border-0 shadow-sm">
+              Filter
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {/* Subscribers Table */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Subscribers</CardTitle>
+          <CardTitle className="text-slate-800">Subscribers</CardTitle>
           <CardDescription>
             {subscribers?.length || 0} subscriber{(subscribers?.length || 0) !== 1 ? 's' : ''} found
           </CardDescription>

@@ -52,6 +52,7 @@ interface Thread {
     slug: string;
   };
   media?: MediaAttachment[];
+  videoLinks?: string[];
   replies: Reply[];
 }
 
@@ -134,7 +135,8 @@ export default function ThreadPage() {
     const validFiles = files.filter(file => {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
-      const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+      // Images have no size limit (will be resized server-side), videos max 100MB
+      const maxSize = isVideo ? 100 * 1024 * 1024 : Infinity;
       return (isImage || isVideo) && file.size <= maxSize;
     });
     
@@ -445,6 +447,30 @@ export default function ThreadPage() {
                       ))}
                     </div>
                   )}
+                  {thread.videoLinks && thread.videoLinks.length > 0 && (
+                    <div className="mt-4 space-y-4">
+                      {thread.videoLinks.map((link, index) => {
+                        const youtubeMatch = link.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                        const vimeoMatch = link.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+                        let embedUrl = '';
+                        if (youtubeMatch) {
+                          embedUrl = `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+                        } else if (vimeoMatch) {
+                          embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                        }
+                        return embedUrl ? (
+                          <div key={index} className="aspect-video max-w-2xl rounded-xl overflow-hidden border border-border">
+                            <iframe
+                              src={embedUrl}
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -535,60 +561,76 @@ export default function ThreadPage() {
               )}
             </div>
 
-            {/* Reply Form */}
-            <div className="p-6 rounded-lg border border-border bg-card">
-              <h3 className="font-semibold mb-4">Add a Reply</h3>
-              <form onSubmit={handleReply} className="space-y-4">
-                <Textarea
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Share your thoughts..."
-                  rows={4}
-                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
-                />
-                
-                {/* Media Upload for Reply */}
-                <div className="flex flex-wrap gap-2 items-center">
-                  {replyMediaPreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      {replyMediaFiles[index]?.type.startsWith('video/') ? (
-                        <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
-                          <Film className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      ) : (
-                        <img src={preview} alt="" className="w-16 h-16 object-cover rounded" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeReplyMedia(index)}
-                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {replyMediaFiles.length < 3 && (
-                    <label className="w-16 h-16 rounded border-2 border-dashed border-border hover:border-brand/50 flex items-center justify-center cursor-pointer">
-                      <ImagePlus className="h-5 w-5 text-muted-foreground" />
-                      <input
-                        type="file"
-                        accept="image/*,video/*"
-                        onChange={handleReplyFileChange}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-                
-                <Button
-                  type="submit"
-                  className="bg-brand hover:bg-brand/90 text-white"
-                  disabled={isSubmitting || !replyContent.trim()}
-                >
-                  {isSubmitting ? 'Posting...' : 'Post Reply'}
-                  <Send className="h-4 w-4 ml-2" />
-                </Button>
-              </form>
+            {/* Reply Form - Apple macOS Glass Style */}
+            <div 
+              className="relative rounded-[20px]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.72)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.5)',
+              }}
+            >
+              {/* Soft inner highlight at top */}
+              <div 
+                className="absolute inset-x-0 top-0 h-[1px] rounded-t-[20px]"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)' }}
+              />
+              
+              <div className="relative z-10 p-6">
+                <h3 className="font-semibold mb-4 text-[#1F2A44]">Add a Reply</h3>
+                <form onSubmit={handleReply} className="space-y-4">
+                  <Textarea
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    rows={4}
+                    className="bg-white/60 backdrop-blur-sm border-2 border-slate-200/50 focus:border-brand/50 focus:ring-brand/20 text-[#1F2A44] placeholder:text-slate-400 rounded-xl shadow-sm resize-none transition-all"
+                  />
+                  
+                  {/* Media Upload for Reply */}
+                  <div className="flex flex-wrap gap-3 items-center">
+                    {replyMediaPreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        {replyMediaFiles[index]?.type.startsWith('video/') ? (
+                          <div className="w-20 h-20 rounded-xl bg-slate-100/80 backdrop-blur-sm flex items-center justify-center border-2 border-slate-200/50 shadow-sm">
+                            <Film className="h-7 w-7 text-slate-400" />
+                          </div>
+                        ) : (
+                          <img src={preview} alt="" className="w-20 h-20 object-cover rounded-xl border-2 border-slate-200/50 shadow-sm" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeReplyMedia(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {replyMediaFiles.length < 3 && (
+                      <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300/60 hover:border-brand/50 hover:bg-brand/5 flex flex-col items-center justify-center cursor-pointer transition-all group bg-white/40 backdrop-blur-sm">
+                        <ImagePlus className="h-6 w-6 text-slate-400 group-hover:text-brand transition-colors" />
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={handleReplyFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="bg-brand hover:bg-brand/90 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+                    disabled={isSubmitting || !replyContent.trim()}
+                  >
+                    {isSubmitting ? 'Posting...' : 'Post Reply'}
+                    <Send className="h-4 w-4 ml-2" />
+                  </Button>
+                </form>
+              </div>
             </div>
           </FadeIn>
         </Container>

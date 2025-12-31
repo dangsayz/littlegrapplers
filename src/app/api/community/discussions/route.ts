@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     const clerkUserId = user.id;
 
     const body = await request.json();
-    const { locationSlug, title, content } = body;
+    const { locationSlug, title, content, videoLinks } = body;
 
     if (!locationSlug || !title || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -166,6 +166,7 @@ export async function POST(request: NextRequest) {
         author_email: userEmail,
         title,
         content,
+        video_links: videoLinks || [],
       })
       .select('id, title, content, created_at')
       .single();

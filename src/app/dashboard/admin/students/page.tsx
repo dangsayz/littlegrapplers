@@ -76,63 +76,71 @@ export default async function AdminStudentsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-          <GraduationCap className="h-5 w-5 text-indigo-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            All Students
-          </h1>
-          <p className="text-muted-foreground">
-            View all enrolled students across locations
-          </p>
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-violet-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 shadow-sm">
+            <GraduationCap className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Students
+            </h1>
+            <p className="text-slate-400 mt-1">
+              View all enrolled students across locations
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by child name, parent name, or email..."
                 defaultValue={searchParams.search || ''}
-                className="pl-9"
+                className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="location"
               defaultValue={searchParams.location || 'all'}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Locations</option>
               {locations?.map((loc: { id: string; name: string }) => (
                 <option key={loc.id} value={loc.id}>{loc.name}</option>
               ))}
             </select>
-            <Button type="submit">Search</Button>
+            <Button type="submit" className="bg-gradient-to-r from-indigo-400 to-violet-500 text-white border-0 shadow-sm">
+              Search
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {/* Students Table */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Enrolled Students</CardTitle>
+          <CardTitle className="text-slate-800">Enrolled Students</CardTitle>
           <CardDescription>
             {students?.length || 0} student{(students?.length || 0) !== 1 ? 's' : ''} found
           </CardDescription>

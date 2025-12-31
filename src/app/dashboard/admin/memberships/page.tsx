@@ -65,94 +65,105 @@ export default async function AdminMembershipsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-          <CreditCard className="h-5 w-5 text-emerald-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            Memberships
-          </h1>
-          <p className="text-muted-foreground">
-            View and manage all memberships and contracts
-          </p>
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-green-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-green-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-green-500 shadow-sm">
+            <CreditCard className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Memberships
+            </h1>
+            <p className="text-slate-400 mt-1">
+              View and manage all memberships and contracts
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-emerald-200 bg-emerald-50/50">
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm text-muted-foreground">Active Memberships</span>
+              <span className="text-sm text-slate-500">Active Memberships</span>
             </div>
-            <div className="text-3xl font-bold text-emerald-600 mt-1">{totalMemberships}</div>
+            <div className="text-3xl font-bold text-emerald-700 mt-1">{totalMemberships}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-muted-foreground">Monthly Revenue</span>
+              <span className="text-sm text-slate-500">Monthly Revenue</span>
             </div>
-            <div className="text-3xl font-bold mt-1">{formatCurrency(monthlyRevenue)}</div>
+            <div className="text-3xl font-bold text-green-700 mt-1">{formatCurrency(monthlyRevenue)}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-indigo-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <span className="text-sm text-muted-foreground">Annual Revenue</span>
+              <Calendar className="h-4 w-4 text-sky-600" />
+              <span className="text-sm text-slate-500">Annual Revenue</span>
             </div>
-            <div className="text-3xl font-bold mt-1">{formatCurrency(annualRevenue)}</div>
+            <div className="text-3xl font-bold text-sky-700 mt-1">{formatCurrency(annualRevenue)}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Search */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by child name or parent email..."
                 defaultValue={searchParams.search || ''}
-                className="pl-9"
+                className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
               defaultValue={searchParams.status || 'all'}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="paused">Paused</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            <Button type="submit">Search</Button>
+            <Button type="submit" className="bg-gradient-to-r from-emerald-400 to-green-500 text-white border-0 shadow-sm">
+              Search
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {/* Memberships Table */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>All Memberships</CardTitle>
+          <CardTitle className="text-slate-800">All Memberships</CardTitle>
           <CardDescription>
             {memberships?.length || 0} membership{(memberships?.length || 0) !== 1 ? 's' : ''} total
           </CardDescription>

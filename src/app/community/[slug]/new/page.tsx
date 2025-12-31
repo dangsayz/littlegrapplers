@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, ImagePlus, X, Film } from 'lucide-react';
+import { ArrowLeft, Send, ImagePlus, X, Film, Link2, Play, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,8 @@ export default function NewThreadPage() {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
+  const [videoLinks, setVideoLinks] = useState<string[]>([]);
+  const [videoLinkInput, setVideoLinkInput] = useState('');
 
   useEffect(() => {
     const checkVerification = async () => {
@@ -47,7 +49,8 @@ export default function NewThreadPage() {
     const validFiles = files.filter(file => {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
-      const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024; // 100MB video, 10MB image
+      // Images have no size limit (will be resized server-side), videos max 100MB
+      const maxSize = isVideo ? 100 * 1024 * 1024 : Infinity;
       return (isImage || isVideo) && file.size <= maxSize;
     });
     
@@ -73,6 +76,51 @@ export default function NewThreadPage() {
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  const getVideoEmbedUrl = (url: string): string | null => {
+    // YouTube
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    }
+    // Vimeo
+    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+    return null;
+  };
+
+  const getVideoThumbnail = (url: string): string | null => {
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return `https://img.youtube.com/vi/${youtubeMatch[1]}/mqdefault.jpg`;
+    }
+    return null;
+  };
+
+  const addVideoLink = () => {
+    if (!videoLinkInput.trim()) return;
+    
+    const embedUrl = getVideoEmbedUrl(videoLinkInput);
+    if (!embedUrl) {
+      setError('Please enter a valid YouTube or Vimeo URL');
+      return;
+    }
+    
+    if (videoLinks.length >= 3) {
+      setError('Maximum 3 video links allowed');
+      return;
+    }
+    
+    setVideoLinks(prev => [...prev, videoLinkInput]);
+    setVideoLinkInput('');
+    setError('');
+  };
+
+  const removeVideoLink = (index: number) => {
+    setVideoLinks(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -87,6 +135,7 @@ export default function NewThreadPage() {
           locationSlug: slug,
           title,
           content,
+          videoLinks,
         }),
       });
 
@@ -228,6 +277,75 @@ export default function NewThreadPage() {
                     )}
                   </div>
                   <p className="text-xs text-foreground/50">Max 5 files. Images up to 10MB, videos up to 100MB.</p>
+                </div>
+
+                {/* Video Links */}
+                <div className="space-y-3">
+                  <Label className="text-foreground font-semibold flex items-center gap-2">
+                    <Link2 className="h-4 w-4" />
+                    Video Links (optional)
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="url"
+                      value={videoLinkInput}
+                      onChange={(e) => setVideoLinkInput(e.target.value)}
+                      placeholder="Paste YouTube or Vimeo URL..."
+                      className="flex-1 h-11 bg-white border-2 border-gray-200 focus:border-brand focus:ring-brand/20 text-foreground placeholder:text-foreground/40 rounded-xl shadow-sm"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addVideoLink();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      onClick={addVideoLink}
+                      className="h-11 px-4 bg-brand hover:bg-brand/90 text-white rounded-xl"
+                      disabled={!videoLinkInput.trim()}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {/* Video Link Previews */}
+                  {videoLinks.length > 0 && (
+                    <div className="space-y-3">
+                      {videoLinks.map((link, index) => {
+                        const thumbnail = getVideoThumbnail(link);
+                        const embedUrl = getVideoEmbedUrl(link);
+                        return (
+                          <div key={index} className="relative group flex items-center gap-3 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl">
+                            {thumbnail ? (
+                              <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src={thumbnail} alt="Video thumbnail" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                  <Play className="h-6 w-6 text-white fill-white" />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-24 h-16 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                <Play className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{link}</p>
+                              <p className="text-xs text-foreground/50">{embedUrl ? 'Ready to embed' : 'Invalid URL'}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeVideoLink(index)}
+                              className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p className="text-xs text-foreground/50">Supports YouTube and Vimeo. Max 3 video links.</p>
                 </div>
 
                 {error && (

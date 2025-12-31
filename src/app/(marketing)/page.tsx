@@ -287,191 +287,84 @@ export default function HomePage() {
 
       
       {/* ═══════════════════════════════════════════════════════════════════════
-          BENTO GRID - Mission & Video (Enhanced with Pastel Design System)
+          BENTO GRID - Mission & Video (Apple Glass Aesthetic)
       ═══════════════════════════════════════════════════════════════════════ */}
       <section id="story" className="py-24 md:py-32 relative overflow-hidden">
-        {/* Section background with pastel gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFF9F5] via-[#F7F9F9] to-[#F0FAFA]" />
-        {/* Premium grain texture */}
-        <div 
-          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
-        {/* Floating decorative blobs */}
-        <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-gradient-to-br from-[#FFB6C1]/30 to-[#FFD6E0]/20 blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-gradient-to-tr from-[#98D8C8]/25 to-[#B8E4F0]/15 blur-3xl animate-float-delayed" />
+        {/* Clean gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white" />
         
         <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Large mission card - Enhanced */}
+            {/* Mission card - Glass Style */}
             <FadeIn direction="up" className="lg:col-span-7">
-              <div className="relative h-full min-h-[400px] rounded-[2rem] overflow-hidden group shadow-2xl shadow-[#2EC4B6]/20">
-                {/* Multi-layer gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6] via-[#3DD4C6] to-[#1a9e92]" />
-                {/* Grain texture on card */}
-                <div 
-                  className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                  }}
-                />
-                {/* Floating pastel accents */}
-                <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-white/20 to-[#FFE4B5]/20 rounded-full blur-[80px] group-hover:from-white/30 transition-all duration-700" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[#FFB6C1]/20 to-[#8FE3CF]/30 rounded-full blur-[60px]" />
-                <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-[#FFC857]/20 rounded-full blur-[40px]" />
-                {/* Playful floating dots */}
-                <motion.div 
-                  className="absolute top-8 right-8 w-3 h-3 rounded-full bg-[#FFC857]"
-                  animate={{ y: [0, -8, 0], scale: [1, 1.2, 1] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                <motion.div 
-                  className="absolute bottom-16 right-16 w-2 h-2 rounded-full bg-[#FFB6C1]"
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-                />
-                <motion.div 
-                  className="absolute top-1/3 left-8 w-2 h-2 rounded-full bg-white/60"
-                  animate={{ y: [0, -10, 0], opacity: [0.6, 1, 0.6] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                />
+              <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden">
+                {/* Dark glass header background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-emerald-500/10" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-3xl" />
                 
-                <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12">
+                <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-10">
                   <div>
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wider mb-6 border border-white/10">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#FFC857] animate-pulse" />
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold uppercase tracking-wider mb-6">
                       Our Mission
                     </span>
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-white">
+                    <h2 className="text-4xl md:text-5xl font-bold leading-[1.1] text-white">
                       Empower
                       <br />
-                      <span className="bg-gradient-to-r from-[#FFC857] via-[#FFE4B5] to-[#FFC857] bg-clip-text text-transparent">
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
                         your kids.
                       </span>
                     </h2>
                   </div>
                   
-                  <div>
-                    <p className="text-lg text-white/85 max-w-md leading-relaxed">
-                      We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
-                    </p>
-                    {/* Decorative line */}
-                    <div className="mt-6 flex items-center gap-2">
-                      <div className="h-1 w-12 rounded-full bg-[#FFC857]" />
-                      <div className="h-1 w-6 rounded-full bg-white/40" />
-                      <div className="h-1 w-3 rounded-full bg-[#FFB6C1]/60" />
-                    </div>
-                  </div>
+                  <p className="text-lg text-slate-300 max-w-md leading-relaxed">
+                    We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
+                  </p>
                 </div>
               </div>
             </FadeIn>
 
-            {/* Video card - Enhanced */}
+            {/* Video card - Glass Style */}
             <FadeIn direction="up" delay={0.1} className="lg:col-span-5">
-              <div className="relative h-full min-h-[400px]">
-                {/* Decorative pastel frame */}
-                <div className="absolute -inset-2 rounded-[2.5rem] bg-gradient-to-br from-[#FFB6C1]/40 via-[#98D8C8]/30 to-[#FFE4B5]/40 blur-sm" />
+              <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
+                <Image
+                  src="/images/highlights/LittleGrapplers-05971.jpg"
+                  alt="Training session"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent" />
                 
-                <div className="relative h-full rounded-[2rem] overflow-hidden group cursor-pointer border-4 border-white shadow-2xl shadow-[#FF6B9D]/10">
-                  <Image
-                    src="/images/highlights/LittleGrapplers-05971.jpg"
-                    alt="Training session"
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44]/60 via-[#1F2A44]/20 to-transparent group-hover:from-[#1F2A44]/50 transition-colors duration-500" />
-                  
-                  {/* Play button - Enhanced */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <motion.div 
-                      className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border-2 border-white/30 shadow-2xl"
-                      whileHover={{ scale: 1.1, backgroundColor: 'rgba(46, 196, 182, 0.9)' }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    >
-                      <Play className="h-8 w-8 text-white ml-1" />
-                    </motion.div>
-                  </div>
-                  
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <span className="inline-flex items-center gap-1.5 text-white/80 text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
-                      Watch our story
-                    </span>
-                    <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
-                  </div>
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div 
+                    className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-lg"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  >
+                    <Play className="h-6 w-6 text-slate-800 ml-1" fill="currentColor" />
+                  </motion.div>
                 </div>
                 
-                {/* Floating accent badges */}
-                <motion.div 
-                  className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[#FFE4B5] border-4 border-white shadow-lg flex items-center justify-center z-10"
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <span className="text-sm">✨</span>
-                </motion.div>
-                <motion.div 
-                  className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-[#98D8C8] border-4 border-white shadow-lg z-10"
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-                />
+                <div className="absolute bottom-6 left-6 right-6">
+                  <span className="text-slate-300 text-sm">Watch our story</span>
+                  <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
+                </div>
               </div>
             </FadeIn>
 
-            {/* Quote card - Premium Pastel Enhancement */}
+            {/* Quote card - Glass Style */}
             <FadeIn direction="up" delay={0.2} className="lg:col-span-12">
-              <div className="relative rounded-[2rem] overflow-hidden">
-                {/* Multi-color pastel gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FFE4B5] via-[#FFC857] to-[#FFDAB9]" />
-                {/* Premium grain texture */}
-                <div 
-                  className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                  }}
-                />
-                {/* Floating decorative shapes */}
-                <div className="absolute -top-16 -right-16 w-48 h-48 bg-gradient-to-br from-[#F7931E]/30 to-[#FF6B9D]/20 rounded-full blur-2xl" />
-                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#FF5A5F]/15 to-[#FFB6C1]/20 rounded-full blur-3xl" />
-                <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-[#98D8C8]/20 rounded-full blur-2xl" />
-                {/* Playful floating dots */}
-                <motion.div 
-                  className="absolute top-6 left-12 w-3 h-3 rounded-full bg-[#FF6B9D]/60"
-                  animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                <motion.div 
-                  className="absolute bottom-8 right-16 w-2 h-2 rounded-full bg-[#2EC4B6]/50"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
-                />
-                <motion.div 
-                  className="absolute top-1/3 right-1/4 w-2 h-2 rounded-full bg-[#8B5CF6]/40"
-                  animate={{ y: [0, -5, 0], opacity: [0.4, 0.8, 0.4] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-                />
+              <div className="relative rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/40 to-transparent rounded-full blur-3xl" />
                 
-                <div className="relative z-10 p-8 md:p-12 lg:p-16">
-                  {/* Quote icon */}
-                  <div className="flex justify-center mb-6">
-                    <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-2xl text-[#1F2A44]/60">"</span>
-                    </div>
-                  </div>
-                  
+                <div className="relative z-10 py-12 px-8 md:px-16">
                   <div className="max-w-4xl mx-auto text-center">
-                    <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic text-[#1F2A44] leading-tight">
+                    <p className="text-2xl md:text-3xl font-medium text-slate-700 leading-relaxed italic">
                       "Sometimes it is the people no one can imagine anything of who do the things
-                      <span className="font-black not-italic bg-gradient-to-r from-[#1F2A44] to-[#3D4A63] bg-clip-text text-transparent"> no one can imagine.</span>"
+                      <span className="font-bold not-italic text-slate-900"> no one can imagine."</span>
                     </p>
-                    
-                    {/* Decorative bottom accent */}
-                    <div className="mt-8 flex items-center justify-center gap-2">
-                      <div className="h-1 w-8 rounded-full bg-[#FF6B9D]/50" />
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#2EC4B6]/60" />
-                      <div className="h-1 w-8 rounded-full bg-[#8B5CF6]/40" />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -481,167 +374,86 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          BENEFITS - World-Class Premium Cards (Enhanced with Pastel Design System)
+          BENEFITS - Apple Glass Cards
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 relative overflow-hidden">
-        {/* Pastel gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F0FAFA] via-[#FFF9F5] to-[#F5F0FF]" />
-        {/* Premium grain texture */}
-        <div 
-          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
-        {/* Floating decorative blobs */}
-        <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-gradient-to-br from-[#98D8C8]/30 to-[#B8E4F0]/20 blur-3xl animate-float" />
-        <div className="absolute bottom-10 right-10 w-80 h-80 rounded-full bg-gradient-to-tr from-[#FFB6C1]/25 to-[#FFD6E0]/15 blur-3xl animate-float-delayed" />
-        <div className="absolute top-1/2 left-1/3 w-48 h-48 rounded-full bg-gradient-to-r from-[#C4B5FD]/20 to-[#DDD6FE]/15 blur-2xl" />
-        {/* Playful floating dots */}
-        <motion.div 
-          className="absolute top-20 right-1/4 w-3 h-3 rounded-full bg-[#2EC4B6]/50"
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div 
-          className="absolute bottom-32 left-1/4 w-2 h-2 rounded-full bg-[#FFB6C1]/60"
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-        <motion.div 
-          className="absolute top-1/3 right-10 w-2 h-2 rounded-full bg-[#FFC857]/50"
-          animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        />
-        
+      <section className="py-24 md:py-32 relative overflow-hidden bg-gradient-to-b from-white to-slate-50">
         <Container className="relative z-10">
-          <FadeIn direction="up" className="mb-20 text-center">
-            {/* Enhanced badge - removed icon */}
-            <motion.div 
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#98D8C8]/30 shadow-lg shadow-[#2EC4B6]/5 mb-6"
-              whileHover={{ scale: 1.05 }}
-            >
-              <span className="w-2 h-2 rounded-full bg-[#2EC4B6] animate-pulse" />
-              <span className="text-[#2EC4B6] text-sm font-bold tracking-wide">The Art</span>
-            </motion.div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] text-[#1F2A44]">
+          <FadeIn direction="up" className="mb-16 text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-800">
               What is
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] via-[#FF5A5F] to-[#FFC857] animate-gradient-x">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">
                 Brazilian Jiu-Jitsu?
               </span>
             </h2>
-            <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
               More than martial arts — it's a journey of self-discovery that builds champions in life.
             </p>
-            {/* Decorative accent */}
-            <div className="mt-8 flex items-center justify-center gap-2">
-              <div className="h-1 w-8 rounded-full bg-[#98D8C8]" />
-              <div className="h-1.5 w-1.5 rounded-full bg-[#FFB6C1]" />
-              <div className="h-1 w-8 rounded-full bg-[#C4B5FD]" />
-            </div>
           </FadeIn>
 
-          {/* Premium Cards Grid - Pastel Design System */}
+          {/* Apple Glass Cards Grid */}
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={0.1}>
             {[
               { 
                 title: 'Full-Body Fitness', 
                 desc: 'Develops strength, flexibility, and coordination through dynamic movements', 
                 icon: Dumbbell,
-                bgFrom: '#E5F4F1',
-                bgTo: '#F0FAFA',
-                border: '#98D8C8',
-                accent: '#2EC4B6',
+                gradient: 'from-teal-400 to-emerald-500',
+                bgGradient: 'from-teal-50 via-emerald-50/50 to-white',
               },
               { 
                 title: 'Strategic Thinking', 
                 desc: 'Problem-solving skills through technique — like physical chess', 
                 icon: Brain,
-                bgFrom: '#FFF4E5',
-                bgTo: '#FFFAF0',
-                border: '#FFE4B5',
-                accent: '#F7931E',
+                gradient: 'from-amber-400 to-orange-500',
+                bgGradient: 'from-amber-50 via-orange-50/50 to-white',
               },
               { 
                 title: 'Teamwork & Respect', 
                 desc: 'Building lifelong friendships and essential social skills', 
                 icon: Heart,
-                bgFrom: '#FFE5EC',
-                bgTo: '#FFF0F5',
-                border: '#FFB6C1',
-                accent: '#FF6B9D',
+                gradient: 'from-rose-400 to-pink-500',
+                bgGradient: 'from-rose-50 via-pink-50/50 to-white',
               },
               { 
                 title: 'Bully-Proof Skills', 
                 desc: 'Confidence to handle any situation with calm and control', 
                 icon: Shield,
-                bgFrom: '#EDE5FF',
-                bgTo: '#F5F0FF',
-                border: '#C4B5FD',
-                accent: '#8B5CF6',
+                gradient: 'from-violet-400 to-purple-500',
+                bgGradient: 'from-violet-50 via-purple-50/50 to-white',
               },
-            ].map((item, index) => (
+            ].map((item) => (
               <StaggerItem key={item.title}>
                 <motion.div 
                   className="group relative h-full"
                   whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
-                  {/* Pastel card with unique gradient */}
-                  <div 
-                    className="relative h-full rounded-[1.5rem] p-6 border shadow-lg hover:shadow-xl transition-all duration-300"
-                    style={{ 
-                      background: `linear-gradient(to bottom right, ${item.bgFrom}, ${item.bgTo})`,
-                      borderColor: `${item.border}40`,
-                      boxShadow: `0 10px 40px -10px ${item.accent}15`
-                    }}
-                  >
-                    {/* Grain texture on card */}
-                    <div 
-                      className="absolute inset-0 rounded-[1.5rem] opacity-[0.2] mix-blend-overlay pointer-events-none"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                      }}
-                    />
+                  {/* Glass card container */}
+                  <div className="relative h-full rounded-[24px] overflow-hidden">
+                    {/* Glass background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${item.bgGradient}`} />
                     
-                    {/* Floating blob on card */}
-                    <div 
-                      className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"
-                      style={{ backgroundColor: item.accent }}
-                    />
+                    {/* Top reflection/shine - Apple glass effect */}
+                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/70 via-white/30 to-transparent pointer-events-none" />
                     
-                    {/* Decorative corner dot */}
-                    <div 
-                      className="absolute top-4 right-4 w-2 h-2 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-300"
-                      style={{ backgroundColor: item.accent }}
-                    />
+                    {/* Subtle inner border glow */}
+                    <div className="absolute inset-0 rounded-[24px] border border-white/80 pointer-events-none" />
+                    <div className="absolute inset-[1px] rounded-[23px] border border-slate-200/40 pointer-events-none" />
                     
-                    <div className="relative z-10">
-                      {/* Custom icon */}
-                      <div 
-                        className="flex h-12 w-12 items-center justify-center rounded-2xl mb-5 bg-white/60 backdrop-blur-sm border shadow-sm group-hover:scale-110 transition-transform duration-300"
-                        style={{ borderColor: `${item.border}50` }}
-                      >
-                        <item.icon className="h-5 w-5" style={{ color: item.accent }} />
+                    {/* Outer shadow for depth */}
+                    <div className="absolute -inset-px rounded-[25px] bg-gradient-to-b from-slate-100/50 to-slate-200/30 -z-10" />
+                    
+                    <div className="relative z-10 p-6">
+                      {/* Icon with gradient background */}
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} shadow-lg mb-5`}>
+                        <item.icon className="h-5 w-5 text-white" />
                       </div>
                       
-                      <h3 className="text-lg font-bold text-[#1F2A44] mb-2">
+                      <h3 className="text-lg font-bold text-slate-800 mb-2">
                         {item.title}
                       </h3>
-                      <p className="text-[#1F2A44]/60 text-sm leading-relaxed">{item.desc}</p>
-                      
-                      {/* Bottom accent line */}
-                      <div className="mt-4 flex items-center gap-1.5">
-                        <div 
-                          className="h-0.5 w-8 rounded-full opacity-60"
-                          style={{ backgroundColor: item.accent }}
-                        />
-                        <div 
-                          className="h-1 w-1 rounded-full opacity-40"
-                          style={{ backgroundColor: item.accent }}
-                        />
-                      </div>
+                      <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -747,113 +559,177 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          PRICING - Modern cards
+          PRICING - Apple Glass Cards
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-slate-100 to-slate-50">
         <Container>
           <FadeIn direction="up" className="text-center mb-16">
-            <span className="text-[#F7931E] text-sm font-bold tracking-[0.2em] uppercase">Membership</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black text-[#1F2A44]">
-              Simple, transparent <span className="text-[#2EC4B6]">pricing.</span>
+            <span className="text-[#2EC4B6] text-sm font-semibold tracking-wide uppercase">Membership</span>
+            <h2 className="mt-4 text-4xl md:text-5xl font-bold text-slate-800">
+              Simple, transparent pricing.
             </h2>
-            <p className="mt-6 text-lg text-[#1F2A44]/60 max-w-xl mx-auto">
+            <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
               Choose the plan that fits your family. No hidden fees.
             </p>
           </FadeIn>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {/* 3 Month Plan */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* 3 Month Plan - Light Glass Card */}
             <FadeIn direction="up">
-              <div className="relative rounded-3xl bg-[#F7F9F9] border border-[#1F2A44]/10 p-8 md:p-10 overflow-hidden group hover:border-[#2EC4B6]/50 hover:shadow-xl transition-all">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-[#2EC4B6]/10 rounded-full blur-[60px] group-hover:bg-[#2EC4B6]/20 transition-colors" />
-                
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-[#1F2A44]">3 Months Paid-In-Full</h3>
-                  <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-5xl font-black text-[#1F2A44]">$150</span>
-                    <span className="text-[#1F2A44]/50">one time</span>
+              <motion.div 
+                className="group relative"
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
+                {/* Glass card container */}
+                <div className="relative rounded-[28px] overflow-hidden">
+                  {/* Glass background with Apple-style gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-slate-100" />
+                  
+                  {/* Top reflection/shine - Apple glass effect */}
+                  <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/80 via-white/40 to-transparent pointer-events-none" />
+                  
+                  {/* Subtle inner border glow */}
+                  <div className="absolute inset-0 rounded-[28px] border border-white/80 pointer-events-none" />
+                  <div className="absolute inset-[1px] rounded-[27px] border border-slate-200/50 pointer-events-none" />
+                  
+                  {/* Outer shadow for depth */}
+                  <div className="absolute -inset-px rounded-[29px] bg-gradient-to-b from-slate-200/50 to-slate-300/30 -z-10" />
+                  
+                  <div className="relative z-10 p-8 md:p-10">
+                    <h3 className="text-xl font-bold text-slate-800">3 Months Paid-In-Full</h3>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-5xl font-bold text-slate-900">$150</span>
+                      <span className="text-slate-500">one time</span>
+                    </div>
+                    
+                    <ul className="mt-8 space-y-4">
+                      {['Full access for 3 months', 'No recurring charges', 'All membership benefits'].map((feature) => (
+                        <li key={feature} className="flex items-center gap-3 text-slate-600">
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-100">
+                            <Check className="h-3 w-3 text-teal-600" />
+                          </div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    <Link 
+                      href="/waiver"
+                      className="mt-8 block w-full py-4 text-center bg-slate-800 text-white font-semibold rounded-2xl hover:bg-slate-900 transition-colors shadow-lg shadow-slate-900/10"
+                    >
+                      Get Started
+                    </Link>
                   </div>
-                  
-                  <ul className="mt-8 space-y-4">
-                    {['Full access for 3 months', 'No recurring charges', 'All membership benefits'].map((feature) => (
-                      <li key={feature} className="flex items-center gap-3 text-[#1F2A44]/70">
-                        <Check className="h-5 w-5 text-[#2EC4B6]" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Link 
-                    href="/waiver"
-                    className="mt-8 block w-full py-4 text-center bg-[#1F2A44]/10 hover:bg-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-xl transition-colors"
-                  >
-                    Get Started
-                  </Link>
                 </div>
-              </div>
+              </motion.div>
             </FadeIn>
 
-            {/* Monthly Plan - Highlighted */}
+            {/* Monthly Plan - Dark Glass Card (Featured) */}
             <FadeIn direction="up" delay={0.1}>
-              <div className="relative rounded-3xl bg-gradient-to-br from-[#2EC4B6] to-[#1F8A80] p-8 md:p-10 overflow-hidden group">
-                <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold">
-                  POPULAR
-                </div>
-                <div className="absolute bottom-0 right-0 w-60 h-60 bg-white/10 rounded-full blur-[80px]" />
-                
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white">Monthly Agreement</h3>
-                  <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-5xl font-black text-white">$50</span>
-                    <span className="text-white/70">/month</span>
+              <motion.div 
+                className="group relative"
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              >
+                {/* Glass card container */}
+                <div className="relative rounded-[28px] overflow-hidden">
+                  {/* Dark glass background with Apple-style gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950" />
+                  
+                  {/* Teal accent glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 via-transparent to-emerald-500/10" />
+                  
+                  {/* Top reflection/shine - Apple glass effect */}
+                  <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/10 via-white/5 to-transparent pointer-events-none" />
+                  
+                  {/* Subtle inner border glow */}
+                  <div className="absolute inset-0 rounded-[28px] border border-white/10 pointer-events-none" />
+                  <div className="absolute inset-[1px] rounded-[27px] border border-white/5 pointer-events-none" />
+                  
+                  {/* Corner glow orbs */}
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-teal-400/30 to-transparent rounded-full blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-2xl" />
+                  
+                  {/* Popular badge */}
+                  <div className="absolute top-6 right-6 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold">
+                    POPULAR
                   </div>
                   
-                  <ul className="mt-8 space-y-4">
-                    {['Over 20 hours of video content', 'Unlimited lifetime access', 'Cancel anytime'].map((feature) => (
-                      <li key={feature} className="flex items-center gap-3 text-white/90">
-                        <Check className="h-5 w-5 text-white" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Link 
-                    href="/waiver"
-                    className="mt-8 block w-full py-4 text-center bg-white text-[#1F2A44] font-semibold rounded-xl hover:bg-white/90 transition-colors"
-                  >
-                    Get Started
-                  </Link>
+                  <div className="relative z-10 p-8 md:p-10">
+                    <h3 className="text-xl font-bold text-white">Monthly Agreement</h3>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-300">$50</span>
+                      <span className="text-slate-400">/month</span>
+                    </div>
+                    
+                    <ul className="mt-8 space-y-4">
+                      {['Over 20 hours of video content', 'Unlimited lifetime access', 'Cancel anytime'].map((feature) => (
+                        <li key={feature} className="flex items-center gap-3 text-slate-300">
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20">
+                            <Check className="h-3 w-3 text-teal-400" />
+                          </div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    <Link 
+                      href="/waiver"
+                      className="mt-8 block w-full py-4 text-center bg-white text-slate-900 font-semibold rounded-2xl hover:bg-slate-100 transition-colors shadow-lg"
+                    >
+                      Get Started
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </FadeIn>
           </div>
         </Container>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          TESTIMONIAL - Large quote
+          TESTIMONIAL - Apple Glass Card
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-[#F7F9F9]">
+      <section className="py-24 md:py-32 bg-gradient-to-b from-slate-50 to-white">
         <Container>
           <FadeIn direction="up" className="max-w-5xl mx-auto">
-            <div className="flex gap-1 mb-8">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-6 w-6 fill-[#FFC857] text-[#FFC857]" />
-              ))}
-            </div>
-            
-            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-[#1F2A44]">
-              "My son has completely transformed. He's more confident, more focused, and actually looks forward to
-              <span className="text-[#2EC4B6] font-black"> 'martial arts day'</span> at daycare."
-            </blockquote>
-            
-            <div className="mt-12 flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#2EC4B6] to-[#F7931E]" />
-              <div>
-                <div className="text-lg font-semibold text-[#1F2A44]">Sarah M.</div>
-                <div className="text-[#1F2A44]/50">Parent, Sunshine Daycare</div>
+            <motion.div 
+              className="relative"
+              whileHover={{ y: -4 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            >
+              {/* Glass card container */}
+              <div className="relative rounded-[32px] overflow-hidden">
+                {/* Glass background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-slate-100" />
+                
+                {/* Top reflection/shine */}
+                <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/80 via-white/40 to-transparent pointer-events-none" />
+                
+                {/* Subtle inner border glow */}
+                <div className="absolute inset-0 rounded-[32px] border border-white/80 pointer-events-none" />
+                <div className="absolute inset-[1px] rounded-[31px] border border-slate-200/50 pointer-events-none" />
+                
+                {/* Outer shadow for depth */}
+                <div className="absolute -inset-px rounded-[33px] bg-gradient-to-b from-slate-200/50 to-slate-300/30 -z-10" />
+                
+                <div className="relative z-10 p-10 md:p-16">
+                  <blockquote className="text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-slate-800">
+                    "My son has completely transformed. He's more confident, more focused, and actually looks forward to
+                    <span className="text-teal-600 font-bold"> 'martial arts day'</span> at daycare."
+                  </blockquote>
+                  
+                  <div className="mt-10 flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 shadow-lg" />
+                    <div>
+                      <div className="text-base font-semibold text-slate-800">Sarah M.</div>
+                      <div className="text-slate-500 text-sm">Parent, Sunshine Daycare</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </FadeIn>
         </Container>
       </section>

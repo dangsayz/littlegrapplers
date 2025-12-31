@@ -57,57 +57,65 @@ export default async function AdminContactsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
-          <Inbox className="h-5 w-5 text-orange-600" />
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-amber-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-orange-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-500 shadow-sm">
+            <Inbox className="h-7 w-7 text-white" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-3xl font-display font-bold text-white">
+              Contact Inbox
+            </h1>
+            <p className="text-slate-400 mt-1">
+              View and respond to contact form submissions
+            </p>
+          </div>
+          {(unreadCount ?? 0) > 0 && (
+            <Badge className="bg-gradient-to-r from-orange-400 to-amber-500 text-white border-0">{unreadCount} unread</Badge>
+          )}
         </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            Contact Inbox
-          </h1>
-          <p className="text-muted-foreground">
-            View and respond to contact form submissions
-          </p>
-        </div>
-        {(unreadCount ?? 0) > 0 && (
-          <Badge className="ml-auto bg-orange-500">{unreadCount} unread</Badge>
-        )}
       </div>
 
       {/* Search and Filters */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by name, email, or message..."
                 defaultValue={searchParams.search || ''}
-                className="pl-9"
+                className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
               defaultValue={searchParams.status || 'all'}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Messages</option>
               <option value="unread">Unread</option>
               <option value="read">Read</option>
             </select>
-            <Button type="submit">Filter</Button>
+            <Button type="submit" className="bg-gradient-to-r from-orange-400 to-amber-500 text-white border-0 shadow-sm">
+              Filter
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -115,16 +123,16 @@ export default async function AdminContactsPage({
       {/* Contacts List */}
       <div className="space-y-4">
         {error ? (
-          <Card>
+          <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <p className="text-destructive">Error loading contacts: {error.message}</p>
+              <p className="text-rose-600">Error loading contacts: {error.message}</p>
             </CardContent>
           </Card>
         ) : !contacts || contacts.length === 0 ? (
-          <Card>
+          <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardContent className="py-12 text-center">
-              <Inbox className="h-12 w-12 mx-auto text-muted-foreground/30" />
-              <p className="mt-4 text-muted-foreground">No contact submissions yet</p>
+              <Inbox className="h-12 w-12 mx-auto text-slate-300" />
+              <p className="mt-4 text-slate-500">No contact submissions yet</p>
             </CardContent>
           </Card>
         ) : (
@@ -140,7 +148,7 @@ export default async function AdminContactsPage({
           }) => (
             <Card 
               key={contact.id} 
-              className={contact.is_read ? '' : 'border-orange-200 bg-orange-50/30'}
+              className={`border border-white/60 shadow-sm backdrop-blur-sm ${contact.is_read ? 'bg-white/70' : 'bg-gradient-to-br from-orange-50/80 via-amber-50/60 to-yellow-50/40'}`}
             >
               <CardHeader>
                 <div className="flex items-start justify-between">

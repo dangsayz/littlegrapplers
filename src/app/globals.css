@@ -381,6 +381,42 @@
   }
 }
 
+/* Glass shimmer effect - light sweeping across surface */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Glass edge glow pulse */
+@keyframes glass-glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Subtle light reflection movement */
+@keyframes light-shift {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(2px) translateY(-1px);
+  }
+  50% {
+    transform: translateX(0) translateY(-2px);
+  }
+  75% {
+    transform: translateX(-2px) translateY(-1px);
+  }
+}
+
 .animate-float {
   animation: float-subtle 6s ease-in-out infinite;
 }

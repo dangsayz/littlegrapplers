@@ -95,58 +95,76 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      {/* Simple Welcome */}
-      <div className="text-center pt-4">
-        <h1 className="text-3xl font-display font-bold text-foreground">
-          Hi, {firstName}
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          {hasStudents 
-            ? `You have ${students.length} student${students.length > 1 ? 's' : ''} enrolled`
-            : 'Get started by adding your first student'
-          }
-        </p>
+      {/* Welcome Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-emerald-500/10" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative text-center">
+          <h1 className="text-3xl font-display font-bold text-white">
+            Hi, {firstName}
+          </h1>
+          <p className="text-slate-400 mt-2">
+            {hasStudents 
+              ? `You have ${students.length} student${students.length > 1 ? 's' : ''} enrolled`
+              : 'Get started by adding your first student'
+            }
+          </p>
+        </div>
       </div>
 
-      {/* Students List - Simple Cards */}
+      {/* Students List - Glass Cards */}
       <div className="space-y-3">
         {hasStudents ? (
           <>
-            {students.map((student) => (
-              <Link key={student.id} href={`/dashboard/students/${student.id}`}>
-                <Card className="hover:shadow-md hover:border-brand/30 transition-all cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center">
-                        <User className="h-6 w-6 text-brand" />
+            {students.map((student, index) => {
+              const colors = [
+                { gradient: 'from-teal-400 to-emerald-500', bg: 'from-teal-50/80 via-emerald-50/60 to-green-50/40', text: 'text-teal-700' },
+                { gradient: 'from-sky-400 to-blue-500', bg: 'from-sky-50/80 via-blue-50/60 to-indigo-50/40', text: 'text-sky-700' },
+                { gradient: 'from-violet-400 to-purple-500', bg: 'from-violet-50/80 via-purple-50/60 to-fuchsia-50/40', text: 'text-violet-700' },
+                { gradient: 'from-amber-400 to-orange-500', bg: 'from-amber-50/80 via-orange-50/60 to-yellow-50/40', text: 'text-amber-700' },
+              ];
+              const theme = colors[index % colors.length];
+              
+              return (
+                <Link key={student.id} href={`/dashboard/students/${student.id}`}>
+                  <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${theme.bg} backdrop-blur-sm hover:shadow-md transition-all cursor-pointer`}>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+                    <CardContent className="p-4 relative">
+                      <div className="flex items-center gap-4">
+                        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center shadow-sm`}>
+                          <User className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`font-semibold text-lg ${theme.text}`}>
+                            {student.firstName} {student.lastName}
+                          </h3>
+                          <p className="text-sm text-slate-500 capitalize">
+                            {student.beltRank.replace('_', ' ')} Belt
+                            {student.stripes > 0 && ` · ${student.stripes} stripe${student.stripes > 1 ? 's' : ''}`}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-slate-400" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                          {student.firstName} {student.lastName}
-                        </h3>
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {student.beltRank.replace('_', ' ')} Belt
-                          {student.stripes > 0 && ` · ${student.stripes} stripe${student.stripes > 1 ? 's' : ''}`}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </>
         ) : (
-          <Card className="border-dashed border-2">
-            <CardContent className="p-8 text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Users className="h-8 w-8 text-muted-foreground" />
+          <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <CardContent className="p-8 text-center relative">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-200 to-gray-300 flex items-center justify-center mb-4 shadow-sm">
+                <Users className="h-8 w-8 text-slate-500" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">No students yet</h3>
-              <p className="text-muted-foreground mb-6">
+              <h3 className="font-semibold text-lg mb-2 text-slate-700">No students yet</h3>
+              <p className="text-slate-500 mb-6">
                 Add your child to get started with classes
               </p>
-              <Button size="lg" asChild>
+              <Button size="lg" className="bg-gradient-to-r from-teal-400 to-emerald-500 text-white border-0 shadow-sm" asChild>
                 <Link href="/dashboard/students/new">
                   <Plus className="h-5 w-5 mr-2" />
                   Add Your First Student
@@ -160,7 +178,7 @@ export default async function DashboardPage() {
       {/* Add Another Button */}
       {hasStudents && (
         <div className="text-center">
-          <Button variant="outline" asChild>
+          <Button variant="outline" className="border-slate-200 hover:bg-white/50" asChild>
             <Link href="/dashboard/students/new">
               <Plus className="h-4 w-4 mr-2" />
               Add Another Student

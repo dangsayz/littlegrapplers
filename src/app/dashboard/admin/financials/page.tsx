@@ -168,7 +168,7 @@ export default async function AdminFinancialsPage() {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full blur-3xl" />
         
         <div className="relative flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-sm">
             <DollarSign className="h-7 w-7 text-white" />
           </div>
           <div>
@@ -185,8 +185,8 @@ export default async function AdminFinancialsPage() {
       {/* Revenue Cards - Pastel Gradient System */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Monthly Revenue */}
-        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-emerald-100/50 bg-gradient-to-br ${adminTheme.revenue.gradient}`}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+        <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${adminTheme.revenue.gradient} backdrop-blur-sm`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 pb-5 relative">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
@@ -198,7 +198,7 @@ export default async function AdminFinancialsPage() {
                   {totalWaivers} students × ${MONTHLY_RATE}/mo
                 </p>
               </div>
-              <div className={`h-11 w-11 rounded-xl ${adminTheme.revenue.iconBg} flex items-center justify-center shadow-lg shadow-emerald-500/25`}>
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.revenue.iconBg} flex items-center justify-center shadow-sm`}>
                 <DollarSign className="h-5 w-5 text-white" />
               </div>
             </div>
@@ -206,8 +206,8 @@ export default async function AdminFinancialsPage() {
         </Card>
 
         {/* Annual Revenue */}
-        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-violet-100/50 bg-gradient-to-br ${adminTheme.annual.gradient}`}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+        <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${adminTheme.annual.gradient} backdrop-blur-sm`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 pb-5 relative">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
@@ -219,7 +219,7 @@ export default async function AdminFinancialsPage() {
                   Projected yearly total
                 </p>
               </div>
-              <div className={`h-11 w-11 rounded-xl ${adminTheme.annual.iconBg} flex items-center justify-center shadow-lg shadow-violet-500/25`}>
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.annual.iconBg} flex items-center justify-center shadow-sm`}>
                 <Calendar className="h-5 w-5 text-white" />
               </div>
             </div>
@@ -227,8 +227,8 @@ export default async function AdminFinancialsPage() {
         </Card>
 
         {/* Total Students */}
-        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-sky-100/50 bg-gradient-to-br ${adminTheme.students.gradient}`}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sky-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+        <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${adminTheme.students.gradient} backdrop-blur-sm`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 pb-5 relative">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
@@ -240,7 +240,7 @@ export default async function AdminFinancialsPage() {
                   Active enrolled children
                 </p>
               </div>
-              <div className={`h-11 w-11 rounded-xl ${adminTheme.students.iconBg} flex items-center justify-center shadow-lg shadow-sky-500/25`}>
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.students.iconBg} flex items-center justify-center shadow-sm`}>
                 <Users className="h-5 w-5 text-white" />
               </div>
             </div>
@@ -248,8 +248,8 @@ export default async function AdminFinancialsPage() {
         </Card>
 
         {/* Growth Rate */}
-        <Card className={`relative overflow-hidden border-0 shadow-lg ${isPositiveGrowth ? 'shadow-emerald-100/50' : 'shadow-rose-100/50'} bg-gradient-to-br ${growthTheme.gradient}`}>
-          <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${isPositiveGrowth ? 'from-emerald-200/40' : 'from-rose-200/40'} to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2`} />
+        <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${growthTheme.gradient} backdrop-blur-sm`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 pb-5 relative">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
@@ -268,7 +268,7 @@ export default async function AdminFinancialsPage() {
                   {recentWaivers.length} new this period
                 </p>
               </div>
-              <div className={`h-11 w-11 rounded-xl ${growthTheme.iconBg} flex items-center justify-center shadow-lg ${isPositiveGrowth ? 'shadow-emerald-500/25' : 'shadow-rose-500/25'}`}>
+              <div className={`h-11 w-11 rounded-xl ${growthTheme.iconBg} flex items-center justify-center shadow-sm`}>
                 {isPositiveGrowth ? (
                   <TrendingUp className="h-5 w-5 text-white" />
                 ) : (
@@ -281,10 +281,10 @@ export default async function AdminFinancialsPage() {
       </div>
 
       {/* Revenue by Location */}
-      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
               <MapPin className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -349,10 +349,10 @@ export default async function AdminFinancialsPage() {
       </Card>
 
       {/* Recent Enrollments */}
-      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-sm">
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -431,10 +431,10 @@ export default async function AdminFinancialsPage() {
       </Card>
 
       {/* Registered Users */}
-      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/25">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-sm">
               <Users className="h-5 w-5 text-white" />
             </div>
             <div>

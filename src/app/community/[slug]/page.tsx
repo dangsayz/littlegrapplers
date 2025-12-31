@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, UserPlus, Home, ChevronRight } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, Check, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Container } from '@/components/layout/container';
@@ -102,8 +102,6 @@ export default function CommunityPage() {
   const [location, setLocation] = useState<Location | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
-  const [membershipStatus, setMembershipStatus] = useState<'none' | 'pending' | 'approved'>('none');
-  const [isRequestingMembership, setIsRequestingMembership] = useState(false);
 
   const userName = user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'there';
   const theme = getLocationTheme(slug);
@@ -149,39 +147,8 @@ export default function CommunityPage() {
         const membersData = await membersRes.json();
         setMembers(membersData.members || []);
       }
-
-      // Check membership status
-      const requestsRes = await fetch('/api/membership/request');
-      if (requestsRes.ok) {
-        const requestsData = await requestsRes.json();
-        const locationRequest = requestsData.requests?.find(
-          (r: { locationName: string; status: string }) => r.locationName === location?.name
-        );
-        if (locationRequest) {
-          setMembershipStatus(locationRequest.status === 'approved' ? 'approved' : 'pending');
-        }
-      }
     } catch (err) {
       console.error('Error fetching data:', err);
-    }
-  };
-
-  const handleRequestMembership = async () => {
-    if (!location) return;
-    setIsRequestingMembership(true);
-    try {
-      const res = await fetch('/api/membership/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locationId: location.id }),
-      });
-      if (res.ok) {
-        setMembershipStatus('pending');
-      }
-    } catch (err) {
-      console.error('Error requesting membership:', err);
-    } finally {
-      setIsRequestingMembership(false);
     }
   };
 
@@ -468,31 +435,6 @@ export default function CommunityPage() {
                     </>
                   )}
 
-                  {/* Request to Join / Membership Status */}
-                  {membershipStatus === 'pending' ? (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
-                      <Clock className="h-4 w-4 text-amber-600" />
-                      <p className="text-sm text-amber-700">Request pending approval</p>
-                    </div>
-                  ) : membershipStatus === 'approved' ? (
-                    <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.1)`, borderColor: `rgba(${theme.primaryRgb}, 0.3)` }}>
-                      <Users className="h-4 w-4" style={{ color: theme.primary }} />
-                      <p className="text-sm" style={{ color: theme.primary }}>You are a member</p>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={handleRequestMembership}
-                      disabled={isRequestingMembership}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg border-2 border-dashed border-[#1F2A44]/20 hover:border-[#1F2A44]/40 hover:bg-[#1F2A44]/5 transition-colors group disabled:opacity-50"
-                    >
-                      <div className="h-9 w-9 rounded-full border-2 border-dashed border-[#1F2A44]/20 group-hover:border-[#1F2A44]/40 flex items-center justify-center transition-colors">
-                        <UserPlus className="h-4 w-4 text-[#1F2A44]/40 group-hover:text-[#1F2A44] transition-colors" />
-                      </div>
-                      <p className="text-sm text-[#1F2A44]/40 group-hover:text-[#1F2A44] transition-colors font-medium">
-                        {isRequestingMembership ? 'Requesting...' : 'Request to join'}
-                      </p>
-                    </button>
-                  )}
                 </div>
               </div>
             </FadeIn>
@@ -502,7 +444,22 @@ export default function CommunityPage() {
 
       {/* Discussion Threads */}
       <section className="relative py-16 md:py-24">
-        <Container>
+        {/* Background for frosted glass effect to show */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div 
+            className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-30"
+            style={{ backgroundColor: theme.primary }}
+          />
+          <div 
+            className="absolute bottom-0 left-0 w-80 h-80 rounded-full blur-3xl opacity-20"
+            style={{ backgroundColor: theme.secondary }}
+          />
+          <div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-10"
+            style={{ backgroundColor: theme.primary }}
+          />
+        </div>
+        <Container className="relative z-10">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-[#1F2A44]">Discussions</h2>
             <Button className="bg-brand hover:bg-brand/90 text-white" asChild>
@@ -528,49 +485,106 @@ export default function CommunityPage() {
               </div>
             </FadeIn>
           ) : (
-            <StaggerContainer className="space-y-4" staggerDelay={0.05}>
-              {threads.map((thread) => (
-                <StaggerItem key={thread.id}>
-                  <Link href={`/community/${slug}/thread/${thread.id}` as Route}>
-                    <div className="group p-6 rounded-2xl border-2 border-[#1F2A44]/5 bg-white/70 backdrop-blur-sm hover:bg-white hover:shadow-lg hover:border-[#1F2A44]/10 transition-all">
-                      <div className="flex items-start gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {thread.isPinned && (
-                              <span className="inline-flex items-center gap-1 text-xs font-bold" style={{ color: theme.primary }}>
-                                <Pin className="h-3 w-3" />
-                                Pinned
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="text-lg font-semibold text-[#1F2A44] group-hover:text-[#1F2A44] transition-colors">
-                            {thread.title}
-                          </h3>
-                          <p className="mt-2 text-[#1F2A44]/60 line-clamp-2">
-                            {thread.content}
-                          </p>
-                          <div className="mt-4 flex items-center gap-4 text-sm text-[#1F2A44]/40">
-                            <span className="flex items-center gap-1">
-                              <User className="h-3 w-3" />
-                              {thread.author.email.split('@')[0]}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {formatDate(thread.createdAt)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MessageCircle className="h-3 w-3" />
-                              {thread.replyCount || 0} replies
-                            </span>
+            <div className="relative">
+              {/* Timeline line */}
+              <div 
+                className="absolute left-6 top-8 bottom-8 w-0.5 rounded-full"
+                style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.2)` }}
+              />
+              
+              <StaggerContainer className="space-y-6" staggerDelay={0.05}>
+                {threads.map((thread, index) => (
+                  <StaggerItem key={thread.id}>
+                    <div className="relative flex gap-4">
+                      {/* Timeline node */}
+                      <div className="relative z-10 flex-shrink-0">
+                        <div 
+                          className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                          style={{ 
+                            backgroundColor: thread.isPinned ? theme.primary : 'white',
+                            border: `3px solid ${theme.primary}`,
+                          }}
+                        >
+                          {thread.isPinned ? (
+                            <Pin className="h-5 w-5 text-white" />
+                          ) : (
+                            <MessageCircle className="h-5 w-5" style={{ color: theme.primary }} />
+                          )}
+                        </div>
+                        {/* Connector dot */}
+                        {index < threads.length - 1 && (
+                          <div 
+                            className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-2 h-2 rounded-full"
+                            style={{ backgroundColor: `rgba(${theme.primaryRgb}, 0.3)` }}
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Glass Card - Apple macOS Style */}
+                      <Link href={`/community/${slug}/thread/${thread.id}` as Route} className="flex-1">
+                        <div 
+                          className="group relative rounded-[20px] hover:scale-[1.01] transition-all duration-300"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.72)',
+                            backdropFilter: 'blur(40px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                            boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 0 0 0.5px rgba(255, 255, 255, 0.5)',
+                          }}
+                        >
+                          {/* Soft inner highlight at top */}
+                          <div 
+                            className="absolute inset-x-0 top-0 h-[1px] rounded-t-[20px]"
+                            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)' }}
+                          />
+                          
+                          <div className="relative z-10 p-5">
+                            <div className="flex items-start gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  {thread.isPinned && (
+                                    <span 
+                                      className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
+                                      style={{ color: theme.primary, backgroundColor: `rgba(${theme.primaryRgb}, 0.15)` }}
+                                    >
+                                      <Pin className="h-3 w-3" />
+                                      Pinned
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-lg font-semibold text-[#1F2A44] group-hover:text-[#1F2A44] transition-colors">
+                                  {thread.title}
+                                </h3>
+                                <p className="mt-2 text-[#1F2A44]/60 line-clamp-2">
+                                  {thread.content}
+                                </p>
+                                <div className="mt-4 flex items-center gap-4 text-sm text-[#1F2A44]/50">
+                                  <span className="flex items-center gap-1.5">
+                                    <User className="h-3.5 w-3.5" />
+                                    {thread.author.email.split('@')[0]}
+                                  </span>
+                                  <span className="flex items-center gap-1.5">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {formatDate(thread.createdAt)}
+                                  </span>
+                                  <span className="flex items-center gap-1.5">
+                                    <MessageCircle className="h-3.5 w-3.5" />
+                                    {thread.replyCount || 0} replies
+                                  </span>
+                                </div>
+                              </div>
+                              <ArrowRight 
+                                className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" 
+                                style={{ color: theme.primary }} 
+                              />
+                            </div>
                           </div>
                         </div>
-                        <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-all" style={{ color: theme.primary }} />
-                      </div>
+                      </Link>
                     </div>
-                  </Link>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </div>
           )}
         </Container>
       </section>

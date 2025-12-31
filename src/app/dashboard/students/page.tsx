@@ -105,24 +105,34 @@ export default async function StudentsPage() {
   const hasStudents = students.length > 0;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-            <Users className="h-6 w-6 text-brand" />
-            My Students
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your children&apos;s profiles and progress
-          </p>
+    <div className="space-y-8">
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-violet-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 shadow-sm">
+              <Users className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-display font-bold text-white">
+                My Students
+              </h1>
+              <p className="text-slate-400 mt-1">
+                Manage your children&apos;s profiles and progress
+              </p>
+            </div>
+          </div>
+          <Button asChild className="bg-gradient-to-r from-indigo-400 to-violet-500 text-white border-0 shadow-sm">
+            <Link href="/dashboard/students/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Student
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/students/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Student
-          </Link>
-        </Button>
       </div>
 
       {/* Students Grid */}

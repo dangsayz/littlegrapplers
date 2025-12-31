@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
@@ -18,8 +18,9 @@ interface StudentData {
 export default function AdminStudentDeletePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -30,7 +31,7 @@ export default function AdminStudentDeletePage({
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await fetch(`/api/admin/students/${params.id}`);
+        const res = await fetch(`/api/admin/students/${id}`);
         if (!res.ok) throw new Error('Failed to fetch student');
         const data = await res.json();
         setStudent(data);
@@ -41,7 +42,7 @@ export default function AdminStudentDeletePage({
       }
     };
     fetchStudent();
-  }, [params.id]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!student || confirmName !== student.child_full_name) {
@@ -53,7 +54,7 @@ export default function AdminStudentDeletePage({
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/students/${params.id}`, {
+      const res = await fetch(`/api/admin/students/${id}`, {
         method: 'DELETE',
       });
 
@@ -94,7 +95,7 @@ export default function AdminStudentDeletePage({
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Back Link */}
       <Link 
-        href={`/dashboard/admin/students/${params.id}`}
+        href={`/dashboard/admin/students/${id}`}
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -180,7 +181,7 @@ export default function AdminStudentDeletePage({
               )}
             </Button>
             <Button variant="outline" asChild className="flex-1">
-              <Link href={`/dashboard/admin/students/${params.id}`}>
+              <Link href={`/dashboard/admin/students/${id}`}>
                 Cancel
               </Link>
             </Button>

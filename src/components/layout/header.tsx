@@ -90,6 +90,18 @@ function LocationDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="relative">
+        <button className="flex items-center gap-1.5 text-sm font-semibold text-[#1F2A44]/70 hover:text-[#1F2A44] transition-colors">
+          Dashboard
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div ref={dropdownRef} className="relative">
       <button
@@ -102,48 +114,66 @@ function LocationDropdown() {
 
       <div
         className={cn(
-          'absolute right-0 top-full mt-4 w-64 rounded-2xl overflow-hidden',
-          'bg-white border border-[#1F2A44]/10',
-          'shadow-xl shadow-black/10',
+          'absolute right-0 top-full mt-4 w-72 rounded-2xl overflow-hidden',
+          'bg-white/80 backdrop-blur-xl border border-white/60',
+          'shadow-lg shadow-black/5',
           'transition-all duration-300',
           isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
         )}
       >
-        <div className="p-2">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-transparent to-gray-50/30 pointer-events-none" />
+        
+        <div className="relative p-2">
           {/* My Dashboard - always shown for signed-in users */}
           <Link
             href="/dashboard"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44] hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
+            className="group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-gradient-to-r hover:from-teal-50/80 hover:to-emerald-50/60 transition-all"
           >
-            <LayoutDashboard className="h-4 w-4 text-[#2EC4B6]" />
-            My Dashboard
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 shadow-sm group-hover:shadow-md transition-shadow">
+              <LayoutDashboard className="h-4 w-4 text-white" />
+            </div>
+            <span className="group-hover:text-teal-700 transition-colors">My Dashboard</span>
           </Link>
           {isAdmin && (
             <Link
               href="/dashboard/admin"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
+              className="group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-gradient-to-r hover:from-amber-50/80 hover:to-orange-50/60 transition-all"
             >
-              <Shield className="h-4 w-4 text-[#F7931E]" />
-              Admin Panel
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm group-hover:shadow-md transition-shadow">
+                <Shield className="h-4 w-4 text-white" />
+              </div>
+              <span className="group-hover:text-amber-700 transition-colors">Admin Panel</span>
             </Link>
           )}
-          <div className="my-2 border-t border-[#1F2A44]/10" />
-          <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40">
+          <div className="my-3 mx-4 border-t border-slate-200/60" />
+          <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
             Community Boards
           </p>
-          {LOCATIONS.map((location) => (
-            <Link
-              key={location.id}
-              href={`/community/${location.slug}`}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
-            >
-              <MapPin className="h-4 w-4 text-[#2EC4B6]" />
-              {location.name}
-            </Link>
-          ))}
+          {LOCATIONS.map((location, index) => {
+            const colors = [
+              { gradient: 'from-sky-400 to-blue-500', hover: 'hover:from-sky-50/80 hover:to-blue-50/60', text: 'group-hover:text-sky-700' },
+              { gradient: 'from-violet-400 to-purple-500', hover: 'hover:from-violet-50/80 hover:to-purple-50/60', text: 'group-hover:text-violet-700' },
+              { gradient: 'from-rose-400 to-pink-500', hover: 'hover:from-rose-50/80 hover:to-pink-50/60', text: 'group-hover:text-rose-700' },
+            ];
+            const theme = colors[index % colors.length];
+            
+            return (
+              <Link
+                key={location.id}
+                href={`/community/${location.slug}`}
+                onClick={() => setIsOpen(false)}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-gradient-to-r ${theme.hover} transition-all`}
+              >
+                <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${theme.gradient} shadow-sm group-hover:shadow-md transition-shadow`}>
+                  <MapPin className="h-4 w-4 text-white" />
+                </div>
+                <span className={`${theme.text} transition-colors`}>{location.name}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -192,45 +222,19 @@ export function Header() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <nav className="flex items-center justify-between h-14">
             
-            {/* Logo */}
+            {/* Logo - Simplified */}
             <Link href="/" className="relative z-10 flex items-center gap-3 group">
-              {/* Apple-inspired LG Logo */}
-              <div className="relative">
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
-                
-                {/* Main logo container - clean rounded square */}
-                <div className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#2EC4B6] to-[#1FA89C] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/30 transition-all duration-500 group-hover:scale-[1.02]">
-                  {/* Inner highlight - Apple glass effect */}
-                  <div className="absolute inset-0 rounded-[13px] bg-gradient-to-b from-white/25 to-transparent" style={{ height: '50%' }} />
-                  
-                  {/* LG Text - clean SF-style typography */}
-                  <span className="relative text-[18px] font-bold tracking-tight text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', letterSpacing: '-0.02em' }}>
-                    LG
-                  </span>
-                </div>
+              {/* LG Icon */}
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#1FA89C] shadow-sm">
+                <span className="text-[17px] font-bold text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+                  LG
+                </span>
               </div>
               
-              {/* Text with playful animation */}
-              <div className="hidden sm:flex flex-col overflow-hidden">
-                <div className="flex items-center gap-1">
-                  <span className="text-[16px] font-extrabold text-[#1F2A44] leading-tight tracking-tight group-hover:tracking-normal transition-all duration-500">
-                    Little
-                  </span>
-                  <span className="text-[16px] font-extrabold bg-gradient-to-r from-[#2EC4B6] to-[#F7931E] bg-clip-text text-transparent leading-tight">
-                    Grapplers
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-[#F7931E] font-bold tracking-[0.12em] uppercase">
-                    Youth BJJ
-                  </span>
-                  <div className="flex gap-0.5">
-                    <span className="w-1 h-1 rounded-full bg-[#2EC4B6] group-hover:animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1 h-1 rounded-full bg-[#FFC857] group-hover:animate-bounce" style={{ animationDelay: '100ms' }} />
-                    <span className="w-1 h-1 rounded-full bg-[#FF5A5F] group-hover:animate-bounce" style={{ animationDelay: '200ms' }} />
-                  </div>
-                </div>
+              {/* Text */}
+              <div className="hidden sm:block">
+                <span className="text-[17px] font-bold text-slate-800">Little </span>
+                <span className="text-[17px] font-bold text-[#2EC4B6]">Grapplers</span>
               </div>
             </Link>
 

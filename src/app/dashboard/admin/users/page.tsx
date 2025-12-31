@@ -93,27 +93,31 @@ export default async function AdminUsersPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-            <Users className="h-5 w-5 text-purple-500" />
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-purple-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-violet-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 shadow-sm">
+            <Users className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Manage Users
+            <h1 className="text-3xl font-display font-bold text-white">
+              Users
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-slate-400 mt-1">
               View and manage all registered users
             </p>
           </div>
@@ -122,43 +126,46 @@ export default async function AdminUsersPage({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{totalUsers || 0}</div>
-            <p className="text-sm text-muted-foreground">Total Users</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-slate-700">{totalUsers || 0}</div>
+            <p className="text-sm text-slate-500">Total Users</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">{activeUsers || 0}</div>
-            <p className="text-sm text-muted-foreground">Active</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-green-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-emerald-700">{activeUsers || 0}</div>
+            <p className="text-sm text-slate-500">Active</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600">{suspendedUsers || 0}</div>
-            <p className="text-sm text-muted-foreground">Suspended</p>
+        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-rose-50/80 via-pink-50/60 to-red-50/40 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 relative">
+            <div className="text-3xl font-bold text-rose-700">{suspendedUsers || 0}</div>
+            <p className="text-sm text-slate-500">Suspended</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
           <form className="flex gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 name="search"
                 placeholder="Search by name or email..."
                 defaultValue={searchParams.search}
-                className="pl-10"
+                className="pl-10 border-slate-200"
               />
             </div>
             <select
               name="status"
               defaultValue={searchParams.status || 'all'}
-              className="px-3 py-2 rounded-md border bg-background"
+              className="px-3 py-2 rounded-md border border-slate-200 bg-white/80 text-slate-600"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -166,40 +173,42 @@ export default async function AdminUsersPage({
               <option value="banned">Banned</option>
               <option value="pending">Pending</option>
             </select>
-            <Button type="submit">Filter</Button>
+            <Button type="submit" className="bg-gradient-to-r from-violet-400 to-purple-500 text-white border-0 shadow-sm">
+              Filter
+            </Button>
           </form>
         </CardContent>
       </Card>
 
       {/* Users Table */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/50 hover:bg-slate-50">
+                <TableHead className="font-semibold text-slate-600">User</TableHead>
+                <TableHead className="font-semibold text-slate-600">Status</TableHead>
+                <TableHead className="font-semibold text-slate-600">Joined</TableHead>
+                <TableHead className="font-semibold text-slate-600">Last Login</TableHead>
+                <TableHead className="text-right font-semibold text-slate-600">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(users || []).map((u) => (
-                <TableRow key={u.id}>
+                <TableRow key={u.id} className="hover:bg-slate-50/50 transition-colors">
                   <TableCell>
                     <div>
-                      <p className="font-medium">
+                      <p className="font-semibold text-slate-700">
                         {u.first_name} {u.last_name}
                       </p>
-                      <p className="text-sm text-muted-foreground">{u.email}</p>
+                      <p className="text-sm text-slate-500">{u.email}</p>
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(u.status)}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-slate-500">
                     {formatDate(u.created_at)}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-slate-500">
                     {formatDate(u.last_login_at)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -209,7 +218,7 @@ export default async function AdminUsersPage({
               ))}
               {(!users || users.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-12 text-slate-500">
                     No users found
                   </TableCell>
                 </TableRow>

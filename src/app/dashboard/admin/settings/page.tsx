@@ -43,28 +43,34 @@ export default async function AdminSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-500/10">
-          <Settings className="h-5 w-5 text-gray-500" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            Settings
-          </h1>
-          <p className="text-muted-foreground">
-            Configure global site settings
-          </p>
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-500/10 via-transparent to-gray-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-slate-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-gray-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-400 to-gray-500 shadow-sm">
+            <Settings className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Settings
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Configure global site settings
+            </p>
+          </div>
         </div>
       </div>
 
@@ -76,9 +82,9 @@ export default async function AdminSettingsPage() {
 
         {/* Activity Log */}
         <div>
-          <Card>
+          <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-base">Recent Activity</CardTitle>
+              <CardTitle className="text-base text-slate-800">Recent Activity</CardTitle>
               <CardDescription>Admin actions log</CardDescription>
             </CardHeader>
             <CardContent className="p-0">

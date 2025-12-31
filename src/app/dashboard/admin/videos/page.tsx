@@ -41,26 +41,37 @@ export default async function AdminVideosPage() {
   const videos = await getVideos();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-            <Video className="h-6 w-6 text-brand" />
-            Video Library
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage training videos and tutorials
-          </p>
+    <div className="space-y-8">
+      {/* Page Header - Apple Glass Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-red-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-rose-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-red-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-400 to-red-500 shadow-sm">
+              <Video className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-display font-bold text-white">
+                Videos
+              </h1>
+              <p className="text-slate-400 mt-1">
+                Manage training videos and tutorials
+              </p>
+            </div>
+          </div>
+          <Button asChild className="bg-gradient-to-r from-rose-400 to-red-500 text-white border-0 shadow-sm">
+            <Link href={"/dashboard/admin/videos/new" as never}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Video
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href={"/dashboard/admin/videos/new" as never}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Video
-          </Link>
-        </Button>
       </div>
 
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="p-0">
           {videos.length === 0 ? (
             <div className="py-12 text-center">
