@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
-import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
 
@@ -259,50 +259,26 @@ export function Header() {
 
             {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
-              {mounted ? (
-                <>
-                  <SignedOut>
-                    <Link 
-                      href="/login"
-                      className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500"
-                    >
-                      <span className="relative z-10">Log in</span>
-                      <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
-                    </Link>
-                    <Link 
-                      href="/signup"
-                      className="group relative px-6 py-2.5 rounded-full overflow-hidden"
-                    >
-                      {/* Animated gradient background */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
-                      {/* Glow effect */}
-                      <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
-                      <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
-                        Get Started
-                        <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      </span>
-                    </Link>
-                  </SignedOut>
-                  <SignedIn>
-                    <LocationDropdown />
-                    <UserButton
-                      afterSignOutUrl="/"
-                      appearance={{
-                        elements: {
-                          avatarBox: 'w-9 h-9 ring-2 ring-[#2EC4B6]/20 hover:ring-[#2EC4B6]/50 transition-all',
-                        },
-                      }}
-                    />
-                  </SignedIn>
-                </>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="px-4 py-2 text-sm font-medium text-[#1F2A44]/60">Log in</span>
-                  <span className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-sm font-bold text-white">
-                    Get Started
-                  </span>
-                </div>
-              )}
+              <Link 
+                href="/login"
+                className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500"
+              >
+                <span className="relative z-10">Log in</span>
+                <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
+              </Link>
+              <Link 
+                href="/signup"
+                className="group relative px-6 py-2.5 rounded-full overflow-hidden"
+              >
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
+                <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
+                  Get Started
+                  <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -377,46 +353,18 @@ export function Header() {
 
           {/* Mobile CTAs */}
           <div className="space-y-3 pt-6 border-t border-[#1F2A44]/10">
-            <SignedOut>
-              <Link 
-                href="/login"
-                className="block w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors text-center"
-              >
-                Sign In
-              </Link>
-              <Link 
-                href="/signup"
-                className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all text-center"
-              >
-                Get Started
-              </Link>
-            </SignedOut>
-            <SignedIn>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40 mb-3">
-                Locations
-              </p>
-              {LOCATIONS.map((location) => (
-                <Link
-                  key={location.id}
-                  href={`/community/${location.slug}`}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
-                >
-                  <MapPin className="h-4 w-4 text-[#2EC4B6]" />
-                  {location.name}
-                </Link>
-              ))}
-              <div className="flex items-center gap-3 pt-4 mt-4 border-t border-[#1F2A44]/10">
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: 'w-10 h-10',
-                    },
-                  }}
-                />
-                <span className="text-sm text-[#1F2A44]/60">Manage Account</span>
-              </div>
-            </SignedIn>
+            <Link 
+              href="/login"
+              className="block w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors text-center"
+            >
+              Sign In
+            </Link>
+            <Link 
+              href="/signup"
+              className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all text-center"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </div>
