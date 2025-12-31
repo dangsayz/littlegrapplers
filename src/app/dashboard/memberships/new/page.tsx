@@ -1,167 +1,202 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, FileText, Save } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ArrowLeft, Users, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// TODO: Replace with actual database queries
-const mockStudents = [
-  { id: '1', firstName: 'Timmy', lastName: 'Johnson' },
-  { id: '2', firstName: 'Sarah', lastName: 'Johnson' },
+const INQUIRY_EMAIL = 'sshnaydbjj@gmail.com';
+
+const programs = [
+  {
+    id: 'tiny',
+    name: 'Tiny Grapplers',
+    ageRange: 'Ages 3-5',
+    description: 'Introduction to movement and martial arts fundamentals through games.',
+    schedule: '30-45 min classes',
+  },
+  {
+    id: 'junior',
+    name: 'Junior Grapplers',
+    ageRange: 'Ages 6-8',
+    description: 'Real BJJ techniques with positions, escapes, and controlled sparring.',
+    schedule: '45 min classes',
+  },
+  {
+    id: 'advanced',
+    name: 'Advanced Grapplers',
+    ageRange: 'Ages 9-12',
+    description: 'Complex techniques, competition prep, and leadership development.',
+    schedule: '60 min classes',
+  },
 ];
 
-const mockPrograms = [
-  {
-    id: '1',
-    name: 'Tiny Grapplers (Ages 4-6)',
-    monthlyPrice: 9900,
-    location: { name: 'Austin HQ' },
-  },
-  {
-    id: '2',
-    name: 'Little Grapplers (Ages 7-10)',
-    monthlyPrice: 9900,
-    location: { name: 'Austin HQ' },
-  },
-  {
-    id: '3',
-    name: 'Junior Grapplers (Ages 11-14)',
-    monthlyPrice: 10900,
-    location: { name: 'Austin HQ' },
-  },
-];
+function buildMailtoLink(programName: string, ageRange: string, studentName?: string) {
+  const subject = encodeURIComponent(`Inquiry about ${programName} Program`);
+  const body = encodeURIComponent(
+`Hi,
 
-export default function NewMembershipPage() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    studentId: '',
-    programId: '',
-  });
+I would like to inquire about the ${programName} program (${ageRange}) for my child${studentName ? `, ${studentName}` : ''}.
 
-  const selectedProgram = mockPrograms.find((p) => p.id === formData.programId);
+Could you please provide more information about:
+- Class schedules and availability
+- Trial class options
+- Enrollment process
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+Thank you!`
+  );
+  return `mailto:${INQUIRY_EMAIL}?subject=${subject}&body=${body}`;
+}
 
-    // TODO: Implement actual membership creation via API
-    // await createMembership(formData);
+export default async function NewMembershipPage() {
+  const { userId } = await auth();
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  if (!userId) {
+    redirect('/sign-in');
+  }
 
-    // Redirect back to memberships list
-    router.push('/dashboard/memberships');
-  };
+  // Fetch user's students
+  const students: Array<{ id: string; firstName: string; lastName: string }> = [];
+
+  const { data: dbUser } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (dbUser) {
+    const { data: parent } = await supabaseAdmin
+      .from('parents')
+      .select('id')
+      .eq('user_id', dbUser.id)
+      .single();
+
+    if (parent) {
+      const { data: studentRecords } = await supabaseAdmin
+        .from('students')
+        .select('id, first_name, last_name')
+        .eq('parent_id', parent.id)
+        .neq('is_active', false);
+
+      if (studentRecords) {
+        for (const s of studentRecords) {
+          students.push({
+            id: s.id,
+            firstName: s.first_name || '',
+            lastName: s.last_name || '',
+          });
+        }
+      }
+    }
+  }
+
+  // Fallback to waivers if no students
+  if (students.length === 0) {
+    const { data: waivers } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('id, child_full_name, is_active')
+      .eq('clerk_user_id', userId)
+      .neq('is_active', false);
+
+    if (waivers) {
+      for (const w of waivers) {
+        const parts = (w.child_full_name || '').split(' ');
+        students.push({
+          id: w.id,
+          firstName: parts[0] || '',
+          lastName: parts.slice(1).join(' ') || '',
+        });
+      }
+    }
+  }
+
+  // Fetch locations
+  const { data: locations } = await supabaseAdmin
+    .from('locations')
+    .select('id, name, address');
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-8">
       {/* Back Link */}
       <Button variant="ghost" size="sm" asChild>
-        <Link href="/dashboard/memberships" className="gap-2">
+        <Link href="/dashboard" className="gap-2">
           <ArrowLeft className="h-4 w-4" />
-          Back to Memberships
+          Back to Dashboard
         </Link>
       </Button>
 
-      {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-brand" />
-            Enroll in a Program
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Student Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="student">Select Student</Label>
-              <select
-                id="student"
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                value={formData.studentId}
-                onChange={(e) =>
-                  setFormData({ ...formData, studentId: e.target.value })
-                }
-                required
-              >
-                <option value="">Choose a student...</option>
-                {mockStudents.map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.firstName} {student.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-display font-bold">Choose a Program</h1>
+        <p className="text-muted-foreground mt-2">
+          Select the right program for your child
+        </p>
+      </div>
 
-            {/* Program Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="program">Select Program</Label>
-              <select
-                id="program"
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                value={formData.programId}
-                onChange={(e) =>
-                  setFormData({ ...formData, programId: e.target.value })
-                }
-                required
-              >
-                <option value="">Choose a program...</option>
-                {mockPrograms.map((program) => (
-                  <option key={program.id} value={program.id}>
-                    {program.name} - ${(program.monthlyPrice / 100).toFixed(2)}/mo
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* No students warning */}
+      {students.length === 0 && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="p-4 text-center">
+            <Users className="h-8 w-8 text-amber-600 mx-auto mb-2" />
+            <p className="font-medium text-amber-800">Add a student first</p>
+            <p className="text-sm text-amber-600 mb-4">You need to add a student before enrolling in a program</p>
+            <Button size="sm" asChild>
+              <Link href="/dashboard/students/new">Add Student</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-            {/* Price Summary */}
-            {selectedProgram && (
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{selectedProgram.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedProgram.location.name}
-                    </p>
+      {/* Programs */}
+      <div className="space-y-4">
+        {programs.map((program) => (
+          <Card key={program.id} className="hover:shadow-md hover:border-brand/30 transition-all">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex-1">
+                  <div className="inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand mb-2">
+                    {program.ageRange}
                   </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-brand">
-                      ${(selectedProgram.monthlyPrice / 100).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">per month</p>
+                  <h3 className="text-lg font-semibold">{program.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{program.description}</p>
+                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{program.schedule}</span>
                   </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  asChild
+                >
+                  <a href={buildMailtoLink(program.name, program.ageRange, students[0]?.firstName)}>
+                    Inquire
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </a>
+                </Button>
               </div>
-            )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting || !formData.studentId || !formData.programId}
-              >
-                {isSubmitting ? (
-                  'Processing...'
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Enroll Now
-                  </>
-                )}
-              </Button>
-              <Button type="button" variant="outline" asChild>
-                <Link href="/dashboard/memberships">Cancel</Link>
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      {/* Locations */}
+      {locations && locations.length > 0 && (
+        <div className="pt-4">
+          <h2 className="text-lg font-semibold mb-4">Our Locations</h2>
+          <div className="space-y-3">
+            {locations.map((loc: { id: string; name: string; address: string }) => (
+              <div key={loc.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <MapPin className="h-4 w-4 text-brand" />
+                <div>
+                  <p className="font-medium text-sm">{loc.name}</p>
+                  <p className="text-xs text-muted-foreground">{loc.address}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

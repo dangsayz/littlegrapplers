@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, MapPin, Shield, ArrowUpRight } from 'lucide-react';
+import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from '@/lib/constants';
@@ -71,9 +71,14 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 function LocationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isLoaded } = useUser();
-  const isAdmin = isLoaded && user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+  const isAdmin = mounted && isLoaded && user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -105,21 +110,28 @@ function LocationDropdown() {
         )}
       >
         <div className="p-2">
+          {/* My Dashboard - always shown for signed-in users */}
+          <Link
+            href="/dashboard"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44] hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
+          >
+            <LayoutDashboard className="h-4 w-4 text-[#2EC4B6]" />
+            My Dashboard
+          </Link>
           {isAdmin && (
-            <>
-              <Link
-                href="/dashboard/admin"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
-              >
-                <Shield className="h-4 w-4 text-[#2EC4B6]" />
-                Admin Panel
-              </Link>
-              <div className="my-2 border-t border-[#1F2A44]/10" />
-            </>
+            <Link
+              href="/dashboard/admin"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#1F2A44]/70 hover:bg-[#2EC4B6]/10 hover:text-[#2EC4B6] transition-all"
+            >
+              <Shield className="h-4 w-4 text-[#F7931E]" />
+              Admin Panel
+            </Link>
           )}
+          <div className="my-2 border-t border-[#1F2A44]/10" />
           <p className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F2A44]/40">
-            Locations
+            Community Boards
           </p>
           {LOCATIONS.map((location) => (
             <Link
@@ -182,39 +194,20 @@ export function Header() {
             
             {/* Logo */}
             <Link href="/" className="relative z-10 flex items-center gap-3 group">
-              {/* Playful Kid-Friendly Logo */}
+              {/* Apple-inspired LG Logo */}
               <div className="relative">
-                {/* Floating sparkles */}
-                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#FFC857] animate-bounce opacity-80" style={{ animationDelay: '0s', animationDuration: '2s' }} />
-                <div className="absolute -bottom-0.5 -left-1 w-1.5 h-1.5 rounded-full bg-[#FF5A5F] animate-bounce opacity-70" style={{ animationDelay: '0.5s', animationDuration: '2.5s' }} />
-                <div className="absolute top-0 -left-2 w-1 h-1 rounded-full bg-[#8FE3CF] animate-ping opacity-60" style={{ animationDuration: '3s' }} />
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
                 
-                {/* Glow effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#2EC4B6] via-[#8FE3CF] to-[#FFC857] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 group-hover:scale-110" />
-                
-                {/* Main logo container - playful rounded shape */}
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2EC4B6] via-[#3DD4C6] to-[#8FE3CF] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/40 transition-all duration-500 group-hover:scale-105 group-hover:rotate-[-3deg]">
-                  {/* Inner shine effect */}
-                  <div className="absolute inset-[2px] rounded-[14px] bg-gradient-to-br from-white/30 via-transparent to-transparent" />
+                {/* Main logo container - clean rounded square */}
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#2EC4B6] to-[#1FA89C] shadow-lg group-hover:shadow-xl group-hover:shadow-[#2EC4B6]/30 transition-all duration-500 group-hover:scale-[1.02]">
+                  {/* Inner highlight - Apple glass effect */}
+                  <div className="absolute inset-0 rounded-[13px] bg-gradient-to-b from-white/25 to-transparent" style={{ height: '50%' }} />
                   
-                  {/* Cute grappling kid icon - simplified as playful figure */}
-                  <svg viewBox="0 0 32 32" className="relative w-7 h-7 text-white drop-shadow-sm">
-                    {/* Happy kid figure doing BJJ pose */}
-                    <circle cx="16" cy="8" r="5" fill="currentColor" className="group-hover:animate-pulse" style={{ animationDuration: '2s' }} />
-                    {/* Body in playful grappling stance */}
-                    <path d="M10 14 Q16 12 22 14 L20 22 Q16 24 12 22 Z" fill="currentColor" opacity="0.9" />
-                    {/* Arms reaching out playfully */}
-                    <path d="M10 14 Q6 12 4 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" className="origin-center group-hover:animate-[wave_1s_ease-in-out_infinite]" />
-                    <path d="M22 14 Q26 12 28 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                    {/* Legs in action pose */}
-                    <path d="M12 22 Q10 26 8 28" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                    <path d="M20 22 Q22 26 24 28" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                    {/* Happy smile */}
-                    <path d="M13 9 Q16 12 19 9" stroke="white" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.5" />
-                  </svg>
-                  
-                  {/* Playful corner accent */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FFC857] border-2 border-white shadow-sm group-hover:scale-125 transition-transform duration-300" />
+                  {/* LG Text - clean SF-style typography */}
+                  <span className="relative text-[18px] font-bold tracking-tight text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif', letterSpacing: '-0.02em' }}>
+                    LG
+                  </span>
                 </div>
               </div>
               

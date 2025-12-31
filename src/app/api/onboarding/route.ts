@@ -161,6 +161,45 @@ export async function POST(request: NextRequest) {
         onConflict: 'user_id,location_id',
       });
 
+    // Link existing signed waiver to this student (if exists)
+    // This syncs waiver-only users to the proper students table
+    const { data: existingWaiver } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('id')
+      .eq('clerk_user_id', clerkUserId)
+      .single();
+
+    if (existingWaiver) {
+      // Update the waiver with user_id and mark as linked to student
+      await supabaseAdmin
+        .from('signed_waivers')
+        .update({
+          user_id: userId,
+          // Add student_id column link if it exists, or store in metadata
+        })
+        .eq('id', existingWaiver.id);
+    } else {
+      // Create a waiver record from onboarding data for consistency
+      await supabaseAdmin
+        .from('signed_waivers')
+        .insert({
+          user_id: userId,
+          clerk_user_id: clerkUserId,
+          guardian_full_name: `${firstName} ${lastName}`,
+          guardian_email: userEmail,
+          guardian_phone: phone,
+          child_full_name: `${studentFirstName} ${studentLastName}`,
+          child_date_of_birth: studentDob,
+          emergency_contact_name: emergencyContactName,
+          emergency_contact_phone: emergencyContactPhone,
+          digital_signature: `${firstName} ${lastName}`,
+          photo_media_consent: photoConsent,
+          agreed_to_terms: waiverAccepted,
+          location_id: locationId,
+          signed_at: new Date().toISOString(),
+        });
+    }
+
     // Log activity
     await supabaseAdmin.from('activity_logs').insert({
       admin_email: userEmail,

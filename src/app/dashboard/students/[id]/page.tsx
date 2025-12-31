@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, User, Award, Calendar, Edit } from 'lucide-react';
+import { ArrowLeft, User, Award, Calendar, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabaseAdmin } from '@/lib/supabase';
+import { RemoveStudentButton } from './remove-student-button';
 
 // Belt rank display mapping
 const beltConfig: Record<
@@ -60,9 +61,10 @@ export default async function StudentPage({ params }: StudentPageProps) {
 
   const { data: waiver, error } = await supabaseAdmin
     .from('signed_waivers')
-    .select('id, child_full_name, child_date_of_birth')
+    .select('id, child_full_name, child_date_of_birth, is_active')
     .eq('id', id)
     .eq('clerk_user_id', userId)
+    .neq('is_active', false)
     .single();
 
   if (error || !waiver) {
@@ -189,6 +191,30 @@ export default async function StudentPage({ params }: StudentPageProps) {
               </Link>
             </p>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone - Remove Student */}
+      <Card className="border-destructive/20">
+        <CardHeader>
+          <CardTitle className="text-lg text-destructive flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Danger Zone
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Remove this student</p>
+              <p className="text-sm text-muted-foreground">
+                Remove {student.firstName} from your account. This can be undone by contacting support.
+              </p>
+            </div>
+            <RemoveStudentButton 
+              studentId={student.id} 
+              studentName={`${student.firstName} ${student.lastName}`} 
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Shield,
   Bell,
+  ClipboardList,
   LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,7 @@ const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
   {
-    label: 'Dashboard',
+    label: 'Home',
     href: '/dashboard' as Route,
     icon: LayoutDashboard,
   },
@@ -32,31 +33,6 @@ const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
     label: 'My Students',
     href: '/dashboard/students' as Route,
     icon: Users,
-  },
-  {
-    label: 'Memberships',
-    href: '/dashboard/memberships' as Route,
-    icon: FileText,
-  },
-  {
-    label: 'Discussions',
-    href: '/dashboard/discussions' as Route,
-    icon: MessageSquare,
-  },
-  {
-    label: 'Waiver',
-    href: '/dashboard/waiver' as Route,
-    icon: FileCheck,
-  },
-  {
-    label: 'Checkout',
-    href: '/dashboard/checkout' as Route,
-    icon: CreditCard,
-  },
-  {
-    label: 'Billing',
-    href: '/dashboard/billing' as Route,
-    icon: CreditCard,
   },
   {
     label: 'Settings',

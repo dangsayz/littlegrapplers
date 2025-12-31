@@ -9,10 +9,10 @@ import {
   Users, 
   Calendar,
   MapPin,
-  CreditCard,
   FileText,
   ArrowUpRight,
   ArrowDownRight,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,46 @@ import {
 } from '@/components/ui/table';
 
 const ADMIN_EMAIL = 'dangzr1@gmail.com';
+
+// Pastel Design System - Admin Theme
+const adminTheme = {
+  // Primary stat cards - soft gradients
+  revenue: {
+    gradient: 'from-emerald-50 via-teal-50 to-cyan-50',
+    border: 'border-emerald-200/60',
+    iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500',
+    text: 'text-emerald-700',
+    accent: 'text-emerald-600',
+  },
+  annual: {
+    gradient: 'from-violet-50 via-purple-50 to-fuchsia-50',
+    border: 'border-violet-200/60',
+    iconBg: 'bg-gradient-to-br from-violet-400 to-purple-500',
+    text: 'text-violet-700',
+    accent: 'text-violet-600',
+  },
+  students: {
+    gradient: 'from-sky-50 via-blue-50 to-indigo-50',
+    border: 'border-sky-200/60',
+    iconBg: 'bg-gradient-to-br from-sky-400 to-blue-500',
+    text: 'text-sky-700',
+    accent: 'text-sky-600',
+  },
+  growth: {
+    positive: {
+      gradient: 'from-lime-50 via-emerald-50 to-green-50',
+      border: 'border-lime-200/60',
+      iconBg: 'bg-gradient-to-br from-lime-400 to-emerald-500',
+      text: 'text-emerald-700',
+    },
+    negative: {
+      gradient: 'from-rose-50 via-pink-50 to-red-50',
+      border: 'border-rose-200/60',
+      iconBg: 'bg-gradient-to-br from-rose-400 to-red-500',
+      text: 'text-rose-700',
+    },
+  },
+};
 
 export default async function AdminFinancialsPage() {
   const user = await currentUser();
@@ -108,221 +148,269 @@ export default async function AdminFinancialsPage() {
     }).format(amount);
   };
 
+  const growthTheme = isPositiveGrowth ? adminTheme.growth.positive : adminTheme.growth.negative;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Back Link */}
       <Link 
         href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors group"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
         Back to Admin
       </Link>
 
-      {/* Page Title */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
-          <DollarSign className="h-5 w-5 text-green-600" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            Financials Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            Revenue overview and membership metrics
-          </p>
+      {/* Page Header - Glassmorphism Style */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-violet-500/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-400/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25">
+            <DollarSign className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">
+              Financials Dashboard
+            </h1>
+            <p className="text-slate-400 mt-1">
+              Revenue overview and membership metrics
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Revenue Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-green-200 bg-green-50/50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Est. Monthly Revenue</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">
+      {/* Revenue Cards - Pastel Gradient System */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Monthly Revenue */}
+        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-emerald-100/50 bg-gradient-to-br ${adminTheme.revenue.gradient}`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 pb-5 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500">Monthly Revenue</p>
+                <p className={`text-3xl font-bold tracking-tight ${adminTheme.revenue.text}`}>
                   {formatCurrency(estimatedMonthlyRevenue)}
                 </p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Based on {totalWaivers} active students × ${MONTHLY_RATE}/mo
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Est. Annual Revenue</p>
-                <p className="text-3xl font-bold mt-1">
-                  {formatCurrency(estimatedAnnualRevenue)}
+                <p className="text-xs text-slate-400 pt-1">
+                  {totalWaivers} students × ${MONTHLY_RATE}/mo
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.revenue.iconBg} flex items-center justify-center shadow-lg shadow-emerald-500/25`}>
+                <DollarSign className="h-5 w-5 text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Projected yearly revenue
-            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Students</p>
-                <p className="text-3xl font-bold mt-1">{totalWaivers}</p>
+        {/* Annual Revenue */}
+        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-violet-100/50 bg-gradient-to-br ${adminTheme.annual.gradient}`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 pb-5 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500">Annual Revenue</p>
+                <p className={`text-3xl font-bold tracking-tight ${adminTheme.annual.text}`}>
+                  {formatCurrency(estimatedAnnualRevenue)}
+                </p>
+                <p className="text-xs text-slate-400 pt-1">
+                  Projected yearly total
+                </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                <Users className="h-6 w-6 text-purple-600" />
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.annual.iconBg} flex items-center justify-center shadow-lg shadow-violet-500/25`}>
+                <Calendar className="h-5 w-5 text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Active enrolled children
-            </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">30-Day Growth</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className={`text-3xl font-bold ${isPositiveGrowth ? 'text-green-600' : 'text-red-600'}`}>
+        {/* Total Students */}
+        <Card className={`relative overflow-hidden border-0 shadow-lg shadow-sky-100/50 bg-gradient-to-br ${adminTheme.students.gradient}`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sky-200/40 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="pt-6 pb-5 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500">Total Students</p>
+                <p className={`text-3xl font-bold tracking-tight ${adminTheme.students.text}`}>
+                  {totalWaivers}
+                </p>
+                <p className="text-xs text-slate-400 pt-1">
+                  Active enrolled children
+                </p>
+              </div>
+              <div className={`h-11 w-11 rounded-xl ${adminTheme.students.iconBg} flex items-center justify-center shadow-lg shadow-sky-500/25`}>
+                <Users className="h-5 w-5 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Growth Rate */}
+        <Card className={`relative overflow-hidden border-0 shadow-lg ${isPositiveGrowth ? 'shadow-emerald-100/50' : 'shadow-rose-100/50'} bg-gradient-to-br ${growthTheme.gradient}`}>
+          <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${isPositiveGrowth ? 'from-emerald-200/40' : 'from-rose-200/40'} to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2`} />
+          <CardContent className="pt-6 pb-5 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500">30-Day Growth</p>
+                <div className="flex items-center gap-2">
+                  <p className={`text-3xl font-bold tracking-tight ${growthTheme.text}`}>
                     {isPositiveGrowth ? '+' : ''}{growthRate}%
                   </p>
                   {isPositiveGrowth ? (
-                    <ArrowUpRight className="h-5 w-5 text-green-600" />
+                    <ArrowUpRight className="h-5 w-5 text-emerald-500" />
                   ) : (
-                    <ArrowDownRight className="h-5 w-5 text-red-600" />
+                    <ArrowDownRight className="h-5 w-5 text-rose-500" />
                   )}
                 </div>
+                <p className="text-xs text-slate-400 pt-1">
+                  {recentWaivers.length} new this period
+                </p>
               </div>
-              <div className={`h-12 w-12 rounded-full flex items-center justify-center ${isPositiveGrowth ? 'bg-green-100' : 'bg-red-100'}`}>
+              <div className={`h-11 w-11 rounded-xl ${growthTheme.iconBg} flex items-center justify-center shadow-lg ${isPositiveGrowth ? 'shadow-emerald-500/25' : 'shadow-rose-500/25'}`}>
                 {isPositiveGrowth ? (
-                  <TrendingUp className={`h-6 w-6 ${isPositiveGrowth ? 'text-green-600' : 'text-red-600'}`} />
+                  <TrendingUp className="h-5 w-5 text-white" />
                 ) : (
-                  <TrendingDown className="h-6 w-6 text-red-600" />
+                  <TrendingDown className="h-5 w-5 text-white" />
                 )}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {recentWaivers.length} new vs {previousPeriodWaivers.length} previous period
-            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Revenue by Location */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-muted-foreground" />
-            Revenue by Location
-          </CardTitle>
-          <CardDescription>
-            Breakdown of students and estimated revenue per location
-          </CardDescription>
+      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+              <MapPin className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Revenue by Location</CardTitle>
+              <CardDescription>
+                Breakdown of students and estimated revenue per location
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="pt-4">
+          <div className="space-y-5">
             {locations && locations.length > 0 ? (
-              locations.map((location: { id: string; name: string; slug: string }) => {
+              locations.map((location: { id: string; name: string; slug: string }, index: number) => {
                 const studentCount = waiversByLocation[location.id] || 0;
                 const locationRevenue = studentCount * MONTHLY_RATE;
                 const percentage = totalWaivers > 0 ? (studentCount / totalWaivers * 100).toFixed(0) : 0;
+                const colors = [
+                  'from-teal-400 to-emerald-500',
+                  'from-violet-400 to-purple-500',
+                  'from-sky-400 to-blue-500',
+                  'from-amber-400 to-orange-500',
+                  'from-rose-400 to-pink-500',
+                ];
+                const barColor = colors[index % colors.length];
                 
                 return (
-                  <div key={location.id} className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{location.name}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {studentCount} students • {formatCurrency(locationRevenue)}/mo
+                  <div key={location.id} className="group">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-slate-700">{location.name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-slate-500">
+                          {studentCount} students
                         </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-brand rounded-full transition-all"
-                          style={{ width: `${percentage}%` }}
-                        />
+                        <Badge className="bg-gradient-to-r from-slate-100 to-slate-50 text-slate-600 border-0 shadow-sm">
+                          {formatCurrency(locationRevenue)}/mo
+                        </Badge>
                       </div>
                     </div>
-                    <Badge variant="secondary">{percentage}%</Badge>
+                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500 shadow-sm`}
+                        style={{ width: `${Math.max(Number(percentage), 2)}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-end mt-1">
+                      <span className="text-xs font-medium text-slate-400">{percentage}%</span>
+                    </div>
                   </div>
                 );
               })
             ) : (
-              <p className="text-muted-foreground text-center py-4">No locations found</p>
+              <div className="text-center py-8">
+                <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <MapPin className="h-6 w-6 text-slate-400" />
+                </div>
+                <p className="text-slate-500">No locations found</p>
+              </div>
             )}
           </div>
         </CardContent>
       </Card>
 
       {/* Recent Enrollments */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-muted-foreground" />
-            Recent Enrollments
-          </CardTitle>
-          <CardDescription>
-            Latest signed waivers and contract start dates
-          </CardDescription>
+      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Recent Enrollments</CardTitle>
+              <CardDescription>
+                Latest signed waivers and contract start dates
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {waiversError ? (
-            <p className="text-destructive">Error loading waivers: {waiversError.message}</p>
+            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200">
+              <p className="text-rose-700">Error loading waivers: {waiversError.message}</p>
+            </div>
           ) : !waivers || waivers.length === 0 ? (
-            <div className="text-center py-8">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground/30" />
-              <p className="mt-4 text-muted-foreground">No enrollments yet</p>
+            <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white rounded-xl">
+              <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <FileText className="h-8 w-8 text-slate-400" />
+              </div>
+              <p className="text-slate-500 font-medium">No enrollments yet</p>
+              <p className="text-sm text-slate-400 mt-1">Enrollments will appear here</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-100">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Child Name</TableHead>
-                    <TableHead>Parent Name</TableHead>
-                    <TableHead>Parent Email</TableHead>
-                    <TableHead>Contract Date</TableHead>
-                    <TableHead>Monthly Rate</TableHead>
+                  <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/50 hover:bg-slate-50">
+                    <TableHead className="font-semibold text-slate-600">Child Name</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Parent Name</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Parent Email</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Contract Date</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Monthly Rate</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {waivers.slice(0, 20).map((waiver: {
                     id: string;
                     child_full_name: string;
-                    parent_first_name: string;
-                    parent_last_name: string;
-                    parent_email: string;
+                    guardian_full_name: string;
+                    guardian_email: string;
                     signed_at: string;
                   }) => (
-                    <TableRow key={waiver.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={waiver.id} className="hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="font-semibold text-slate-700">
                         {waiver.child_full_name}
                       </TableCell>
-                      <TableCell>
-                        {waiver.parent_first_name} {waiver.parent_last_name}
+                      <TableCell className="text-slate-600">
+                        {waiver.guardian_full_name}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {waiver.parent_email}
+                      <TableCell className="text-slate-500">
+                        {waiver.guardian_email}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-slate-600">
                         {formatDate(waiver.signed_at)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border-0 font-semibold">
                           ${MONTHLY_RATE}/mo
                         </Badge>
                       </TableCell>
@@ -331,9 +419,11 @@ export default async function AdminFinancialsPage() {
                 </TableBody>
               </Table>
               {waivers.length > 20 && (
-                <p className="text-sm text-muted-foreground text-center mt-4">
-                  Showing 20 of {waivers.length} enrollments
-                </p>
+                <div className="text-center py-4 bg-gradient-to-r from-slate-50 to-white border-t border-slate-100">
+                  <p className="text-sm text-slate-500">
+                    Showing 20 of {waivers.length} enrollments
+                  </p>
+                </div>
               )}
             </div>
           )}
@@ -341,32 +431,39 @@ export default async function AdminFinancialsPage() {
       </Card>
 
       {/* Registered Users */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-muted-foreground" />
-            Customer Accounts
-          </CardTitle>
-          <CardDescription>
-            Registered parent/guardian accounts
-          </CardDescription>
+      <Card className="border-0 shadow-lg shadow-slate-100/50 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/25">
+              <Users className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Customer Accounts</CardTitle>
+              <CardDescription>
+                Registered parent/guardian accounts
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {!users || users.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground/30" />
-              <p className="mt-4 text-muted-foreground">No registered users yet</p>
+            <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white rounded-xl">
+              <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-slate-400" />
+              </div>
+              <p className="text-slate-500 font-medium">No registered users yet</p>
+              <p className="text-sm text-slate-400 mt-1">User accounts will appear here</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-100">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Status</TableHead>
+                  <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/50 hover:bg-slate-50">
+                    <TableHead className="font-semibold text-slate-600">Name</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Email</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Phone</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Joined</TableHead>
+                    <TableHead className="font-semibold text-slate-600">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -379,22 +476,24 @@ export default async function AdminFinancialsPage() {
                     created_at: string;
                     status: string;
                   }) => (
-                    <TableRow key={u.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="font-semibold text-slate-700">
                         {u.first_name || u.last_name 
                           ? `${u.first_name || ''} ${u.last_name || ''}`.trim()
-                          : <span className="text-muted-foreground">Not provided</span>
+                          : <span className="text-slate-400 font-normal">Not provided</span>
                         }
                       </TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-slate-600">{u.email}</TableCell>
+                      <TableCell className="text-slate-500">
                         {u.phone || '-'}
                       </TableCell>
-                      <TableCell>{formatDate(u.created_at)}</TableCell>
+                      <TableCell className="text-slate-600">{formatDate(u.created_at)}</TableCell>
                       <TableCell>
                         <Badge 
-                          variant={u.status === 'active' ? 'default' : 'secondary'}
-                          className={u.status === 'active' ? 'bg-green-500' : ''}
+                          className={u.status === 'active' 
+                            ? 'bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border-0 font-semibold' 
+                            : 'bg-slate-100 text-slate-600 border-0'
+                          }
                         >
                           {u.status}
                         </Badge>
@@ -404,12 +503,13 @@ export default async function AdminFinancialsPage() {
                 </TableBody>
               </Table>
               {users.length > 15 && (
-                <div className="text-center mt-4">
+                <div className="text-center py-4 bg-gradient-to-r from-slate-50 to-white border-t border-slate-100">
                   <Link 
                     href="/dashboard/admin/users" 
-                    className="text-sm text-brand hover:underline"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors"
                   >
-                    View all {users.length} users →
+                    View all {users.length} users
+                    <ArrowUpRight className="h-4 w-4" />
                   </Link>
                 </div>
               )}

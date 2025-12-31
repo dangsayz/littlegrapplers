@@ -43,8 +43,21 @@ export default async function DashboardLayout({
           redirect('/onboarding');
         }
       } else {
-        // User doesn't exist in DB yet - redirect to onboarding
-        redirect('/onboarding');
+        // User doesn't exist in DB yet - check if they have a signed waiver
+        const { data: waiver } = await supabaseAdmin
+          .from('signed_waivers')
+          .select('id')
+          .eq('clerk_user_id', user.id)
+          .limit(1)
+          .single();
+
+        if (waiver) {
+          // Has waiver but no full user record - redirect to onboarding to complete setup
+          redirect('/onboarding');
+        } else {
+          // No waiver, no user record - redirect to onboarding
+          redirect('/onboarding');
+        }
       }
     } catch (error) {
       // If check fails, redirect to onboarding to be safe

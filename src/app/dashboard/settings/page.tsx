@@ -1,47 +1,143 @@
 'use client';
 
-import { useState } from 'react';
-import { Settings, User, MapPin, Phone, Shield, Save, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, User, MapPin, Phone, Shield, Save, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useUser } from '@clerk/nextjs';
 
-// TODO: Replace with actual user data from database
-const mockUserData = {
-  firstName: 'John',
-  lastName: 'Johnson',
-  email: 'john.johnson@example.com',
-  phone: '(512) 555-0123',
-  address: '123 Main Street',
-  city: 'Austin',
-  state: 'TX',
-  zip: '78701',
-  emergencyContact: 'Jane Johnson',
-  emergencyPhone: '(512) 555-0124',
+interface ProfileData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zip: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+}
+
+const initialData: ProfileData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  streetAddress: '',
+  city: '',
+  state: '',
+  zip: '',
+  emergencyContactName: '',
+  emergencyContactPhone: '',
 };
 
 export default function SettingsPage() {
+  const { user: clerkUser } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSection, setSavedSection] = useState<string | null>(null);
-  const [formData, setFormData] = useState(mockUserData);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ProfileData>(initialData);
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({
+            firstName: data.user.firstName || '',
+            lastName: data.user.lastName || '',
+            email: data.user.email || clerkUser?.emailAddresses?.[0]?.emailAddress || '',
+            phone: data.user.phone || '',
+            streetAddress: data.user.address?.streetAddress || '',
+            city: data.user.address?.city || '',
+            state: data.user.address?.state || '',
+            zip: data.user.address?.zip || '',
+            emergencyContactName: data.user.emergencyContactName || '',
+            emergencyContactPhone: data.user.emergencyContactPhone || '',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [clerkUser]);
 
   const handleSave = async (section: string) => {
     setIsSaving(true);
     setSavedSection(null);
+    setError(null);
 
-    // TODO: Implement actual save via API
-    // await updateUserSettings(formData);
+    try {
+      let requestData: { section: string; data: Record<string, string | null> };
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (section === 'personal') {
+        requestData = {
+          section: 'personal',
+          data: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+          },
+        };
+      } else if (section === 'address') {
+        requestData = {
+          section: 'address',
+          data: {
+            streetAddress: formData.streetAddress,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.zip,
+          },
+        };
+      } else {
+        requestData = {
+          section: 'emergency',
+          data: {
+            emergencyContactName: formData.emergencyContactName,
+            emergencyContactPhone: formData.emergencyContactPhone,
+          },
+        };
+      }
 
-    setIsSaving(false);
-    setSavedSection(section);
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+      });
 
-    // Clear success message after 3 seconds
-    setTimeout(() => setSavedSection(null), 3000);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save');
+      }
+
+      setSavedSection(section);
+      setTimeout(() => setSavedSection(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save changes');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -56,6 +152,14 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
       {/* Personal Information */}
       <Card>
         <CardHeader>
@@ -68,23 +172,25 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) =>
                     setFormData({ ...formData, firstName: e.target.value })
                   }
+                  placeholder="Enter first name"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) =>
                     setFormData({ ...formData, lastName: e.target.value })
                   }
+                  placeholder="Enter last name"
                 />
               </div>
             </div>
@@ -119,7 +225,7 @@ export default function SettingsPage() {
             <div className="flex justify-end pt-2">
               <Button
                 onClick={() => handleSave('personal')}
-                disabled={isSaving}
+                disabled={isSaving || !formData.firstName.trim() || !formData.lastName.trim()}
               >
                 {savedSection === 'personal' ? (
                   <>
@@ -127,7 +233,10 @@ export default function SettingsPage() {
                     Saved!
                   </>
                 ) : isSaving ? (
-                  'Saving...'
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
@@ -151,12 +260,12 @@ export default function SettingsPage() {
         <CardContent>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="address">Street Address</Label>
+              <Label htmlFor="streetAddress">Street Address</Label>
               <Input
-                id="address"
-                value={formData.address}
+                id="streetAddress"
+                value={formData.streetAddress}
                 onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
+                  setFormData({ ...formData, streetAddress: e.target.value })
                 }
                 placeholder="123 Main Street"
               />
@@ -171,6 +280,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, city: e.target.value })
                   }
+                  placeholder="City"
                 />
               </div>
               <div className="space-y-2">
@@ -179,9 +289,10 @@ export default function SettingsPage() {
                   id="state"
                   value={formData.state}
                   onChange={(e) =>
-                    setFormData({ ...formData, state: e.target.value })
+                    setFormData({ ...formData, state: e.target.value.toUpperCase() })
                   }
                   maxLength={2}
+                  placeholder="TX"
                 />
               </div>
               <div className="space-y-2">
@@ -192,6 +303,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, zip: e.target.value })
                   }
+                  placeholder="75001"
                 />
               </div>
             </div>
@@ -207,7 +319,10 @@ export default function SettingsPage() {
                     Saved!
                   </>
                 ) : isSaving ? (
-                  'Saving...'
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
@@ -232,24 +347,24 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="emergencyContact">Contact Name</Label>
+                <Label htmlFor="emergencyContactName">Contact Name</Label>
                 <Input
-                  id="emergencyContact"
-                  value={formData.emergencyContact}
+                  id="emergencyContactName"
+                  value={formData.emergencyContactName}
                   onChange={(e) =>
-                    setFormData({ ...formData, emergencyContact: e.target.value })
+                    setFormData({ ...formData, emergencyContactName: e.target.value })
                   }
                   placeholder="Emergency contact name"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="emergencyPhone">Contact Phone</Label>
+                <Label htmlFor="emergencyContactPhone">Contact Phone</Label>
                 <Input
-                  id="emergencyPhone"
+                  id="emergencyContactPhone"
                   type="tel"
-                  value={formData.emergencyPhone}
+                  value={formData.emergencyContactPhone}
                   onChange={(e) =>
-                    setFormData({ ...formData, emergencyPhone: e.target.value })
+                    setFormData({ ...formData, emergencyContactPhone: e.target.value })
                   }
                   placeholder="(555) 123-4567"
                 />
@@ -267,7 +382,10 @@ export default function SettingsPage() {
                     Saved!
                   </>
                 ) : isSaving ? (
-                  'Saving...'
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
@@ -293,7 +411,7 @@ export default function SettingsPage() {
             Your account is secured through Clerk authentication. 
             Password and security settings are managed there.
           </p>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.open('https://accounts.clerk.dev/user', '_blank')}>
             Manage Security Settings
           </Button>
         </CardContent>

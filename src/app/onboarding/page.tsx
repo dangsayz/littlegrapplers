@@ -160,13 +160,43 @@ export default function OnboardingPage() {
     waiverAccepted: false,
   });
 
+  // Fetch prefill data from existing waiver/user records
   useEffect(() => {
+    const fetchPrefillData = async () => {
+      try {
+        const res = await fetch('/api/onboarding/prefill');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.prefill) {
+            setFormData((prev) => ({
+              ...prev,
+              firstName: data.prefill.firstName || prev.firstName || '',
+              lastName: data.prefill.lastName || prev.lastName || '',
+              phone: data.prefill.phone || prev.phone || '',
+              emergencyContactName: data.prefill.emergencyContactName || prev.emergencyContactName || '',
+              emergencyContactPhone: data.prefill.emergencyContactPhone || prev.emergencyContactPhone || '',
+              studentFirstName: data.prefill.studentFirstName || prev.studentFirstName || '',
+              studentLastName: data.prefill.studentLastName || prev.studentLastName || '',
+              studentDob: data.prefill.studentDob || prev.studentDob || '',
+              locationId: data.prefill.locationId || prev.locationId || '',
+              howHeard: data.prefill.howHeard || prev.howHeard || '',
+              photoConsent: data.prefill.photoConsent ?? prev.photoConsent,
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching prefill data:', err);
+      }
+    };
+
     if (isLoaded && user) {
+      // First set from Clerk user, then fetch additional prefill data
       setFormData((prev) => ({
         ...prev,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        firstName: user.firstName || prev.firstName || '',
+        lastName: user.lastName || prev.lastName || '',
       }));
+      fetchPrefillData();
     }
   }, [isLoaded, user]);
 

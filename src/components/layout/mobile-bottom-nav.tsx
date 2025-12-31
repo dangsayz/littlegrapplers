@@ -16,6 +16,7 @@ import {
   Video,
   LayoutDashboard,
   Shield,
+  ClipboardList,
   LucideIcon,
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
@@ -42,8 +43,7 @@ const publicNavItems: NavItem[] = [
 const dashboardNavItems: NavItem[] = [
   { label: 'Home', href: '/dashboard', icon: LayoutDashboard, matchPaths: ['/dashboard'], exactMatch: true },
   { label: 'Students', href: '/dashboard/students', icon: Users, matchPaths: ['/dashboard/students'] },
-  { label: 'Videos', href: '/dashboard/videos', icon: Video, matchPaths: ['/dashboard/videos'] },
-  { label: 'Discuss', href: '/dashboard/discussions', icon: MessageSquare, matchPaths: ['/dashboard/discussions'] },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings, matchPaths: ['/dashboard/settings'] },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -171,7 +171,6 @@ export function MobileBottomNav() {
   // Determine if we should show extra action button
   const showSignIn = !isSignedIn && !isDashboard;
   const showPortal = isSignedIn && !isDashboard && !isCommunity;
-  const showSettings = isSignedIn && (isDashboard || isCommunity) && !isAdminSection;
 
   return (
     <div 
@@ -247,31 +246,6 @@ export function MobileBottomNav() {
             </SignedIn>
           )}
 
-          {/* Settings shortcut in dashboard */}
-          {showSettings && (
-            <Link
-              href="/dashboard/settings"
-              aria-label="Go to settings"
-              aria-current={pathname.startsWith('/dashboard/settings') ? 'page' : undefined}
-              className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-2xl transition-all duration-300',
-                pathname.startsWith('/dashboard/settings')
-                  ? 'text-white'
-                  : 'text-[#1F2A44]/50 hover:text-[#1F2A44]/70 active:scale-95',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2EC4B6] focus-visible:ring-offset-2'
-              )}
-            >
-              {pathname.startsWith('/dashboard/settings') && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] rounded-2xl shadow-lg shadow-[#2EC4B6]/30"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-              <Settings className="relative z-10 h-5 w-5" aria-hidden="true" />
-              <span className="relative z-10 text-[10px] font-semibold opacity-70">Settings</span>
-            </Link>
-          )}
         </motion.nav>
       </div>
     </div>

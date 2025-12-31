@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 export function SplashIntro({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -47,14 +46,12 @@ export function SplashIntro({ children }: { children: React.ReactNode }) {
       >
         <div className={`text-center transition-all duration-500 ${fadeOut ? 'scale-110' : 'scale-100'}`}>
           {/* Logo */}
-          <div className="relative w-64 h-64 md:w-80 md:h-80 mx-auto animate-fade-in">
-            <Image
-              src="/images/logo.jpg"
-              alt="Little Grapplers"
-              fill
-              className="object-contain drop-shadow-2xl"
-              priority
-            />
+          <div className="animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+              <span className="text-white">Little</span>
+              <span className="text-[#2EC4B6]"> Grapplers</span>
+            </h1>
+            <div className="mt-4 h-1 w-24 mx-auto bg-gradient-to-r from-[#2EC4B6] to-[#F7931E] rounded-full" />
           </div>
           
           {/* Tagline */}
