@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
         
         // Convert to optimized format
         if (file.type === 'image/png') {
-          buffer = await image.png({ quality: IMAGE_QUALITY }).toBuffer();
+          buffer = Buffer.from(await image.png({ quality: IMAGE_QUALITY }).toBuffer());
         } else {
-          buffer = await image.jpeg({ quality: IMAGE_QUALITY }).toBuffer();
+          buffer = Buffer.from(await image.jpeg({ quality: IMAGE_QUALITY }).toBuffer());
           finalMimeType = 'image/jpeg';
         }
       } catch (resizeError) {
