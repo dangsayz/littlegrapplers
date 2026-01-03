@@ -354,18 +354,16 @@ export default function HomePage() {
               </div>
             </FadeIn>
 
-            {/* Quote card - Glass Style */}
+            {/* Quote card - Apple Minimal Style */}
             <FadeIn direction="up" delay={0.2} className="lg:col-span-12">
-              <div className="relative rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/40 to-transparent rounded-full blur-3xl" />
-                
-                <div className="relative z-10 py-12 px-8 md:px-16">
-                  <div className="max-w-4xl mx-auto text-center">
-                    <p className="text-2xl md:text-3xl font-medium text-slate-700 leading-relaxed italic">
-                      "Sometimes it is the people no one can imagine anything of who do the things
-                      <span className="font-bold not-italic text-slate-900"> no one can imagine."</span>
-                    </p>
-                  </div>
+              <div className="relative py-20 md:py-28">
+                <div className="max-w-5xl mx-auto text-center px-4">
+                  <p className="text-3xl md:text-4xl lg:text-5xl font-semibold text-slate-900 leading-[1.3] tracking-tight">
+                    Sometimes it is the people no one can imagine anything of who do the things{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF]">
+                      no one can imagine.
+                    </span>
+                  </p>
                 </div>
               </div>
             </FadeIn>
