@@ -1,12 +1,12 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { Bell } from 'lucide-react';
-import { ADMIN_EMAIL } from '@/lib/constants';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { NotificationsClient } from './notifications-client';
 
 export default async function NotificationsPage() {
   const user = await currentUser();
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-  const isAdmin = userEmail === ADMIN_EMAIL;
+  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   if (!isAdmin) {
     return (

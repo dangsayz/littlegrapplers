@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation';
 import { DashboardSidebar, DashboardHeader } from '@/components/dashboard';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 export default async function DashboardLayout({
   children,
@@ -19,7 +18,7 @@ export default async function DashboardLayout({
   }
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-  const isAdmin = userEmail === ADMIN_EMAIL;
+  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   // Check onboarding status (skip for admin)
   if (!isAdmin && user) {

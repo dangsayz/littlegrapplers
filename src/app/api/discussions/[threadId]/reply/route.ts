@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -22,7 +23,7 @@ export async function POST(
     const { threadId } = await params;
     const user = await currentUser();
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
     const body = await request.json();
     const parsed = replySchema.safeParse(body);

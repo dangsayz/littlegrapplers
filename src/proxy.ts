@@ -5,13 +5,17 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/login(.*)',
+  '/signup(.*)',
   '/about',
   '/programs',
-  '/locations',
+  '/locations(.*)',
   '/benefits',
   '/faq',
   '/contact',
   '/community(.*)',
+  '/privacy',
+  '/terms',
   '/api/(.*)',
 ]);
 

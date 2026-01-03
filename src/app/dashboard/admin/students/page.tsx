@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, GraduationCap, Search, Eye, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
@@ -23,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function AdminStudentsPage({
   searchParams,
@@ -32,7 +32,7 @@ export default async function AdminStudentsPage({
 }) {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

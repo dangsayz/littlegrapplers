@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function PATCH(
   request: NextRequest,
@@ -12,7 +12,7 @@ export async function PATCH(
     const user = await currentUser();
     
     // Check if user is admin
-    if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+    if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

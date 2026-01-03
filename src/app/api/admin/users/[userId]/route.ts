@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function GET(
   request: Request,
@@ -11,7 +11,7 @@ export async function GET(
   const { userId } = await params;
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -34,8 +34,9 @@ export async function PATCH(
 ) {
   const { userId } = await params;
   const user = await currentUser();
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !userEmail || !ADMIN_EMAILS.includes(userEmail)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -62,7 +63,7 @@ export async function PATCH(
 
   // Log activity
   await supabaseAdmin.from('activity_logs').insert({
-    admin_email: ADMIN_EMAIL,
+    admin_email: userEmail,
     action: status ? `user.${status}` : 'user.update',
     entity_type: 'user',
     entity_id: userId,
@@ -78,8 +79,9 @@ export async function DELETE(
 ) {
   const { userId } = await params;
   const user = await currentUser();
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !userEmail || !ADMIN_EMAILS.includes(userEmail)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -101,7 +103,7 @@ export async function DELETE(
 
   // Log activity
   await supabaseAdmin.from('activity_logs').insert({
-    admin_email: ADMIN_EMAIL,
+    admin_email: userEmail,
     action: 'user.delete',
     entity_type: 'user',
     entity_id: userId,

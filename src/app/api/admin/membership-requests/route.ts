@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // GET: Fetch all pending membership requests (admin only)
 export async function GET(request: NextRequest) {
@@ -13,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

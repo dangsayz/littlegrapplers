@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, Mail, Send, FileText, Plus, Clock, CheckCircle, XCircle } from 'lucide-react';
@@ -9,12 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComposeEmail } from './compose-email';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function AdminEmailPage() {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

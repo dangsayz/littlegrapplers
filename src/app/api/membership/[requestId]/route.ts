@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // PATCH: Approve or reject a membership request (admin only)
 export async function PATCH(
@@ -16,7 +15,7 @@ export async function PATCH(
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
@@ -47,7 +46,7 @@ export async function PATCH(
     const { data: adminUser } = await supabaseAdmin
       .from('users')
       .select('id')
-      .eq('email', ADMIN_EMAIL)
+      .eq('email', userEmail)
       .single();
 
     // Update request status
@@ -99,7 +98,7 @@ export async function DELETE(
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

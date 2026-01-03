@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, Users, Search, MoreHorizontal, Mail, Ban, Trash2, Eye } from 'lucide-react';
@@ -24,7 +25,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { UserActions } from './user-actions';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function AdminUsersPage({
   searchParams,
@@ -33,7 +33,7 @@ export default async function AdminUsersPage({
 }) {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // GET - Fetch single student
 export async function GET(
@@ -13,7 +12,7 @@ export async function GET(
     const { id } = await params;
     const user = await currentUser();
     
-    if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+    if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -43,7 +42,7 @@ export async function PUT(
     const { id } = await params;
     const user = await currentUser();
     
-    if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+    if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -129,7 +128,7 @@ export async function DELETE(
     const { id } = await params;
     const user = await currentUser();
     
-    if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+    if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

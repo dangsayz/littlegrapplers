@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const user = await currentUser();
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
     // Admin sees all locations
     if (isAdmin) {

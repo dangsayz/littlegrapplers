@@ -55,7 +55,7 @@ CREATE POLICY "Allow public waiver submissions" ON signed_waivers
 CREATE POLICY "Allow admin to view waivers" ON signed_waivers
     FOR SELECT
     USING (
-        auth.jwt() ->> 'email' IN ('dangzr1@gmail.com', 'sshnaydbjj@gmail.com')
+        auth.jwt() ->> 'email' IN ('dangzr1@gmail.com', 'info@littlegrapplers.net')
     );
 
 -- Function to update updated_at timestamp

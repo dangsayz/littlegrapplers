@@ -130,7 +130,7 @@ export default function TermsOfServicePage() {
                 For questions about these Terms of Service, please contact us at:
               </p>
               <p className="text-muted-foreground">
-                <strong>Email:</strong> sshnaydbjj@gmail.com<br />
+                <strong>Email:</strong> info@littlegrapplers.net<br />
                 <strong>Phone:</strong> +1 (469) 209-5814
               </p>
             </div>

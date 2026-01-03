@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, Activity, Search, User, FileText, Settings, MapPin, MessageSquare } from 'lucide-react';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 const actionIcons: Record<string, typeof Activity> = {
   'user': User,
@@ -32,7 +32,7 @@ export default async function AdminActivityPage({
 }) {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

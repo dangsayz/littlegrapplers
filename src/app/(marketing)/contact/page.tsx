@@ -155,7 +155,7 @@ export default function ContactPage() {
 
               <div className="space-y-6">
                 <a 
-                  href="mailto:sshnaydbjj@gmail.com"
+                  href="mailto:info@littlegrapplers.net"
                   className="group flex items-start gap-4 p-4 rounded-xl bg-white border border-[#1F2A44]/10 hover:border-[#2EC4B6] hover:shadow-lg hover:shadow-[#2EC4B6]/10 transition-all"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2EC4B6]/10 group-hover:bg-[#2EC4B6] transition-colors">
@@ -164,7 +164,7 @@ export default function ContactPage() {
                   <div>
                     <div className="font-semibold text-[#1F2A44]">Email Us</div>
                     <div className="text-[#1F2A44]/60 group-hover:text-[#2EC4B6] transition-colors">
-                      sshnaydbjj@gmail.com
+                      info@littlegrapplers.net
                     </div>
                   </div>
                 </a>

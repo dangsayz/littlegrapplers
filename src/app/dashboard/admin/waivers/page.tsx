@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { FileCheck, Search, Eye, Download, Calendar, User, Baby } from 'lucide-react';
@@ -18,7 +19,6 @@ import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Pagination } from '@/components/ui/pagination';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 const ITEMS_PER_PAGE = 10;
 
 interface PageProps {
@@ -28,7 +28,7 @@ interface PageProps {
 export default async function AdminWaiversPage({ searchParams }: PageProps) {
   const user = await currentUser();
 
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

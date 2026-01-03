@@ -19,9 +19,8 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
   {
@@ -44,7 +43,8 @@ const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
-  const isAdmin = user?.emailAddresses[0]?.emailAddress === ADMIN_EMAIL;
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
+  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 border-r border-border bg-card">

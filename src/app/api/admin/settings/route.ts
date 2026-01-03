@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export async function GET() {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -30,8 +30,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const user = await currentUser();
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !userEmail || !ADMIN_EMAILS.includes(userEmail)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
 
   // Log activity
   await supabaseAdmin.from('activity_logs').insert({
-    admin_email: ADMIN_EMAIL,
+    admin_email: userEmail,
     action: 'settings.update',
     entity_type: 'site_settings',
     details: { updated_keys: settings.map((s: { key: string }) => s.key) },

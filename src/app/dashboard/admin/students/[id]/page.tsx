@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { 
@@ -19,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function AdminStudentDetailPage({
   params,
@@ -29,7 +29,7 @@ export default async function AdminStudentDetailPage({
   const { id } = await params;
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

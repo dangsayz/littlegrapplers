@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import type { Route } from 'next';
@@ -6,31 +7,29 @@ import {
   MapPin, 
   Users, 
   FileCheck,
-  ArrowRight,
-  Shield,
+  ChevronRight,
   DollarSign,
   GraduationCap,
+  Code2,
+  Inbox,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
-
-// Pastel gradient configurations for admin cards - Apple glass aesthetic
-const cardThemes = {
-  financials: { gradient: 'from-emerald-400 to-teal-500', bg: 'from-emerald-50/80 via-teal-50/60 to-cyan-50/40' },
-  students: { gradient: 'from-indigo-400 to-violet-500', bg: 'from-indigo-50/80 via-violet-50/60 to-purple-50/40' },
-  waivers: { gradient: 'from-teal-400 to-cyan-500', bg: 'from-teal-50/80 via-cyan-50/60 to-sky-50/40' },
-  locations: { gradient: 'from-sky-400 to-blue-500', bg: 'from-sky-50/80 via-blue-50/60 to-indigo-50/40' },
-  users: { gradient: 'from-violet-400 to-purple-500', bg: 'from-violet-50/80 via-purple-50/60 to-fuchsia-50/40' },
+// Apple-inspired accent colors
+const accentColors = {
+  blue: { bg: 'bg-blue-500', light: 'bg-blue-50', text: 'text-blue-600' },
+  green: { bg: 'bg-emerald-500', light: 'bg-emerald-50', text: 'text-emerald-600' },
+  orange: { bg: 'bg-orange-500', light: 'bg-orange-50', text: 'text-orange-600' },
+  purple: { bg: 'bg-purple-500', light: 'bg-purple-50', text: 'text-purple-600' },
+  pink: { bg: 'bg-pink-500', light: 'bg-pink-50', text: 'text-pink-600' },
+  indigo: { bg: 'bg-indigo-500', light: 'bg-indigo-50', text: 'text-indigo-600' },
 };
 
 export default async function AdminPage() {
   const user = await currentUser();
   
   // Check if user is the admin
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 
@@ -53,151 +52,190 @@ export default async function AdminPage() {
     subscribers: newsletterRes.count || 0,
   };
 
-  // Essential admin sections only
+  // Dev Work Log - separate billing section
+  const devSection = {
+    title: 'Dev Work Log',
+    description: 'Development & billing',
+    icon: Code2,
+    href: '/dashboard/admin/developer',
+    color: accentColors.indigo,
+    stat: null,
+    statLabel: 'View history',
+  };
+
+  // Essential admin sections
   const adminSections = [
+    {
+      title: 'Contact Inbox',
+      description: 'Website inquiries from contact form',
+      icon: Inbox,
+      href: '/dashboard/admin/contacts',
+      color: accentColors.orange,
+      stat: stats.unreadContacts,
+      statLabel: stats.unreadContacts === 1 ? 'unread' : 'unread',
+      highlight: stats.unreadContacts > 0,
+    },
     {
       title: 'Financials',
       description: 'Revenue overview and metrics',
       icon: DollarSign,
       href: '/dashboard/admin/financials',
-      theme: cardThemes.financials,
-      stat: `${stats.students} students`,
+      color: accentColors.green,
+      stat: stats.students,
+      statLabel: 'students',
     },
     {
       title: 'Students',
       description: 'View enrolled students',
       icon: GraduationCap,
       href: '/dashboard/admin/students',
-      theme: cardThemes.students,
-      stat: `${stats.students} enrolled`,
+      color: accentColors.blue,
+      stat: stats.students,
+      statLabel: 'enrolled',
     },
     {
       title: 'Waivers',
       description: 'Signed enrollment waivers',
       icon: FileCheck,
       href: '/dashboard/admin/waivers',
-      theme: cardThemes.waivers,
-      stat: `${stats.students} signed`,
+      color: accentColors.purple,
+      stat: stats.students,
+      statLabel: 'signed',
     },
     {
       title: 'Locations',
       description: 'Manage locations',
       icon: MapPin,
       href: '/dashboard/admin/locations',
-      theme: cardThemes.locations,
-      stat: `${stats.locations} active`,
+      color: accentColors.orange,
+      stat: stats.locations,
+      statLabel: 'active',
     },
     {
       title: 'Users',
       description: 'Parent accounts',
       icon: Users,
       href: '/dashboard/admin/users',
-      theme: cardThemes.users,
-      stat: `${stats.users} registered`,
+      color: accentColors.pink,
+      stat: stats.users,
+      statLabel: 'registered',
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Page Header - Glassmorphism Style */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-teal-500/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-violet-400/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-teal-400/20 to-transparent rounded-full blur-3xl" />
+    <div className="max-w-5xl mx-auto">
+      {/* Page Header - Clean Apple Style */}
+      <div className="mb-10">
+        <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
+          Admin
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Manage your Little Grapplers platform
+        </p>
+      </div>
+
+      {/* Dev Work Log - Urgent glass card with pulse */}
+      <div className="relative mb-6 group">
+        {/* Animated gradient border */}
+        <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-slate-300 via-amber-200 to-slate-300 opacity-60 blur-[1px] group-hover:opacity-80 transition-opacity animate-pulse" />
         
-        <div className="relative flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 shadow-lg shadow-violet-500/25">
-            <Shield className="h-7 w-7 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-white">
-              Admin Panel
-            </h1>
-            <p className="text-slate-400 mt-1">
-              Manage your Little Grapplers platform
-            </p>
-          </div>
+        {/* Glass card */}
+        <div className="relative rounded-2xl bg-gradient-to-br from-white/90 via-slate-50/80 to-white/90 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden">
+          {/* Subtle shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent pointer-events-none" />
+          
+          <Link
+            href={devSection.href as Route}
+            className="relative flex items-center gap-4 p-5 hover:bg-white/40 transition-all duration-300"
+          >
+            {/* Icon with glow */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-amber-400/20 rounded-xl blur-lg animate-pulse" />
+              <div className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shadow-lg">
+                <devSection.icon className="h-5 w-5 text-amber-300" />
+              </div>
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900">{devSection.title}</h3>
+                {/* Urgent indicator */}
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 border border-amber-200/50">
+                  Review
+                </span>
+              </div>
+              <p className="text-sm text-slate-500 truncate">{devSection.description}</p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-400">{devSection.statLabel}</span>
+              <ChevronRight className="h-5 w-5 text-slate-300 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
         </div>
       </div>
 
-      {/* Quick Stats - 3 Essential Metrics */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/40 backdrop-blur-sm">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 pb-5 relative">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-sm">
-                <GraduationCap className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-sm font-medium text-slate-500">Students</span>
+      {/* Quick Stats - Apple Card Style */}
+      <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`h-10 w-10 rounded-full ${accentColors.blue.light} flex items-center justify-center`}>
+              <GraduationCap className={`h-5 w-5 ${accentColors.blue.text}`} />
             </div>
-            <div className="text-3xl font-bold text-emerald-700">{stats.students}</div>
-          </CardContent>
-        </Card>
+            <span className="text-sm font-medium text-gray-500">Students</span>
+          </div>
+          <div className="text-4xl font-semibold tracking-tight text-gray-900">{stats.students}</div>
+        </div>
 
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-sky-50/80 via-blue-50/60 to-indigo-50/40 backdrop-blur-sm">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 pb-5 relative">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-sm">
-                <MapPin className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-sm font-medium text-slate-500">Locations</span>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`h-10 w-10 rounded-full ${accentColors.orange.light} flex items-center justify-center`}>
+              <MapPin className={`h-5 w-5 ${accentColors.orange.text}`} />
             </div>
-            <div className="text-3xl font-bold text-sky-700">{stats.locations}</div>
-          </CardContent>
-        </Card>
+            <span className="text-sm font-medium text-gray-500">Locations</span>
+          </div>
+          <div className="text-4xl font-semibold tracking-tight text-gray-900">{stats.locations}</div>
+        </div>
 
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-fuchsia-50/40 backdrop-blur-sm">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 pb-5 relative">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-sm">
-                <Users className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-sm font-medium text-slate-500">Users</span>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`h-10 w-10 rounded-full ${accentColors.pink.light} flex items-center justify-center`}>
+              <Users className={`h-5 w-5 ${accentColors.pink.text}`} />
             </div>
-            <div className="text-3xl font-bold text-violet-700">{stats.users}</div>
-          </CardContent>
-        </Card>
-
+            <span className="text-sm font-medium text-gray-500">Users</span>
+          </div>
+          <div className="text-4xl font-semibold tracking-tight text-gray-900">{stats.users}</div>
+        </div>
       </div>
 
-      {/* Admin Sections - Apple Glass Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {adminSections.map((section) => (
-          <Card 
-            key={section.title} 
-            className={`group relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${section.theme.bg} backdrop-blur-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5`}
+      {/* Admin Sections - Apple List Style */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {adminSections.map((section, index) => (
+          <Link
+            key={section.title}
+            href={section.href as Route}
+            className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
+              index !== adminSections.length - 1 ? 'border-b border-gray-100' : ''
+            }`}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="p-5 relative">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${section.theme.gradient} flex items-center justify-center shadow-sm`}>
-                    <section.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="pt-0.5">
-                    <h3 className="font-semibold text-slate-800">{section.title}</h3>
-                    <p className="text-sm text-slate-500 mt-0.5">{section.description}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200/50">
-                <span className="text-xs font-medium text-slate-500">{section.stat}</span>
-                <Button 
-                  size="sm" 
-                  className={`bg-gradient-to-r ${section.theme.gradient} text-white border-0 shadow-sm hover:shadow-md transition-all`}
-                  asChild
-                >
-                  <Link href={section.href as Route}>
-                    Manage
-                    <ArrowRight className="h-4 w-4 ml-1.5" />
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <div className={`h-11 w-11 rounded-xl ${section.color.bg} flex items-center justify-center flex-shrink-0`}>
+              <section.icon className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-gray-900">{section.title}</h3>
+              <p className="text-sm text-gray-500 truncate">{section.description}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {section.stat !== null ? (
+                <span className="text-sm text-gray-400">
+                  {section.stat} {section.statLabel}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400">{section.statLabel}</span>
+              )}
+              <ChevronRight className="h-5 w-5 text-gray-300" />
+            </div>
+          </Link>
         ))}
       </div>
     </div>

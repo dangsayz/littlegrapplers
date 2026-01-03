@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // GET: Fetch threads for a location (by slug)
 export async function GET(request: NextRequest) {
@@ -75,7 +74,7 @@ export async function GET(request: NextRequest) {
           email: author?.email || thread.author_email || 'unknown',
           firstName: author?.first_name || 'Unknown',
           lastName: author?.last_name || 'User',
-          isAdmin: (author?.email || thread.author_email) === ADMIN_EMAIL,
+          isAdmin: ADMIN_EMAILS.includes(author?.email || thread.author_email || ''),
         },
       };
     });
@@ -128,7 +127,7 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const pinVerified = cookieStore.get(`pin_verified_${locationSlug}`)?.value;
     
-    if (!pinVerified && userEmail !== ADMIN_EMAIL) {
+    if (!pinVerified && (!userEmail || !ADMIN_EMAILS.includes(userEmail))) {
       return NextResponse.json({ error: 'PIN verification required' }, { status: 403 });
     }
 

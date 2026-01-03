@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // DELETE: Remove a media attachment
 export async function DELETE(
@@ -17,7 +16,7 @@ export async function DELETE(
 
     const { mediaId } = await params;
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
     // Get media attachment to check ownership
     const { data: media, error: mediaError } = await supabaseAdmin

@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // POST: Create a reply to a thread
 export async function POST(
@@ -61,7 +60,7 @@ export async function POST(
       const cookieStore = await cookies();
       const pinVerified = cookieStore.get(`pin_verified_${locationSlug}`)?.value;
       
-      if (!pinVerified && userEmail !== ADMIN_EMAIL) {
+      if (!pinVerified && (!userEmail || !ADMIN_EMAILS.includes(userEmail))) {
         return NextResponse.json({ error: 'PIN verification required' }, { status: 403 });
       }
     }
@@ -127,7 +126,7 @@ export async function PATCH(
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
     const body = await request.json();
     const { replyId, content } = body;
@@ -178,7 +177,7 @@ export async function DELETE(
     }
 
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
     const { searchParams } = new URL(request.url);
     const replyId = searchParams.get('replyId');

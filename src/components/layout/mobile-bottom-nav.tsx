@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { ADMIN_EMAILS } from '@/lib/constants';
+import { forwardRef, useState, useEffect, type ComponentPropsWithoutRef } from 'react';
 
 // Clerk passes `component` prop to children which is invalid on native button elements
 // This wrapper filters it out to prevent hydration mismatches
@@ -34,7 +35,6 @@ const ClerkButton = forwardRef<HTMLButtonElement, ClerkButtonProps>(
 );
 ClerkButton.displayName = 'ClerkButton';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 interface NavItem {
   label: string;
@@ -133,6 +133,11 @@ const HIDDEN_PATHS = [
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Don't show on excluded pages
   const shouldHide = HIDDEN_PATHS.some(path => pathname.startsWith(path));
@@ -140,9 +145,10 @@ export function MobileBottomNav() {
     return null;
   }
 
-  // Determine user context
-  const isSignedIn = isLoaded && !!user;
-  const isAdmin = user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+  // Determine user context - only after mounted to prevent hydration mismatch
+  const isSignedIn = mounted && isLoaded && !!user;
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
   
   // Determine which nav set to show based on current route and user role
   const isAdminSection = pathname.startsWith('/dashboard/admin');
@@ -186,30 +192,22 @@ export function MobileBottomNav() {
 
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe"
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
       role="navigation"
       aria-label="Mobile navigation"
     >
-      {/* Gradient fade effect above nav */}
-      <div className="absolute bottom-full left-0 right-0 h-8 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" aria-hidden="true" />
-      
-      {/* Floating island container */}
-      <div className="px-4 pb-4">
-        <motion.nav
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
-          className={cn(
-            'relative flex items-center justify-around',
-            'bg-white/95 backdrop-blur-xl',
-            'rounded-[28px] shadow-2xl shadow-black/10',
-            'border border-[#1F2A44]/5',
-            'px-2 py-1',
-            'mx-auto max-w-md'
-          )}
-        >
-          {/* Subtle inner glow */}
-          <div className="absolute inset-[1px] rounded-[27px] bg-gradient-to-b from-white/50 to-transparent pointer-events-none" aria-hidden="true" />
+      {/* Bottom nav bar - flush to bottom like native apps */}
+      <motion.nav
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
+        className={cn(
+          'relative flex items-center justify-around',
+          'bg-white',
+          'border-t border-[#1F2A44]/10',
+          'px-2 py-1 pb-safe'
+        )}
+      >
           
           {navItems.map((item, index) => (
             <NavItemButton
@@ -258,8 +256,7 @@ export function MobileBottomNav() {
             </SignedIn>
           )}
 
-        </motion.nav>
-      </div>
+      </motion.nav>
     </div>
   );
 }

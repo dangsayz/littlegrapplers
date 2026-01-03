@@ -143,7 +143,8 @@ export const UPLOAD_LIMITS = {
 /**
  * Admin configuration
  */
-export const ADMIN_EMAIL = 'dangzr1@gmail.com';
+export const ADMIN_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com', 'info@littlegrapplers.net'];
+export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // Legacy support - primary admin
 
 /**
  * Discussion locations (classes)

@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { MessageSquare } from 'lucide-react';
-import { ADMIN_EMAIL } from '@/lib/constants';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { supabaseAdmin } from '@/lib/supabase';
 import { DiscussionsClient } from './discussions-client';
 
@@ -8,7 +8,7 @@ export default async function DiscussionsPage() {
   const { userId } = await auth();
   const user = await currentUser();
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-  const isAdmin = userEmail === ADMIN_EMAIL;
+  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   // Fetch all locations from Supabase
   const { data: locationsData } = await supabaseAdmin

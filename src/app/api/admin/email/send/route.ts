@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 export async function POST(request: Request) {
   const user = await currentUser();
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !userEmail || !ADMIN_EMAILS.includes(userEmail)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
   // Log activity
   await supabaseAdmin.from('activity_logs').insert({
-    admin_email: ADMIN_EMAIL,
+    admin_email: userEmail,
     action: 'email.send',
     entity_type: 'email_campaign',
     entity_id: campaign.id,

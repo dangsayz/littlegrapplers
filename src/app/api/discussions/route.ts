@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userEmail = user.emailAddresses?.[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
     const { searchParams } = new URL(request.url);
     const locationIdOrSlug = searchParams.get('locationId');
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
         author: {
           firstName: author?.first_name || 'Unknown',
           lastName: author?.last_name || 'User',
-          isAdmin: (author?.email || thread.author_email) === ADMIN_EMAIL,
+          isAdmin: (author?.email || thread.author_email) && ADMIN_EMAILS.includes(author?.email || thread.author_email || ''),
         },
         location: { name: location?.name || 'Unknown' },
       };

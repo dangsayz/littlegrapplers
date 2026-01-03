@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
-
 // POST: Request to join a location
 export async function POST(request: NextRequest) {
   try {

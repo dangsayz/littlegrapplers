@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const user = await currentUser();
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
     const user = await currentUser();
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
@@ -158,7 +159,7 @@ export async function DELETE(request: NextRequest) {
     const user = await currentUser();
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

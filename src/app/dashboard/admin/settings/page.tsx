@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, Settings, Save } from 'lucide-react';
@@ -6,12 +7,11 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { supabaseAdmin } from '@/lib/supabase';
 import { SettingsForm } from './settings-form';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 export default async function AdminSettingsPage() {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
 
-const INQUIRY_EMAIL = 'sshnaydbjj@gmail.com';
+const INQUIRY_EMAIL = 'info@littlegrapplers.net';
 
 const programs = [
   {

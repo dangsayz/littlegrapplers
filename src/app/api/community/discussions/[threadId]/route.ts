@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 // GET: Fetch single thread with replies
 export async function GET(
@@ -90,7 +89,7 @@ export async function GET(
         email: author?.email || thread.author_email || 'unknown',
         firstName: author?.first_name || 'Unknown',
         lastName: author?.last_name || 'User',
-        isAdmin: (author?.email || thread.author_email) === ADMIN_EMAIL,
+        isAdmin: ADMIN_EMAILS.includes(author?.email || thread.author_email || ''),
       },
       media: (threadMedia || []).map(m => ({
         id: m.id,
@@ -141,7 +140,7 @@ export async function PATCH(
 
     const { threadId } = await params;
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
     // Get thread to check ownership
     const { data: thread, error: threadError } = await supabaseAdmin
@@ -193,7 +192,7 @@ export async function DELETE(
 
     const { threadId } = await params;
     const userEmail = user.emailAddresses[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
     // Get thread to check ownership
     const { data: thread, error: threadError } = await supabaseAdmin

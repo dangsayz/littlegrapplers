@@ -7,7 +7,7 @@
  * 3. Verify your domain or use their test email
  */
 
-const ADMIN_EMAIL = 'sshnaydbjj@gmail.com';
+const ADMIN_EMAIL = 'info@littlegrapplers.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'notifications@littlegrapplers.net';
 
 interface EmailNotification {
@@ -219,57 +219,121 @@ export function createContactFormEmail(data: {
   hearAbout: string;
   message: string;
 }): EmailNotification {
+  const submissionDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
   return {
     type: 'contact_form',
-    subject: `New Contact Form Submission - ${data.firstName} ${data.lastName}`,
+    subject: `New Inquiry from ${data.firstName} ${data.lastName}`,
     html: `
       <!DOCTYPE html>
       <html>
         <head>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
-            .header h1 { color: white; margin: 0; font-size: 24px; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
-            .info-row { margin-bottom: 15px; }
-            .label { font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
-            .value { font-size: 16px; color: #111; }
-            .message-box { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #2EC4B6; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-          </style>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>New Contact Form Submission</h1>
-            </div>
-            <div class="content">
-              <div class="info-row">
-                <div class="label">Name</div>
-                <div class="value">${data.firstName} ${data.lastName}</div>
-              </div>
-              <div class="info-row">
-                <div class="label">Email</div>
-                <div class="value"><a href="mailto:${data.email}">${data.email}</a></div>
-              </div>
-              <div class="info-row">
-                <div class="label">Phone</div>
-                <div class="value"><a href="tel:${data.phone}">${data.phone}</a></div>
-              </div>
-              <div class="info-row">
-                <div class="label">How they heard about us</div>
-                <div class="value">${data.hearAbout}</div>
-              </div>
-              <div class="message-box">
-                <div class="label">Message</div>
-                <p style="margin: 10px 0 0 0; white-space: pre-wrap;">${data.message}</p>
-              </div>
-            </div>
-            <div class="footer">
-              Little Grapplers - Youth BJJ Program
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff;">
+            <tr>
+              <td style="padding: 60px 20px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 520px; margin: 0 auto;">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding-bottom: 48px; border-bottom: 1px solid #e5e5e5;">
+                      <p style="margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: #86868b;">
+                        Contact Inquiry
+                      </p>
+                      <h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 32px; font-weight: 600; letter-spacing: -0.5px; color: #1d1d1f; line-height: 1.125;">
+                        ${data.firstName} ${data.lastName}
+                      </h1>
+                      <p style="margin: 12px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: #86868b; line-height: 1.5;">
+                        ${submissionDate}
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Contact Details -->
+                  <tr>
+                    <td style="padding: 40px 0;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td style="padding-bottom: 24px;">
+                            <p style="margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #86868b;">
+                              Email
+                            </p>
+                            <a href="mailto:${data.email}" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; color: #0071e3; text-decoration: none; line-height: 1.47059;">
+                              ${data.email}
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom: 24px;">
+                            <p style="margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #86868b;">
+                              Phone
+                            </p>
+                            <a href="tel:${data.phone}" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; color: #0071e3; text-decoration: none; line-height: 1.47059;">
+                              ${data.phone}
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <p style="margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #86868b;">
+                              Referred By
+                            </p>
+                            <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; color: #1d1d1f; line-height: 1.47059;">
+                              ${data.hearAbout}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Message -->
+                  <tr>
+                    <td style="padding: 32px 0; border-top: 1px solid #e5e5e5;">
+                      <p style="margin: 0 0 16px 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #86868b;">
+                        Message
+                      </p>
+                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; color: #1d1d1f; line-height: 1.64706; white-space: pre-wrap;">
+${data.message}
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Reply Button -->
+                  <tr>
+                    <td style="padding: 32px 0 48px 0;">
+                      <a href="mailto:${data.email}?subject=Re: Your inquiry to Little Grapplers" style="display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; font-weight: 400; color: #0071e3; text-decoration: none; padding: 12px 24px; border: 1px solid #0071e3; border-radius: 980px; transition: all 0.2s ease;">
+                        Reply to ${data.firstName}
+                      </a>
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
+                      <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: #86868b; line-height: 1.5;">
+                        Little Grapplers
+                      </p>
+                      <p style="margin: 4px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: #86868b; line-height: 1.5;">
+                        Youth Brazilian Jiu-Jitsu
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `,

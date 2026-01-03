@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -18,7 +19,7 @@ export async function POST(
     const userEmail = user.emailAddresses?.[0]?.emailAddress;
 
     // Only admin can pin/unpin
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!userEmail || !ADMIN_EMAILS.includes(userEmail)) {
       return NextResponse.json({ error: 'Only admin can pin threads' }, { status: 403 });
     }
 

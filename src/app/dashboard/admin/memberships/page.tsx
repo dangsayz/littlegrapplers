@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { ArrowLeft, CreditCard, Search, Calendar, DollarSign } from 'lucide-react';
@@ -16,7 +17,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 const MONTHLY_RATE = 99;
 
 export default async function AdminMembershipsPage({
@@ -26,7 +26,7 @@ export default async function AdminMembershipsPage({
 }) {
   const user = await currentUser();
   
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar } from 'lucide-react';
+import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 const STORAGE_KEY = 'littlegrapplers_waiver_draft';
@@ -24,7 +24,14 @@ const LIMITS = {
 
 type PlanType = 'month-to-month' | '3-month' | '6-month';
 
+const LOCATIONS = [
+  { id: 'pinnacle-montessori', name: 'Pinnacle @ Montessori', schedule: 'Mondays' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', schedule: 'Tuesdays' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', schedule: 'Wednesdays' },
+] as const;
+
 interface FormData {
+  locationId: string;
   guardianFullName: string;
   guardianEmail: string;
   guardianPhone: string;
@@ -39,6 +46,7 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
+  locationId: '',
   guardianFullName: '',
   guardianEmail: '',
   guardianPhone: '',
@@ -252,6 +260,46 @@ export function WaiverForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Location Selection */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2EC4B6]/10">
+            <MapPin className="h-5 w-5 text-[#2EC4B6]" />
+          </div>
+          <div>
+            <h3 className="text-xl font-display font-bold">Select Your Location</h3>
+            <p className="text-sm text-muted-foreground">Choose the daycare location for your child</p>
+          </div>
+        </div>
+        
+        <div className="grid gap-3 sm:grid-cols-3">
+          {LOCATIONS.map((location) => (
+            <label
+              key={location.id}
+              className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
+                formData.locationId === location.id
+                  ? 'border-[#2EC4B6] bg-[#2EC4B6]/5 shadow-md'
+                  : 'border-border hover:border-[#2EC4B6]/50 hover:bg-[#2EC4B6]/5'
+              }`}
+            >
+              <input
+                type="radio"
+                name="locationId"
+                value={location.id}
+                checked={formData.locationId === location.id}
+                onChange={handleChange}
+                required
+                className="sr-only"
+              />
+              <div className="text-center">
+                <p className="font-semibold text-foreground">{location.name}</p>
+                <p className="mt-1 text-sm text-[#F7931E] font-medium">{location.schedule}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* Guardian Information */}
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="mb-6 flex items-center gap-3">

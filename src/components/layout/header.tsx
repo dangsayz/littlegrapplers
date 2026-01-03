@@ -4,9 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, UserButton } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
-import { NAV_LINKS } from '@/lib/constants';
+import { NAV_LINKS, ADMIN_EMAILS } from '@/lib/constants';
 
 // Magnetic button effect hook
 function useMagnetic(strength: number = 0.3) {
@@ -67,14 +67,14 @@ const LOCATIONS = [
   { id: 'pinnacle', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori' },
 ] as const;
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 function LocationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isLoaded } = useUser();
-  const isAdmin = mounted && isLoaded && user?.emailAddresses?.[0]?.emailAddress === ADMIN_EMAIL;
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+  const isAdmin = mounted && isLoaded && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   useEffect(() => {
     setMounted(true);
@@ -185,6 +185,9 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
+  const isSignedIn = mounted && isLoaded && !!user;
+  const firstName = user?.firstName || user?.username || 'User';
 
   useEffect(() => {
     setMounted(true);
@@ -215,11 +218,10 @@ export function Header() {
           isScrolled ? 'py-2' : 'py-4'
         )}
       >
-        {/* Light glass background */}
+        {/* White background */}
         <div 
           className={cn(
-            'absolute inset-0 transition-all duration-300',
-            'bg-white/95 backdrop-blur-2xl',
+            'absolute inset-0 bg-white transition-all duration-300',
             isScrolled && 'shadow-lg shadow-black/5'
           )} 
         />
@@ -259,26 +261,50 @@ export function Header() {
 
             {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
-              <Link 
-                href="/login"
-                className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500"
-              >
-                <span className="relative z-10">Log in</span>
-                <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
-              </Link>
-              <Link 
-                href="/signup"
-                className="group relative px-6 py-2.5 rounded-full overflow-hidden"
-              >
-                {/* Animated gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
-                {/* Glow effect */}
-                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
-                <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
-                  Get Started
-                  <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </span>
-              </Link>
+              {isSignedIn ? (
+                <>
+                  <Link 
+                    href="/dashboard"
+                    className="group relative px-6 py-2.5 rounded-full overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6] bg-[length:200%_100%] animate-shimmer" />
+                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#2EC4B6]/50 to-[#8FE3CF]/50 blur-xl" />
+                    <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
+                      Dashboard
+                      <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                  </Link>
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: 'w-9 h-9',
+                      },
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Link 
+                    href="/login"
+                    className="group relative px-4 py-2 text-sm font-medium text-[#1F2A44]/60 hover:text-[#1F2A44] transition-all duration-500"
+                  >
+                    <span className="relative z-10">Log in</span>
+                    <span className="absolute bottom-1 left-1/2 w-0 h-[1px] bg-[#1F2A44]/40 group-hover:w-8 -translate-x-1/2 transition-all duration-500" />
+                  </Link>
+                  <Link 
+                    href="/signup"
+                    className="group relative px-6 py-2.5 rounded-full overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] bg-[length:200%_100%] animate-shimmer" />
+                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#F7931E]/50 to-[#FFC857]/50 blur-xl" />
+                    <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
+                      Get Started
+                      <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -353,24 +379,50 @@ export function Header() {
 
           {/* Mobile CTAs */}
           <div className="space-y-3 pt-6 border-t border-[#1F2A44]/10">
-            <Link 
-              href="/login"
-              className="block w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors text-center"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/signup"
-              className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all text-center"
-            >
-              Get Started
-            </Link>
+            {isSignedIn ? (
+              <>
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: 'w-10 h-10',
+                      },
+                    }}
+                  />
+                  <span className="text-sm text-[#1F2A44]/60">
+                    <span className="text-[#2EC4B6] font-semibold">{firstName}</span>
+                  </span>
+                </div>
+                <Link 
+                  href="/dashboard"
+                  className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] text-white font-bold hover:shadow-lg transition-all text-center"
+                >
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link 
+                  href="/login"
+                  className="block w-full py-3.5 rounded-xl border border-[#1F2A44]/20 text-[#1F2A44] font-semibold hover:bg-[#1F2A44]/5 transition-colors text-center"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  href="/signup"
+                  className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-[#F7931E] to-[#FFC857] text-white font-bold hover:shadow-lg transition-all text-center"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Header Spacer */}
-      <div className="h-24" />
+      {/* Header Spacer - not needed on home page which has full-bleed hero */}
+      {pathname !== '/' && <div className="h-24" />}
     </>
   );
 }

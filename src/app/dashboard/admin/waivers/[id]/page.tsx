@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { FileCheck, User, Baby, Phone, Shield, Calendar, Globe, Monitor } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -6,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { supabaseAdmin } from '@/lib/supabase';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 
-const ADMIN_EMAIL = 'dangzr1@gmail.com';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,7 +16,7 @@ export default async function AdminWaiverDetailPage({ params }: PageProps) {
   const { id } = await params;
   const user = await currentUser();
 
-  if (!user || user.emailAddresses[0]?.emailAddress !== ADMIN_EMAIL) {
+  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
     redirect('/dashboard');
   }
 

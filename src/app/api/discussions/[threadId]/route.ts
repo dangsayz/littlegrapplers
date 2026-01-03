@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAIL } from '@/lib/constants';
@@ -109,7 +110,7 @@ export async function DELETE(
 
     const { threadId } = await params;
     const userEmail = user.emailAddresses?.[0]?.emailAddress;
-    const isAdmin = userEmail === ADMIN_EMAIL;
+    const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
     // Fetch thread to check ownership
     const { data: thread, error: fetchError } = await supabaseAdmin

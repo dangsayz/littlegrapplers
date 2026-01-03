@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy or our data practices, please contact us at:
               </p>
               <p className="text-muted-foreground">
-                <strong>Email:</strong> sshnaydbjj@gmail.com<br />
+                <strong>Email:</strong> info@littlegrapplers.net<br />
                 <strong>Phone:</strong> +1 (469) 209-5814
               </p>
             </div>

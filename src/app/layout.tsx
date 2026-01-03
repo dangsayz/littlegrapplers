@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk, Playfair_Display } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import { SITE_CONFIG } from '@/lib/constants';
+import { SiteFrozenOverlay } from '@/components/site-frozen-overlay';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -60,10 +61,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isFrozen = process.env.SITE_FROZEN === 'true';
+  const freezeMessage = process.env.SITE_FREEZE_MESSAGE;
+
   return (
     <ClerkProvider>
       <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${playfair.variable}`}>
         <body className="min-h-screen bg-background font-sans antialiased">
+          {isFrozen && <SiteFrozenOverlay message={freezeMessage} />}
           {children}
         </body>
       </html>
