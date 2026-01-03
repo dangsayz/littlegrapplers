@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         clientName: session.customer_details.name || 'Valued Client',
         amount: (session.amount_total || 0) / 100,
         description: session.metadata?.description || 'Development Services',
-        receiptUrl: session.receipt_url || undefined,
+        receiptUrl: undefined,
       });
     }
 
