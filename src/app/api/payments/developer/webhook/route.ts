@@ -4,7 +4,14 @@ import { Resend } from 'resend';
 
 const DEV_STRIPE_SECRET = process.env.DEV_STRIPE_SECRET_KEY;
 const DEV_STRIPE_WEBHOOK_SECRET = process.env.DEV_STRIPE_WEBHOOK_SECRET;
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+let resendInstance: Resend | null = null;
+const getResend = () => {
+  if (!resendInstance) {
+    resendInstance = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendInstance;
+};
 
 const DEVELOPER_EMAIL = 'dangzr1@gmail.com';
 const DEVELOPER_NAME = 'Dang Nguyen';
@@ -81,7 +88,7 @@ async function sendReceiptEmail({
   });
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Little Grapplers Development <notifications@littlegrapplers.net>',
       to: clientEmail,
       subject: `Receipt for ${formattedAmount} - Development Services`,
@@ -191,7 +198,7 @@ async function sendDeveloperNotification({
   }).format(amount);
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Little Grapplers <notifications@littlegrapplers.net>',
       to: DEVELOPER_EMAIL,
       subject: `Payment Received: ${formattedAmount} from ${clientName}`,
