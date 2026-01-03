@@ -8,7 +8,6 @@ import {
   Users, 
   FileCheck,
   ChevronRight,
-  DollarSign,
   GraduationCap,
   Code2,
   Inbox,
@@ -74,15 +73,6 @@ export default async function AdminPage() {
       stat: stats.unreadContacts,
       statLabel: stats.unreadContacts === 1 ? 'unread' : 'unread',
       highlight: stats.unreadContacts > 0,
-    },
-    {
-      title: 'Financials',
-      description: 'Revenue overview and metrics',
-      icon: DollarSign,
-      href: '/dashboard/admin/financials',
-      color: accentColors.green,
-      stat: stats.students,
-      statLabel: 'students',
     },
     {
       title: 'Students',

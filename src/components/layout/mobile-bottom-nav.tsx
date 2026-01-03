@@ -89,31 +89,37 @@ function NavItemButton({
       aria-label={`Navigate to ${item.label}`}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-2xl transition-all duration-300',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2EC4B6] focus-visible:ring-offset-2',
+        'relative flex flex-col items-center justify-center gap-1 py-2 px-4 min-w-[60px] rounded-2xl transition-all duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2',
         isActive 
-          ? 'text-white' 
-          : 'text-[#1F2A44]/50 hover:text-[#1F2A44]/70 active:scale-95'
+          ? 'text-slate-900' 
+          : 'text-slate-400 hover:text-slate-600 active:scale-95'
       )}
     >
-      {/* Active background pill */}
+      {/* Active background - subtle and minimal */}
       <AnimatePresence mode="wait">
         {isActive && (
           <motion.div
             layoutId="activeTab"
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] rounded-2xl shadow-lg shadow-[#2EC4B6]/30"
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="absolute inset-0 bg-slate-100/80 rounded-2xl"
+            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
           />
         )}
       </AnimatePresence>
       
-      <Icon className={cn('relative z-10 h-5 w-5 transition-transform duration-300', isActive && 'scale-110')} aria-hidden="true" />
+      <Icon 
+        className={cn(
+          'relative z-10 h-[22px] w-[22px] transition-all duration-200',
+          isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'
+        )} 
+        aria-hidden="true" 
+      />
       <span className={cn(
-        'relative z-10 text-[10px] font-semibold transition-all duration-300 whitespace-nowrap',
-        isActive ? 'opacity-100' : 'opacity-70'
+        'relative z-10 text-[10px] font-medium tracking-tight transition-all duration-200 whitespace-nowrap',
+        isActive ? 'text-slate-900' : 'text-slate-400'
       )}>
         {item.label}
       </span>
@@ -192,20 +198,22 @@ export function MobileBottomNav() {
 
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-6"
       role="navigation"
       aria-label="Mobile navigation"
     >
-      {/* Bottom nav bar - flush to bottom like native apps */}
+      {/* Apple-inspired floating nav bar */}
       <motion.nav
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
         className={cn(
           'relative flex items-center justify-around',
-          'bg-white',
-          'border-t border-[#1F2A44]/10',
-          'px-2 py-1 pb-safe'
+          'bg-white/70 backdrop-blur-xl backdrop-saturate-150',
+          'border border-white/20',
+          'rounded-[28px]',
+          'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]',
+          'px-2 py-2'
         )}
       >
           
@@ -226,13 +234,13 @@ export function MobileBottomNav() {
                 <ClerkButton
                   aria-label="Sign in to your account"
                   className={cn(
-                    'relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-2xl transition-all duration-300',
-                    'text-[#1F2A44]/50 hover:text-[#1F2A44]/70 active:scale-95',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2EC4B6] focus-visible:ring-offset-2'
+                    'relative flex flex-col items-center justify-center gap-1 py-2 px-4 min-w-[60px] rounded-2xl transition-all duration-200',
+                    'text-slate-400 hover:text-slate-600 active:scale-95',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2'
                   )}
                 >
-                  <User className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-[10px] font-semibold opacity-70">Sign In</span>
+                  <User className="h-[22px] w-[22px] stroke-[1.5px]" aria-hidden="true" />
+                  <span className="text-[10px] font-medium tracking-tight text-slate-400">Sign In</span>
                 </ClerkButton>
               </SignInButton>
             </SignedOut>
@@ -245,13 +253,13 @@ export function MobileBottomNav() {
                 href="/dashboard"
                 aria-label="Go to your dashboard"
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-2xl transition-all duration-300',
-                  'text-[#1F2A44]/50 hover:text-[#1F2A44]/70 active:scale-95',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2EC4B6] focus-visible:ring-offset-2'
+                  'relative flex flex-col items-center justify-center gap-1 py-2 px-4 min-w-[60px] rounded-2xl transition-all duration-200',
+                  'text-slate-400 hover:text-slate-600 active:scale-95',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/50 focus-visible:ring-offset-2'
                 )}
               >
-                <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
-                <span className="text-[10px] font-semibold opacity-70">Portal</span>
+                <LayoutDashboard className="h-[22px] w-[22px] stroke-[1.5px]" aria-hidden="true" />
+                <span className="text-[10px] font-medium tracking-tight text-slate-400">Portal</span>
               </Link>
             </SignedIn>
           )}

@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 
 const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
   {
@@ -42,9 +43,15 @@ const navItems: Array<{ label: string; href: Route; icon: LucideIcon }> = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const userEmail = user?.emailAddresses[0]?.emailAddress;
-  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
+  const isAdmin = mounted && isLoaded && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 border-r border-border bg-card">
