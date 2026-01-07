@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import FAQContent, { faqCategories } from './faq-content';
+import FAQContent from './faq-content';
+import { faqCategories } from './faq-data';
 import { FAQJsonLd } from '@/components/seo/json-ld';
 
 export const metadata: Metadata = {
