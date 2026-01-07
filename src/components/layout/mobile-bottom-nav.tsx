@@ -8,7 +8,6 @@ import {
   MapPin,
   Info,
   Phone,
-  HelpCircle,
   User,
   Users,
   MessageSquare,
@@ -16,7 +15,6 @@ import {
   Video,
   LayoutDashboard,
   Shield,
-  ClipboardList,
   LucideIcon,
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
@@ -48,7 +46,6 @@ const publicNavItems: NavItem[] = [
   { label: 'Home', href: '/', icon: Home },
   { label: 'About', href: '/about', icon: Info },
   { label: 'Locations', href: '/locations', icon: MapPin },
-  { label: 'FAQ', href: '/faq', icon: HelpCircle },
   { label: 'Contact', href: '/contact', icon: Phone },
 ];
 
@@ -198,7 +195,7 @@ export function MobileBottomNav() {
 
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-4 pb-6"
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden px-3 pb-2 safe-area-inset-bottom"
       role="navigation"
       aria-label="Mobile navigation"
     >
@@ -213,7 +210,7 @@ export function MobileBottomNav() {
           'border border-white/20',
           'rounded-[28px]',
           'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]',
-          'px-2 py-2'
+          'px-3 py-2.5'
         )}
       >
           
