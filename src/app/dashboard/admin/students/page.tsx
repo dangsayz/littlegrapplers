@@ -155,7 +155,7 @@ export default async function AdminStudentsPage({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[800px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Child Name</TableHead>

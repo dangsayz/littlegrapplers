@@ -504,7 +504,7 @@ export default function DeveloperBillingPage() {
       </div>
 
       {/* Billing Summary - Apple Style */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">One-time</p>
           <p className="text-xl font-semibold text-gray-900">$350</p>

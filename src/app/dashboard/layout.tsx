@@ -70,7 +70,7 @@ export default async function DashboardLayout({
       <DashboardSidebar />
 
       {/* Main content area */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-64 overflow-x-hidden">
         {/* Header */}
         <DashboardHeader
           firstName={user?.firstName}
@@ -78,7 +78,7 @@ export default async function DashboardLayout({
         />
 
         {/* Page content - extra bottom padding on mobile for floating nav */}
-        <main className="p-4 lg:p-6 pb-24 lg:pb-6">{children}</main>
+        <main className="p-4 lg:p-6 pb-24 lg:pb-6 overflow-x-hidden">{children}</main>
       </div>
 
       {/* Mobile floating bottom navigation */}

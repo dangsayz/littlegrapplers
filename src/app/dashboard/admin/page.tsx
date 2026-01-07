@@ -104,7 +104,7 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto overflow-x-hidden">
       {/* Page Header - Clean Apple Style */}
       <div className="mb-10">
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
@@ -167,7 +167,7 @@ export default async function AdminPage() {
       </Link>
 
       {/* Quick Stats - Apple Card Style */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3 mb-3">
             <div className={`h-10 w-10 rounded-full ${accentColors.blue.light} flex items-center justify-center`}>

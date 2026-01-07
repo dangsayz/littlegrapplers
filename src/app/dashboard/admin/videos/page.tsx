@@ -72,7 +72,7 @@ export default async function AdminVideosPage() {
       </div>
 
       <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {videos.length === 0 ? (
             <div className="py-12 text-center">
               <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -88,7 +88,7 @@ export default async function AdminVideosPage() {
               </Button>
             </div>
           ) : (
-            <Table>
+            <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Video</TableHead>

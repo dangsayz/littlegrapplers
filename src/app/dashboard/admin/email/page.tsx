@@ -129,7 +129,7 @@ export default async function AdminEmailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-cyan-50/80 via-sky-50/60 to-blue-50/40 backdrop-blur-sm">
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 relative">

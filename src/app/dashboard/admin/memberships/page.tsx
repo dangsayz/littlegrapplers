@@ -178,7 +178,7 @@ export default async function AdminMembershipsPage({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Child Name</TableHead>

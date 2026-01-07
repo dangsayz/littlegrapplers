@@ -91,7 +91,7 @@ export default async function AdminAnnouncementsPage() {
       </div>
 
       <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {announcements.length === 0 ? (
             <div className="py-12 text-center">
               <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -107,7 +107,7 @@ export default async function AdminAnnouncementsPage() {
               </Button>
             </div>
           ) : (
-            <Table>
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Announcement</TableHead>

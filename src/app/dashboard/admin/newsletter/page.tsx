@@ -240,7 +240,7 @@ export default async function AdminNewsletterPage({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Email</TableHead>

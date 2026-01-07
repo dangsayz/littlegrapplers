@@ -125,7 +125,7 @@ export default async function AdminUsersPage({
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="pt-6 relative">
@@ -152,7 +152,7 @@ export default async function AdminUsersPage({
       {/* Filters */}
       <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardContent className="pt-6">
-          <form className="flex gap-4">
+          <form className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
@@ -182,8 +182,8 @@ export default async function AdminUsersPage({
 
       {/* Users Table */}
       <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
-        <CardContent className="p-0">
-          <Table>
+        <CardContent className="p-0 overflow-x-auto">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/50 hover:bg-slate-50">
                 <TableHead className="font-semibold text-slate-600">User</TableHead>

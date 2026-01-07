@@ -211,8 +211,8 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
 
       {/* Waivers Table */}
       <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
-        <CardContent className="p-0">
-          <Table>
+        <CardContent className="p-0 overflow-x-auto">
+          <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Parent/Guardian</TableHead>

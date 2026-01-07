@@ -16,7 +16,14 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { MapPin } from 'lucide-react';
 
 interface Location {
   id: string;
@@ -127,119 +134,126 @@ export function DiscussionsClient({ locations, isAdmin }: DiscussionsClientProps
   const pinnedThreads = threads.filter((t) => t.isPinned);
   const regularThreads = threads.filter((t) => !t.isPinned);
 
+  const currentLocation = locations.find((loc) => loc.id === activeLocation);
+
   return (
     <div className="space-y-4">
-      {/* Location Tabs */}
-      <Tabs value={activeLocation} onValueChange={setActiveLocation}>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <TabsList>
+      {/* Location Selector & New Thread Button */}
+      <div className="flex items-center justify-between gap-3">
+        <Select value={activeLocation} onValueChange={setActiveLocation}>
+          <SelectTrigger className="w-full max-w-xs">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-brand flex-shrink-0" />
+              <SelectValue placeholder="Select location" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
             {locations.map((location) => (
-              <TabsTrigger key={location.id} value={location.id}>
+              <SelectItem key={location.id} value={location.id}>
                 {location.name}
-              </TabsTrigger>
+              </SelectItem>
             ))}
-          </TabsList>
+          </SelectContent>
+        </Select>
 
-          <Button asChild>
-            <Link href={`/dashboard/discussions/new?location=${activeLocation}`}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Thread
-            </Link>
-          </Button>
-        </div>
+        <Button asChild className="flex-shrink-0">
+          <Link href={`/dashboard/discussions/new?location=${activeLocation}`}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Thread
+          </Link>
+        </Button>
+      </div>
 
-        {locations.map((location) => (
-          <TabsContent key={location.id} value={location.id} className="mt-4">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Admin Notice */}
-                {isAdmin && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
-                    <Shield className="h-4 w-4" />
-                    <span>
-                      Admin view: You can see all locations. Click the pin icon
-                      on any thread to pin/unpin it.
-                    </span>
-                  </div>
-                )}
-
-                {/* Pinned Threads */}
-                {pinnedThreads.length > 0 && (
-                  <div className="space-y-3">
-                    <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Pin className="h-4 w-4" />
-                      Pinned
-                    </h2>
-                    {pinnedThreads.map((thread) => (
-                      <ThreadCard
-                        key={thread.id}
-                        thread={thread}
-                        locationSlug={location.slug}
-                        isAdmin={isAdmin}
-                        onPinToggle={handlePinToggle}
-                        pinLoading={pinLoading === thread.id}
-                        onDelete={handleDelete}
-                        deleteLoading={deleteLoading === thread.id}
-                        showDeleteConfirm={showDeleteConfirm === thread.id}
-                        setShowDeleteConfirm={setShowDeleteConfirm}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Regular Threads */}
-                {regularThreads.length > 0 && (
-                  <div className="space-y-3">
-                    {pinnedThreads.length > 0 && (
-                      <h2 className="text-sm font-medium text-muted-foreground">
-                        Recent
-                      </h2>
-                    )}
-                    {regularThreads.map((thread) => (
-                      <ThreadCard
-                        key={thread.id}
-                        thread={thread}
-                        locationSlug={location.slug}
-                        isAdmin={isAdmin}
-                        onPinToggle={handlePinToggle}
-                        pinLoading={pinLoading === thread.id}
-                        onDelete={handleDelete}
-                        deleteLoading={deleteLoading === thread.id}
-                        showDeleteConfirm={showDeleteConfirm === thread.id}
-                        setShowDeleteConfirm={setShowDeleteConfirm}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Empty State */}
-                {threads.length === 0 && (
-                  <Card>
-                    <CardContent className="p-12 text-center">
-                      <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="font-semibold mb-2">No discussions yet</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Be the first to start a conversation in {location.name}!
-                      </p>
-                      <Button asChild>
-                        <Link
-                          href={`/dashboard/discussions/new?location=${location.id}`}
-                        >
-                          Start a Discussion
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
+      {/* Content for selected location */}
+      {currentLocation && (
+        loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Admin Notice */}
+            {isAdmin && (
+              <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                <Shield className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  Admin view: You can see all locations. Click the pin icon
+                  on any thread to pin/unpin it.
+                </span>
               </div>
             )}
-          </TabsContent>
-        ))}
-      </Tabs>
+
+            {/* Pinned Threads */}
+            {pinnedThreads.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Pin className="h-4 w-4" />
+                  Pinned
+                </h2>
+                {pinnedThreads.map((thread) => (
+                  <ThreadCard
+                    key={thread.id}
+                    thread={thread}
+                    locationSlug={currentLocation.slug}
+                    isAdmin={isAdmin}
+                    onPinToggle={handlePinToggle}
+                    pinLoading={pinLoading === thread.id}
+                    onDelete={handleDelete}
+                    deleteLoading={deleteLoading === thread.id}
+                    showDeleteConfirm={showDeleteConfirm === thread.id}
+                    setShowDeleteConfirm={setShowDeleteConfirm}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Regular Threads */}
+            {regularThreads.length > 0 && (
+              <div className="space-y-3">
+                {pinnedThreads.length > 0 && (
+                  <h2 className="text-sm font-medium text-muted-foreground">
+                    Recent
+                  </h2>
+                )}
+                {regularThreads.map((thread) => (
+                  <ThreadCard
+                    key={thread.id}
+                    thread={thread}
+                    locationSlug={currentLocation.slug}
+                    isAdmin={isAdmin}
+                    onPinToggle={handlePinToggle}
+                    pinLoading={pinLoading === thread.id}
+                    onDelete={handleDelete}
+                    deleteLoading={deleteLoading === thread.id}
+                    showDeleteConfirm={showDeleteConfirm === thread.id}
+                    setShowDeleteConfirm={setShowDeleteConfirm}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {threads.length === 0 && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">No discussions yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Be the first to start a conversation in {currentLocation.name}!
+                  </p>
+                  <Button asChild>
+                    <Link
+                      href={`/dashboard/discussions/new?location=${currentLocation.id}`}
+                    >
+                      Start a Discussion
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )
+      )}
     </div>
   );
 }
