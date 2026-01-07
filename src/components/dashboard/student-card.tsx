@@ -156,7 +156,7 @@ export function StudentCard({ student }: StudentCardProps) {
 
         {/* Actions */}
         <div className="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" className="flex-1" asChild>
+          <Button variant="outline" size="default" className="flex-1 h-11" asChild>
             <Link href={`/dashboard/students/${student.id}`}>View Profile</Link>
           </Button>
         </div>

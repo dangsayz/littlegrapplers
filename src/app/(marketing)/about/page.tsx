@@ -1,15 +1,21 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock, Award, Users, Shield, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
 
 export const metadata: Metadata = {
-  title: 'About - Coach Stephen',
+  title: 'About Coach Stephen - Youth BJJ Instructor Dallas',
   description:
-    'Meet Coach Stephen, a passionate BJJ brown belt dedicated to introducing children to Brazilian Jiu-Jitsu fundamentals.',
+    'Meet Coach Stephen, a BJJ brown belt with 10+ years experience dedicated to teaching kids Brazilian Jiu-Jitsu at daycare centers across Dallas-Fort Worth.',
+  keywords: ['Coach Stephen', 'BJJ instructor Dallas', 'kids martial arts teacher', 'youth BJJ coach'],
+  openGraph: {
+    title: 'About Coach Stephen - Little Grapplers',
+    description: 'Meet the passionate BJJ instructor behind Little Grapplers youth programs in Dallas-Fort Worth.',
+    images: ['/images/highlights/LittleGrapplers-05858.jpg'],
+  },
 };
 
 const stats = [
@@ -97,45 +103,27 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Stats Bar - Pastel cards */}
-      <section className="py-20 relative">
-        {/* Soft gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF5F7] via-white to-[#F0FAFA]" />
-        {/* Grain overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.3] mix-blend-overlay pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
+      {/* Stats Bar - Apple-inspired minimal design */}
+      <section className="py-24 relative">
+        {/* Clean white background */}
+        <div className="absolute inset-0 bg-[#FBFBFD]" />
         
         <Container className="relative z-10">
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6" staggerDelay={0.1}>
-            {stats.map((stat, i) => {
-              const colors = [
-                { bg: 'from-[#FFE5EC] to-[#FFF0F5]', accent: '#FF6B9D', border: '#FFB6C1' },
-                { bg: 'from-[#E5F4F1] to-[#F0FAFA]', accent: '#2EC4B6', border: '#98D8C8' },
-                { bg: 'from-[#FFF4E5] to-[#FFFAF0]', accent: '#F7931E', border: '#FFE4B5' },
-                { bg: 'from-[#EDE5FF] to-[#F5F0FF]', accent: '#8B5CF6', border: '#C4B5FD' },
-              ];
-              const color = colors[i % colors.length];
-              return (
-                <StaggerItem key={stat.label}>
-                  <div className={`relative p-6 rounded-3xl bg-gradient-to-br ${color.bg} border border-[${color.border}]/30 shadow-lg shadow-[${color.accent}]/5 hover:shadow-xl hover:scale-105 transition-all duration-300`}>
-                    <div className="text-center">
-                      <div className="text-4xl md:text-5xl font-display font-black" style={{ color: color.accent }}>
-                        {stat.value}
-                      </div>
-                      <div className="mt-2 text-sm uppercase tracking-widest text-[#1F2A44]/50 font-medium">
-                        {stat.label}
-                      </div>
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6" staggerDelay={0.08}>
+            {stats.map((stat) => (
+              <StaggerItem key={stat.label}>
+                <div className="group relative p-6 sm:p-8 md:p-10 rounded-2xl bg-white border border-[#1F2A44]/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-[#1F2A44]/[0.1] transition-all duration-500 ease-out active:scale-[0.98]">
+                  <div className="text-center">
+                    <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-[#1F2A44] group-hover:text-[#1F2A44] transition-colors">
+                      {stat.value}
                     </div>
-                    {/* Decorative corner dot */}
-                    <div className="absolute top-3 right-3 w-2 h-2 rounded-full" style={{ backgroundColor: color.accent, opacity: 0.5 }} />
+                    <div className="mt-2 sm:mt-3 text-[11px] sm:text-[13px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#1F2A44]/40 font-medium">
+                      {stat.label}
+                    </div>
                   </div>
-                </StaggerItem>
-              );
-            })}
+                </div>
+              </StaggerItem>
+            ))}
           </StaggerContainer>
         </Container>
       </section>
@@ -196,11 +184,11 @@ export default function AboutPage() {
                   />
                 </div>
                 {/* Floating accent badges */}
-                <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full bg-[#FFE4B5] border-4 border-white shadow-lg flex items-center justify-center">
-                  <span className="text-lg">⭐</span>
+                <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-white border border-[#1F2A44]/10 shadow-lg flex items-center justify-center">
+                  <Trophy className="h-4 w-4 text-[#1F2A44]/40" />
                 </div>
-                <div className="absolute -bottom-3 -left-3 w-10 h-10 rounded-full bg-[#98D8C8] border-4 border-white shadow-lg flex items-center justify-center">
-                  <span className="text-sm">🥋</span>
+                <div className="absolute -bottom-3 -left-3 w-9 h-9 rounded-full bg-white border border-[#1F2A44]/10 shadow-lg flex items-center justify-center">
+                  <Award className="h-4 w-4 text-[#1F2A44]/40" />
                 </div>
               </div>
             </FadeIn>
@@ -240,11 +228,10 @@ export default function AboutPage() {
                     className="object-cover"
                   />
                 </div>
-                {/* Playful floating elements */}
-                <div className="absolute -top-4 left-1/4 w-8 h-8 rounded-full bg-[#2EC4B6] shadow-lg flex items-center justify-center animate-bounce" style={{ animationDuration: '2s' }}>
-                  <span className="text-white text-xs">✨</span>
+                {/* Subtle floating accents */}
+                <div className="absolute -top-3 left-1/4 w-8 h-8 rounded-full bg-white border border-[#1F2A44]/10 shadow-lg flex items-center justify-center">
+                  <Shield className="h-3.5 w-3.5 text-[#1F2A44]/40" />
                 </div>
-                <div className="absolute -bottom-2 right-1/3 w-6 h-6 rounded-full bg-[#F7931E] shadow-lg animate-bounce" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
               </div>
             </FadeIn>
 
@@ -358,13 +345,12 @@ export default function AboutPage() {
             
             <Container className="relative z-10">
               <FadeIn direction="up" className="max-w-lg">
-                {/* Belt rank indicator - playful */}
+                {/* Belt rank indicator */}
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="h-2 w-16 rounded-full bg-gradient-to-r from-[#8B4513] to-[#A0522D]" />
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F2A44]/60">
+                  <div className="h-1.5 w-14 rounded-full bg-gradient-to-r from-[#8B4513] to-[#A0522D]" />
+                  <span className="text-xs font-medium uppercase tracking-[0.15em] text-[#1F2A44]/50">
                     Brown Belt
                   </span>
-                  <span className="text-sm">🥋</span>
                 </div>
 
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#1F2A44] leading-[0.95]">
@@ -379,14 +365,17 @@ export default function AboutPage() {
 
                 {/* Credentials - playful pastel badges */}
                 <div className="mt-10 flex flex-wrap gap-3">
-                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#E5F4F1] to-[#D4F1ED] border border-[#98D8C8]/40 text-sm text-[#1F2A44]/80 shadow-sm">
-                    ⭐ 10+ Years Training
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1F2A44]/[0.08] text-sm text-[#1F2A44]/70 shadow-sm">
+                    <Clock className="h-3.5 w-3.5 text-[#1F2A44]/50" />
+                    10+ Years Training
                   </span>
-                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFF4E5] to-[#FFEDD5] border border-[#FFE4B5]/40 text-sm text-[#1F2A44]/80 shadow-sm">
-                    🥋 BJJ Brown Belt
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1F2A44]/[0.08] text-sm text-[#1F2A44]/70 shadow-sm">
+                    <Award className="h-3.5 w-3.5 text-[#1F2A44]/50" />
+                    BJJ Brown Belt
                   </span>
-                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FFE5EC] to-[#FFD6E0] border border-[#FFB6C1]/40 text-sm text-[#1F2A44]/80 shadow-sm">
-                    💪 Youth Specialist
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#1F2A44]/[0.08] text-sm text-[#1F2A44]/70 shadow-sm">
+                    <Users className="h-3.5 w-3.5 text-[#1F2A44]/50" />
+                    Youth Specialist
                   </span>
                 </div>
               </FadeIn>

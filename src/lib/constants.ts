@@ -4,9 +4,17 @@
 
 export const SITE_CONFIG = {
   name: 'Little Grapplers',
-  description: 'Youth Brazilian Jiu-Jitsu programs at partnered daycare facilities',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.ulsurt.com',
+  description: 'Youth Brazilian Jiu-Jitsu programs building confidence and character in kids ages 3-7 at partnered daycare facilities across Dallas-Fort Worth.',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.littlegrapplers.net',
   ogImage: '/og.jpg',
+  phone: '(469) 955-0516',
+  email: 'info@littlegrapplers.net',
+  address: {
+    street: 'Dallas-Fort Worth Area',
+    city: 'Dallas',
+    state: 'TX',
+    country: 'US',
+  },
 } as const;
 
 export const NAV_LINKS = [

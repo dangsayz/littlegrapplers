@@ -263,17 +263,7 @@ export function Header() {
             <div className="hidden lg:flex items-center gap-3">
               {isSignedIn ? (
                 <>
-                  <Link 
-                    href="/dashboard"
-                    className="group relative px-6 py-2.5 rounded-full overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6] bg-[length:200%_100%] animate-shimmer" />
-                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-[#2EC4B6]/50 to-[#8FE3CF]/50 blur-xl" />
-                    <span className="relative z-10 flex items-center gap-1.5 text-sm font-bold text-white">
-                      Dashboard
-                      <ArrowUpRight className="h-4 w-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </span>
-                  </Link>
+                  <LocationDropdown />
                   <UserButton 
                     afterSignOutUrl="/"
                     appearance={{

@@ -97,10 +97,10 @@ export default function LocationsPage() {
               </div>
 
               {/* CTA with shimmer effect */}
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link 
                   href="/waiver"
-                  className="group relative inline-flex items-center gap-2 px-8 py-4 bg-[#2EC4B6] text-white font-semibold rounded-full overflow-hidden transition-all hover:shadow-lg hover:shadow-[#2EC4B6]/25"
+                  className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#2EC4B6] text-white font-semibold rounded-full overflow-hidden transition-all hover:shadow-lg hover:shadow-[#2EC4B6]/25"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   <span className="relative">Enroll Your Child</span>
@@ -108,25 +108,25 @@ export default function LocationsPage() {
                 </Link>
                 <Link 
                   href="#locations"
-                  className="inline-flex items-center gap-2 px-8 py-4 border border-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-full hover:bg-[#1F2A44]/5 transition-all"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#1F2A44]/20 text-[#1F2A44] font-semibold rounded-full hover:bg-[#1F2A44]/5 transition-all"
                 >
                   View Locations
                 </Link>
               </div>
 
               {/* Stats row */}
-              <div className="mt-12 flex gap-10">
+              <div className="mt-12 grid grid-cols-3 gap-4 sm:gap-10">
                 <div>
-                  <div className="text-3xl font-bold text-[#1F2A44]">100+</div>
-                  <div className="text-sm text-[#1F2A44]/50">Active Students</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-[#1F2A44]">100+</div>
+                  <div className="text-xs sm:text-sm text-[#1F2A44]/50">Active Students</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-[#1F2A44]">4.9</div>
-                  <div className="text-sm text-[#1F2A44]/50">Parent Rating</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-[#1F2A44]">4.9</div>
+                  <div className="text-xs sm:text-sm text-[#1F2A44]/50">Parent Rating</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-[#1F2A44]">3</div>
-                  <div className="text-sm text-[#1F2A44]/50">DFW Locations</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-[#1F2A44]">3</div>
+                  <div className="text-xs sm:text-sm text-[#1F2A44]/50">DFW Locations</div>
                 </div>
               </div>
             </FadeIn>
@@ -331,10 +331,10 @@ export default function LocationsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-[#1F2A44]/10 flex gap-3">
+                    <div className="mt-6 pt-6 border-t border-[#1F2A44]/10 flex gap-2 sm:gap-3">
                       <Link 
                         href="/waiver"
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-3 rounded-xl font-medium text-sm transition-all active:scale-[0.98]"
                         style={{ backgroundColor: location.color, color: location.color === '#FFC857' ? '#1F2A44' : 'white' }}
                       >
                         Enroll
@@ -342,7 +342,7 @@ export default function LocationsPage() {
                       </Link>
                       <Link 
                         href={`/community/${location.slug}`}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1F2A44]/5 hover:bg-[#1F2A44]/10 text-[#1F2A44] rounded-lg font-medium text-sm transition-all"
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-3 bg-[#1F2A44]/5 hover:bg-[#1F2A44]/10 text-[#1F2A44] rounded-xl font-medium text-sm transition-all active:scale-[0.98]"
                       >
                         Community
                       </Link>

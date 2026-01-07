@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Video, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Video, Save, Loader2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -19,10 +20,16 @@ import {
 } from '@/components/ui/select';
 import { VIDEO_CATEGORIES } from '@/lib/constants';
 
+interface Location {
+  id: string;
+  name: string;
+}
+
 export default function NewVideoPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locations, setLocations] = useState<Location[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -32,7 +39,25 @@ export default function NewVideoPage() {
     duration: '',
     category: 'Fundamentals',
     isPublic: false,
+    allLocations: true,
+    locationIds: [] as string[],
   });
+
+  // Fetch locations
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await fetch('/api/locations/list');
+        if (res.ok) {
+          const data = await res.json();
+          setLocations(data.locations || []);
+        }
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,6 +208,67 @@ export default function NewVideoPage() {
                   checked={formData.isPublic}
                   onCheckedChange={(checked: boolean) => setFormData({ ...formData, isPublic: checked })}
                 />
+              </div>
+
+              {/* Location Selection */}
+              <div className="p-4 border rounded-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="font-medium flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Share to Locations
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Choose which locations can see this video
+                    </p>
+                  </div>
+                  <Switch
+                    id="allLocations"
+                    checked={formData.allLocations}
+                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, allLocations: checked, locationIds: [] })}
+                  />
+                </div>
+                
+                {formData.allLocations ? (
+                  <p className="text-sm text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg">
+                    Video will be visible to all locations
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500">Select specific locations:</p>
+                    <div className="grid gap-2">
+                      {locations.map((location) => (
+                        <label
+                          key={location.id}
+                          className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                          <Checkbox
+                            checked={formData.locationIds.includes(location.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  locationIds: [...formData.locationIds, location.id],
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  locationIds: formData.locationIds.filter((id) => id !== location.id),
+                                });
+                              }
+                            }}
+                          />
+                          <span className="text-sm font-medium">{location.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {formData.locationIds.length === 0 && (
+                      <p className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+                        Select at least one location
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -16,6 +16,7 @@ import {
   Shield,
   Bell,
   ClipboardList,
+  Video,
   LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -106,10 +107,22 @@ export function DashboardSidebar() {
               Notifications
             </Link>
             <Link
+              href={'/dashboard/admin/media' as Route}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                pathname.startsWith('/dashboard/admin/media')
+                  ? 'bg-brand/10 text-brand'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <Video className="h-5 w-5" />
+              Video + Images
+            </Link>
+            <Link
               href={'/dashboard/admin' as Route}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                pathname.startsWith('/dashboard/admin')
+                pathname === '/dashboard/admin' || (pathname.startsWith('/dashboard/admin') && !pathname.startsWith('/dashboard/admin/videos'))
                   ? 'bg-brand/10 text-brand'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}

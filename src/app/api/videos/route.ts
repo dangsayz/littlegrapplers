@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, videoUrl, thumbnailUrl, duration, category, isPublic, programIds } = body;
+    const { title, description, videoUrl, thumbnailUrl, duration, category, isPublic, programIds, allLocations, locationIds } = body;
 
     if (!title || !videoUrl || !category) {
       return NextResponse.json(
@@ -99,6 +99,26 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Store location assignments in Supabase
+    const { supabaseAdmin } = await import('@/lib/supabase');
+    
+    if (!allLocations && locationIds?.length) {
+      await supabaseAdmin.from('video_locations').insert(
+        locationIds.map((locationId: string) => ({
+          video_id: video.id,
+          location_id: locationId,
+          all_locations: false,
+        }))
+      );
+    } else {
+      // Mark as all locations
+      await supabaseAdmin.from('video_locations').insert({
+        video_id: video.id,
+        location_id: null,
+        all_locations: true,
+      });
+    }
 
     return NextResponse.json({ video }, { status: 201 });
   } catch (error) {

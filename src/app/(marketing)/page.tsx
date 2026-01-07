@@ -3,10 +3,153 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield, Sparkles, Award } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem, HeroText, FadeInCTA } from '@/components/ui/motion';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView } from 'framer-motion';
+
+// World-class Belt Journey Visual - Premium Design
+const beltJourney = [
+  { name: 'White', color: '#F8FAFC', accent: '#E2E8F0', glow: 'shadow-slate-200/50', description: 'The Beginning' },
+  { name: 'Grey', color: '#64748B', accent: '#94A3B8', glow: 'shadow-slate-400/40', description: 'Foundation' },
+  { name: 'Yellow', color: '#FACC15', accent: '#FDE047', glow: 'shadow-yellow-400/50', description: 'Growth' },
+  { name: 'Orange', color: '#F97316', accent: '#FB923C', glow: 'shadow-orange-400/50', description: 'Strength' },
+  { name: 'Green', color: '#22C55E', accent: '#4ADE80', glow: 'shadow-green-400/50', description: 'Mastery' },
+];
+
+function BeltJourneyVisual() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: '-80px' });
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Animated connecting line */}
+      <div className="absolute left-[27px] top-8 bottom-8 w-[2px] bg-gradient-to-b from-slate-200 via-slate-200 to-transparent overflow-hidden">
+        <motion.div
+          className="absolute inset-x-0 top-0 bg-gradient-to-b from-yellow-400 via-orange-400 to-green-400"
+          initial={{ height: '0%' }}
+          animate={isInView ? { height: '100%' } : { height: '0%' }}
+          transition={{ duration: 1.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </div>
+
+      <div className="space-y-3">
+        {beltJourney.map((belt, index) => (
+          <motion.div
+            key={belt.name}
+            initial={{ opacity: 0, x: 40, rotateY: -15 }}
+            animate={isInView ? { opacity: 1, x: 0, rotateY: 0 } : { opacity: 0, x: 40, rotateY: -15 }}
+            transition={{
+              duration: 0.7,
+              delay: index * 0.12,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            onHoverStart={() => setHoveredIndex(index)}
+            onHoverEnd={() => setHoveredIndex(null)}
+            className="relative"
+          >
+            <motion.div
+              className={`relative flex items-center gap-4 p-3.5 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 cursor-default transition-colors duration-300 ${hoveredIndex === index ? 'bg-white border-slate-200/80' : ''}`}
+              animate={{
+                scale: hoveredIndex === index ? 1.02 : 1,
+                y: hoveredIndex === index ? -2 : 0,
+              }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                boxShadow: hoveredIndex === index 
+                  ? `0 20px 40px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.03)`
+                  : `0 1px 3px rgba(0,0,0,0.04)`,
+              }}
+            >
+              {/* Belt medallion */}
+              <div className="relative">
+                <motion.div
+                  className={`relative h-11 w-11 rounded-xl flex items-center justify-center ${belt.glow}`}
+                  style={{ 
+                    background: `linear-gradient(135deg, ${belt.color} 0%, ${belt.accent} 100%)`,
+                    boxShadow: hoveredIndex === index ? `0 8px 24px -4px ${belt.color}60` : 'none',
+                  }}
+                  animate={{
+                    scale: hoveredIndex === index ? 1.1 : 1,
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* Inner shine */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/40 via-transparent to-transparent" />
+                  
+                  {/* Animated ring on hover */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2"
+                    style={{ borderColor: belt.accent }}
+                    initial={{ opacity: 0, scale: 1.2 }}
+                    animate={hoveredIndex === index ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.2 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  
+                  {/* Rank number */}
+                  <span className={`relative text-sm font-bold ${belt.name === 'White' || belt.name === 'Yellow' ? 'text-slate-700' : 'text-white'}`}>
+                    {index + 1}
+                  </span>
+                </motion.div>
+                
+                {/* Pulse ring animation */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl"
+                  style={{ background: belt.color }}
+                  initial={{ opacity: 0, scale: 1 }}
+                  animate={isInView ? {
+                    opacity: [0, 0.4, 0],
+                    scale: [1, 1.4, 1.4],
+                  } : {}}
+                  transition={{
+                    duration: 1,
+                    delay: 0.8 + index * 0.15,
+                    ease: 'easeOut',
+                  }}
+                />
+              </div>
+
+              {/* Belt info */}
+              <div className="flex-1 min-w-0">
+                <motion.div
+                  className="text-[15px] font-semibold text-slate-800 tracking-tight"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                  transition={{ duration: 0.5, delay: 0.3 + index * 0.12 }}
+                >
+                  {belt.name}
+                </motion.div>
+                <motion.div
+                  className="text-[11px] text-slate-400 font-medium uppercase tracking-wider"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + index * 0.12 }}
+                >
+                  {belt.description}
+                </motion.div>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="flex items-center gap-1">
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: belt.color === '#F8FAFC' ? '#CBD5E1' : belt.color }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={isInView ? { opacity: 0.4 + (i * 0.15), scale: 1 } : { opacity: 0, scale: 0 }}
+                    transition={{ duration: 0.3, delay: 0.7 + index * 0.12 + i * 0.05 }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -295,61 +438,74 @@ export default function HomePage() {
         
         <Container className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Mission card - Glass Style */}
+            {/* Progression card - Glass Style */}
             <FadeIn direction="up" className="lg:col-span-7">
               <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden">
                 {/* Dark glass header background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-emerald-500/10" />
-                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-transparent to-green-500/10" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-transparent rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-green-400/20 to-transparent rounded-full blur-3xl" />
                 
                 <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-10">
                   <div>
                     <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-xs font-semibold uppercase tracking-wider mb-6">
-                      Our Mission
+                      Structured Growth
                     </span>
                     <h2 className="text-4xl md:text-5xl font-bold leading-[1.1] text-white">
-                      Empower
+                      Clear goals.
                       <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
-                        your kids.
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-green-400">
+                        Real progress.
                       </span>
                     </h2>
                   </div>
                   
-                  <p className="text-lg text-slate-300 max-w-md leading-relaxed">
-                    We provide a safe, nurturing environment at partner daycare centers through a one-of-a-kind Brazilian Jiu-Jitsu program.
-                  </p>
+                  <div className="space-y-4">
+                    <p className="text-lg text-slate-300 max-w-md leading-relaxed">
+                      Every belt earned is a milestone celebrated. Kids develop discipline through a proven system that rewards effort and commitment.
+                    </p>
+                    <div className="flex items-center gap-4 sm:gap-6 pt-2">
+                      <div className="text-center">
+                        <div className="text-xl sm:text-2xl font-bold text-white">5</div>
+                        <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Belt Ranks</div>
+                      </div>
+                      <div className="w-px h-6 sm:h-8 bg-white/20" />
+                      <div className="text-center">
+                        <div className="text-xl sm:text-2xl font-bold text-white">4</div>
+                        <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Stripes Each</div>
+                      </div>
+                      <div className="w-px h-6 sm:h-8 bg-white/20" />
+                      <div className="text-center">
+                        <div className="text-xl sm:text-2xl font-bold text-green-400">1</div>
+                        <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider">Journey</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </FadeIn>
 
-            {/* Video card - Glass Style */}
+            {/* Belt Progression - Interactive Visual */}
             <FadeIn direction="up" delay={0.1} className="lg:col-span-5">
-              <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
-                <Image
-                  src="/images/highlights/LittleGrapplers-05971.jpg"
-                  alt="Training session"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent" />
+              <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden bg-[#FBFBFD] border border-slate-200/60">
+                <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50/50 to-white" />
                 
-                {/* Play button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.div 
-                    className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-lg"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  >
-                    <Play className="h-6 w-6 text-slate-800 ml-1" fill="currentColor" />
-                  </motion.div>
-                </div>
-                
-                <div className="absolute bottom-6 left-6 right-6">
-                  <span className="text-slate-300 text-sm">Watch our story</span>
-                  <h3 className="text-xl font-bold text-white mt-1">See the Transformation</h3>
+                <div className="relative z-10 h-full flex flex-col p-6 md:p-8">
+                  <div className="mb-6">
+                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                      <Award className="h-3 w-3" />
+                      Belt Progression
+                    </span>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col justify-center">
+                    <BeltJourneyVisual />
+                  </div>
+                  
+                  <div className="mt-6 pt-6 border-t border-slate-200/60">
+                    <p className="text-sm text-slate-500">IBJJF youth belt system</p>
+                  </div>
                 </div>
               </div>
             </FadeIn>

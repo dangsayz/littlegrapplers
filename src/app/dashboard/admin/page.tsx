@@ -9,8 +9,9 @@ import {
   FileCheck,
   ChevronRight,
   GraduationCap,
-  Code2,
+  Receipt,
   Inbox,
+  AlertCircle,
 } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 
@@ -51,16 +52,6 @@ export default async function AdminPage() {
     subscribers: newsletterRes.count || 0,
   };
 
-  // Dev Work Log - separate billing section
-  const devSection = {
-    title: 'Dev Work Log',
-    description: 'Development & billing',
-    icon: Code2,
-    href: '/dashboard/admin/developer',
-    color: accentColors.indigo,
-    stat: null,
-    statLabel: 'View history',
-  };
 
   // Essential admin sections
   const adminSections = [
@@ -124,46 +115,56 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* Dev Work Log - Urgent glass card with pulse */}
-      <div className="relative mb-6 group">
-        {/* Animated gradient border */}
-        <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-slate-300 via-amber-200 to-slate-300 opacity-60 blur-[1px] group-hover:opacity-80 transition-opacity animate-pulse" />
-        
-        {/* Glass card */}
-        <div className="relative rounded-2xl bg-gradient-to-br from-white/90 via-slate-50/80 to-white/90 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] overflow-hidden">
-          {/* Subtle shine effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent pointer-events-none" />
+      {/* INVOICE - Payment Due Card */}
+      <Link
+        href={'/dashboard/admin/developer' as Route}
+        className="block mb-8 group"
+      >
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-green-500 to-lime-500 p-6 shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all duration-300">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+          </div>
           
-          <Link
-            href={devSection.href as Route}
-            className="relative flex items-center gap-4 p-5 hover:bg-white/40 transition-all duration-300"
-          >
-            {/* Icon with glow */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-400/20 rounded-xl blur-lg animate-pulse" />
-              <div className="relative h-12 w-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shadow-lg">
-                <devSection.icon className="h-5 w-5 text-amber-300" />
+          {/* Content */}
+          <div className="relative">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                  <Receipt className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-white/80">Invoice</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-white text-green-600 animate-pulse">
+                      <AlertCircle className="h-3 w-3" />
+                      Payment Due
+                    </span>
+                  </div>
+                  <p className="text-white/70 text-sm mt-0.5">Development services</p>
+                </div>
               </div>
+              <ChevronRight className="h-6 w-6 text-white/60 group-hover:translate-x-1 transition-transform" />
             </div>
             
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-gray-900">{devSection.title}</h3>
-                {/* Urgent indicator */}
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 border border-amber-200/50">
-                  Review
+            {/* Amount */}
+            <div className="flex items-end justify-between mt-6 pt-4 border-t border-white/20">
+              <div>
+                <p className="text-white/60 text-sm mb-1">Amount Due</p>
+                <p className="text-4xl font-bold text-white tracking-tight">$350</p>
+              </div>
+              <div className="text-right">
+                <p className="text-white/60 text-xs mb-2">4 completed tasks</p>
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-green-600 font-semibold text-sm group-hover:bg-white/90 transition-colors">
+                  View & Pay
                 </span>
               </div>
-              <p className="text-sm text-slate-500 truncate">{devSection.description}</p>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-400">{devSection.statLabel}</span>
-              <ChevronRight className="h-5 w-5 text-slate-300 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Quick Stats - Apple Card Style */}
       <div className="grid grid-cols-3 gap-4 mb-10">

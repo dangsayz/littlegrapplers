@@ -1,3 +1,5 @@
+'use client';
+
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,12 +7,14 @@ import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 
-export const metadata: Metadata = {
-  title: 'Programs',
-  description:
-    'Age-appropriate Brazilian Jiu-Jitsu programs for children ages 3-12, designed to build confidence, discipline, and physical fitness.',
-};
+// export const metadata: Metadata = {
+//   title: 'Programs',
+//   description:
+//     'Age-appropriate Brazilian Jiu-Jitsu programs for children ages 3-12, designed to build confidence, discipline, and physical fitness.',
+// };
 
 const programs = [
   {
@@ -86,6 +90,116 @@ const curriculum = [
     description: 'Discipline, respect, perseverance, and sportsmanship woven into every class.',
   },
 ];
+
+const belts = [
+  { name: 'White Belt', gradient: 'from-gray-50 to-white', border: 'border-gray-200', stripes: '0-4 stripes', shadow: 'shadow-gray-200/50' },
+  { name: 'Grey Belt', gradient: 'from-gray-400 to-gray-500', border: 'border-gray-400', stripes: '0-4 stripes per stage', shadow: 'shadow-gray-400/30' },
+  { name: 'Yellow Belt', gradient: 'from-yellow-300 to-yellow-400', border: 'border-yellow-400', stripes: '0-4 stripes per stage', shadow: 'shadow-yellow-400/30' },
+  { name: 'Orange Belt', gradient: 'from-orange-400 to-orange-500', border: 'border-orange-500', stripes: '0-4 stripes per stage', shadow: 'shadow-orange-400/30' },
+  { name: 'Green Belt', gradient: 'from-green-400 to-green-500', border: 'border-green-500', stripes: '0-4 stripes per stage', shadow: 'shadow-green-400/30' },
+];
+
+function BeltSystemVisual() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: '-100px' });
+
+  return (
+    <div ref={containerRef} className="space-y-3">
+      {belts.map((belt, index) => (
+        <motion.div
+          key={belt.name}
+          initial={{ opacity: 0, x: 40 }}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
+          transition={{
+            duration: 0.6,
+            delay: index * 0.12,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          <motion.div
+            className={`group relative flex items-center gap-3 sm:gap-5 p-4 sm:p-5 rounded-2xl bg-white border border-[#1F2A44]/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-[#1F2A44]/[0.1] transition-all duration-500 ease-out cursor-default active:scale-[0.98]`}
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Belt visual */}
+            <div className="relative h-6 sm:h-7 w-16 sm:w-20 rounded-md overflow-hidden">
+              {/* Background track */}
+              <div className={`absolute inset-0 bg-gradient-to-r ${belt.gradient} opacity-20`} />
+              
+              {/* Animated fill */}
+              <motion.div
+                className={`absolute inset-0 bg-gradient-to-r ${belt.gradient} rounded-md ${belt.shadow} shadow-lg`}
+                initial={{ scaleX: 0 }}
+                animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.3 + index * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                style={{ transformOrigin: 'left' }}
+              />
+              
+              {/* Stripe indicators */}
+              <div className="absolute inset-y-0 right-1 flex items-center gap-[2px]">
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-[2px] h-3 bg-white/60 rounded-full"
+                    initial={{ opacity: 0, scaleY: 0 }}
+                    animate={isInView ? { opacity: 1, scaleY: 1 } : { opacity: 0, scaleY: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: 0.6 + index * 0.12 + i * 0.05,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Belt info */}
+            <div className="flex-1">
+              <motion.div
+                className="text-[15px] font-semibold text-[#1F2A44] tracking-tight"
+                initial={{ opacity: 0, y: 8 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.4 + index * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+              >
+                {belt.name}
+              </motion.div>
+              <motion.div
+                className="text-[13px] text-[#1F2A44]/40 mt-0.5"
+                initial={{ opacity: 0, y: 8 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.45 + index * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+              >
+                {belt.stripes}
+              </motion.div>
+            </div>
+
+            {/* Subtle progress indicator */}
+            <motion.div
+              className="text-xs font-medium text-[#1F2A44]/20 tabular-nums"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 + index * 0.12 }}
+            >
+              {String(index + 1).padStart(2, '0')}
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export default function ProgramsPage() {
   return (
@@ -266,27 +380,7 @@ export default function ProgramsPage() {
               </div>
             </FadeIn>
 
-            <FadeIn direction="up" delay={0.2}>
-              <StaggerContainer className="space-y-4" staggerDelay={0.1}>
-                {[
-                  { name: 'White Belt', color: 'bg-white', stripes: '0-4 stripes' },
-                  { name: 'Grey Belt', color: 'bg-gray-400', stripes: '0-4 stripes per stage' },
-                  { name: 'Yellow Belt', color: 'bg-yellow-400', stripes: '0-4 stripes per stage' },
-                  { name: 'Orange Belt', color: 'bg-orange-500', stripes: '0-4 stripes per stage' },
-                  { name: 'Green Belt', color: 'bg-green-500', stripes: '0-4 stripes per stage' },
-                ].map((belt) => (
-                  <StaggerItem key={belt.name}>
-                    <div className="flex items-center gap-4 rounded-lg border border-[#1F2A44]/10 bg-white shadow-sm p-4">
-                      <div className={`h-6 w-16 rounded ${belt.color}`} />
-                      <div>
-                        <div className="font-medium text-[#1F2A44]">{belt.name}</div>
-                        <div className="text-sm text-[#1F2A44]/50">{belt.stripes}</div>
-                      </div>
-                    </div>
-                  </StaggerItem>
-                ))}
-              </StaggerContainer>
-            </FadeIn>
+            <BeltSystemVisual />
           </div>
         </Container>
       </section>
