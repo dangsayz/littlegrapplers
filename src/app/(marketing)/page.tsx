@@ -753,7 +753,7 @@ export default function HomePage() {
                   transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
                   {/* Animated gradient border */}
-                  <div className="absolute -inset-[1px] rounded-[2rem] bg-gradient-to-r from-[#2EC4B6] via-[#F7931E] to-[#2EC4B6] bg-[length:200%_auto] animate-[gradient_4s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -inset-[1px] rounded-[2rem] bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6] bg-[length:200%_auto] animate-[gradient_4s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   <div className="absolute inset-[1px] rounded-[2rem] bg-[#0D1424] overflow-hidden">
                     <Image
