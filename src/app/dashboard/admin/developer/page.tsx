@@ -89,9 +89,10 @@ const platformModules = [
   { name: 'Infrastructure', detail: 'Vercel, Supabase, CI/CD', value: 2700 },
 ];
 
-function ValuationDialogContent() {
+function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
   const [activeTab, setActiveTab] = useState<'summary' | 'breakdown'>('summary');
   const totalValue = platformModules.reduce((sum, m) => sum + m.value, 0);
+  const saved = totalValue - totalPaid;
 
   return (
     <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-2xl shadow-black/10 rounded-3xl overflow-hidden [&>button]:hidden">
@@ -125,7 +126,7 @@ function ValuationDialogContent() {
           <div className="pt-6 pb-4 px-8 text-center">
             <DialogHeader>
               <DialogTitle className="text-[28px] font-semibold text-[#1F2A44] tracking-tight">
-                $99,650 saved
+                ${saved.toLocaleString()} saved
               </DialogTitle>
             </DialogHeader>
             <p className="text-[14px] text-[#1F2A44]/50 mt-1">vs. traditional agency pricing</p>
@@ -139,7 +140,7 @@ function ValuationDialogContent() {
               </div>
               <div className="w-px h-12 bg-[#1F2A44]/10" />
               <div className="flex-1">
-                <p className="text-[32px] font-semibold text-[#1F2A44]">$350</p>
+                <p className="text-[32px] font-semibold text-[#1F2A44]">${totalPaid.toLocaleString()}</p>
                 <p className="text-[13px] text-[#2EC4B6] mt-1">You paid</p>
               </div>
             </div>
@@ -1235,12 +1236,12 @@ function DeveloperBillingContent() {
             <button className="w-full group">
               <div className="flex items-center justify-center gap-2 py-3 text-sm">
                 <span className="text-gray-400">Platform value saved:</span>
-                <span className="font-medium text-emerald-600">$99,650</span>
+                <span className="font-medium text-emerald-600">${(platformModules.reduce((sum, m) => sum + m.value, 0) - historyTotals.all).toLocaleString()}</span>
                 <ChevronDown className="h-4 w-4 text-gray-300 group-hover:text-gray-400" />
               </div>
             </button>
           </DialogTrigger>
-          <ValuationDialogContent />
+          <ValuationDialogContent totalPaid={historyTotals.all} />
         </Dialog>
       </div>
 
