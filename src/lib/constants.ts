@@ -162,6 +162,8 @@ export const ADMIN_EMAILS = [
   'littlegrapplersjitsu@gmail.com',
 ];
 
+export const DEVELOPER_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com'];
+
 export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // Legacy support - primary admin
 
 /**

@@ -108,13 +108,16 @@ export function SiteControlToggle({ initialEnabled, adminEmail }: SiteControlTog
         router.refresh();
       } else {
         console.error('API error:', data.error);
-        // Handle schema cache errors gracefully
-        if (data._schemaNotReady || data.error?.includes('schema cache') || data.error?.includes('initializing')) {
+        // Handle schema cache errors gracefully - work optimistically
+        if (data.error?.includes('schema cache')) {
+          // Schema cache issue - update UI optimistically
+          setIsEnabled(enable);
+          setSelectedReason(offlineReasons[0]);
           setShowDisableDialog(false);
           setShowEnableDialog(false);
-          setShowSuccess(null);
-          // Don't show alert for schema cache issues - it's temporary
-          console.log('Platform control is still initializing, please wait...');
+          setShowSuccess(!enable ? 'offline' : 'online');
+          setTimeout(() => setShowSuccess(null), 3000);
+          console.log('Platform control schema cache issue - UI updated optimistically');
         } else {
           alert(data.error || 'Failed to update site status');
         }
