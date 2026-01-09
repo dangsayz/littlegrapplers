@@ -56,16 +56,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, priority, category } = body;
+    const { title, description, priority, category, quoted_cost, status } = body;
 
     // Validate required fields
-    if (!title?.trim() || !description?.trim()) {
-      return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
+    if (!title?.trim()) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
     // Validate enums
     const validPriorities = ['low', 'normal', 'high', 'urgent'];
     const validCategories = ['feature', 'bugfix', 'enhancement', 'maintenance'];
+    const validStatuses = ['requested', 'quoted', 'approved', 'in_progress', 'completed', 'cancelled'];
     
     if (priority && !validPriorities.includes(priority)) {
       return NextResponse.json({ error: 'Invalid priority' }, { status: 400 });
@@ -73,16 +74,23 @@ export async function POST(request: NextRequest) {
     if (category && !validCategories.includes(category)) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
+    
+    // Only developers can set cost and status directly
+    const isDev = isDeveloper(userEmail);
+    const finalStatus = isDev && status && validStatuses.includes(status) ? status : 'requested';
+    const finalCost = isDev && quoted_cost ? quoted_cost : null;
 
     const { data: workOrder, error } = await supabaseAdmin
       .from('work_orders')
       .insert({
         title: title.trim(),
-        description: description.trim(),
+        description: (description || title).trim(),
         priority: priority || 'normal',
         category: category || 'feature',
         requested_by: userEmail,
-        status: 'requested',
+        status: finalStatus,
+        quoted_cost: finalCost,
+        ...(finalStatus === 'completed' && { completed_at: new Date().toISOString() }),
       })
       .select()
       .single();

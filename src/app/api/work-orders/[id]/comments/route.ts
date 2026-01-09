@@ -70,3 +70,118 @@ export async function POST(
     return NextResponse.json({ error: 'Failed to create comment' }, { status: 500 });
   }
 }
+
+// PATCH: Update a comment
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    if (!isAuthorized(userEmail)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { commentId, content } = body;
+
+    // Validate
+    if (!commentId || !content?.trim()) {
+      return NextResponse.json({ error: 'Comment ID and content are required' }, { status: 400 });
+    }
+
+    // Verify the comment exists and belongs to this user (or user is dev)
+    const { data: existingComment, error: fetchError } = await supabaseAdmin
+      .from('work_order_comments')
+      .select('*')
+      .eq('id', commentId)
+      .eq('work_order_id', id)
+      .single();
+
+    if (fetchError || !existingComment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+    }
+
+    // Only allow editing own comments (or devs can edit any)
+    const isDev = DEV_EMAILS.includes(userEmail || '');
+    if (existingComment.author_email !== userEmail && !isDev) {
+      return NextResponse.json({ error: 'Cannot edit others comments' }, { status: 403 });
+    }
+
+    const { data: comment, error } = await supabaseAdmin
+      .from('work_order_comments')
+      .update({ content: content.trim() })
+      .eq('id', commentId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ comment });
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    return NextResponse.json({ error: 'Failed to update comment' }, { status: 500 });
+  }
+}
+
+// DELETE: Delete a comment
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    if (!isAuthorized(userEmail)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const commentId = searchParams.get('commentId');
+
+    if (!commentId) {
+      return NextResponse.json({ error: 'Comment ID is required' }, { status: 400 });
+    }
+
+    // Verify the comment exists
+    const { data: existingComment, error: fetchError } = await supabaseAdmin
+      .from('work_order_comments')
+      .select('*')
+      .eq('id', commentId)
+      .eq('work_order_id', id)
+      .single();
+
+    if (fetchError || !existingComment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+    }
+
+    // Only allow deleting own comments (or devs can delete any)
+    const isDev = DEV_EMAILS.includes(userEmail || '');
+    if (existingComment.author_email !== userEmail && !isDev) {
+      return NextResponse.json({ error: 'Cannot delete others comments' }, { status: 403 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('work_order_comments')
+      .delete()
+      .eq('id', commentId);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    return NextResponse.json({ error: 'Failed to delete comment' }, { status: 500 });
+  }
+}

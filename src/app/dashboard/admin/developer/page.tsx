@@ -210,6 +210,8 @@ function DeveloperBillingContent() {
     description: '',
     priority: 'normal' as WorkOrder['priority'],
     category: 'feature' as WorkOrder['category'],
+    quoted_cost: '',
+    markCompleted: true,
   });
   
   // Quote form state (developer only)
@@ -218,6 +220,19 @@ function DeveloperBillingContent() {
     quoted_hours: '',
     developer_notes: '',
   });
+  
+  // Edit mode state
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    quoted_cost: '',
+    status: '' as WorkOrder['status'],
+  });
+  
+  // Comment edit state
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState('');
 
   // Payment state
   const [processingPayment, setProcessingPayment] = useState(false);
@@ -329,18 +344,31 @@ function DeveloperBillingContent() {
 
   // Submit new work order request
   const handleSubmitRequest = async () => {
-    if (!requestForm.title.trim() || !requestForm.description.trim()) return;
+    if (!requestForm.title.trim()) return;
+    if (isDev && !requestForm.quoted_cost) return;
     
     setIsSubmitting(true);
     try {
+      const payload = {
+        title: requestForm.title,
+        description: requestForm.description || requestForm.title,
+        priority: requestForm.priority,
+        category: requestForm.category,
+        // Developer can set cost and status directly
+        ...(isDev && {
+          quoted_cost: parseFloat(requestForm.quoted_cost) || 0,
+          status: requestForm.markCompleted ? 'completed' : 'quoted',
+        }),
+      };
+      
       const res = await fetch('/api/work-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestForm),
+        body: JSON.stringify(payload),
       });
       
       if (res.ok) {
-        setRequestForm({ title: '', description: '', priority: 'normal', category: 'feature' });
+        setRequestForm({ title: '', description: '', priority: 'normal', category: 'feature', quoted_cost: '', markCompleted: true });
         setShowRequestForm(false);
         fetchWorkOrders();
       }
@@ -424,6 +452,44 @@ function DeveloperBillingContent() {
     }
   };
 
+  // Edit comment
+  const handleEditComment = async (workOrderId: string, commentId: string) => {
+    if (!editCommentContent.trim()) return;
+    
+    try {
+      const res = await fetch(`/api/work-orders/${workOrderId}/comments`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commentId, content: editCommentContent }),
+      });
+      
+      if (res.ok) {
+        setEditingCommentId(null);
+        setEditCommentContent('');
+        fetchComments(workOrderId);
+      }
+    } catch (error) {
+      console.error('Error editing comment:', error);
+    }
+  };
+
+  // Delete comment
+  const handleDeleteComment = async (workOrderId: string, commentId: string) => {
+    if (!confirm('Delete this comment?')) return;
+    
+    try {
+      const res = await fetch(`/api/work-orders/${workOrderId}/comments?commentId=${commentId}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        fetchComments(workOrderId);
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
+
   // Delete work order (developer only)
   const handleDeleteOrder = async (orderId: string) => {
     if (!confirm('Delete this work order?')) return;
@@ -436,6 +502,43 @@ function DeveloperBillingContent() {
       }
     } catch (error) {
       console.error('Error deleting order:', error);
+    }
+  };
+
+  // Start editing a work order
+  const handleStartEdit = (order: WorkOrder) => {
+    setEditingOrderId(order.id);
+    setEditForm({
+      title: order.title,
+      description: order.description,
+      quoted_cost: order.quoted_cost?.toString() || '',
+      status: order.status,
+    });
+  };
+
+  // Save edited work order
+  const handleSaveEdit = async (orderId: string) => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/work-orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editForm.title,
+          description: editForm.description,
+          quoted_cost: parseFloat(editForm.quoted_cost) || null,
+          status: editForm.status,
+        }),
+      });
+      
+      if (res.ok) {
+        setEditingOrderId(null);
+        fetchWorkOrders();
+      }
+    } catch (error) {
+      console.error('Error saving edit:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -623,19 +726,6 @@ function DeveloperBillingContent() {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                <select
-                  value={requestForm.priority}
-                  onChange={(e) => setRequestForm({ ...requestForm, priority: e.target.value as WorkOrder['priority'] })}
-                  className="w-full h-10 px-3 rounded-xl border border-gray-200 text-sm"
-                >
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <select
                   value={requestForm.category}
@@ -648,7 +738,34 @@ function DeveloperBillingContent() {
                   <option value="maintenance">Maintenance</option>
                 </select>
               </div>
+              {isDev && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount ($) *</label>
+                  <Input
+                    type="number"
+                    value={requestForm.quoted_cost}
+                    onChange={(e) => setRequestForm({ ...requestForm, quoted_cost: e.target.value })}
+                    placeholder="50"
+                    className="rounded-xl border-gray-200"
+                  />
+                </div>
+              )}
             </div>
+            
+            {isDev && (
+              <div className="flex items-center gap-2 mt-4">
+                <input
+                  type="checkbox"
+                  id="markCompleted"
+                  checked={requestForm.markCompleted}
+                  onChange={(e) => setRequestForm({ ...requestForm, markCompleted: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <label htmlFor="markCompleted" className="text-sm text-gray-700">
+                  Ready for payment (mark as completed)
+                </label>
+              </div>
+            )}
           </div>
           
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
@@ -657,11 +774,11 @@ function DeveloperBillingContent() {
             </button>
             <button
               onClick={handleSubmitRequest}
-              disabled={isSubmitting || !requestForm.title.trim() || !requestForm.description.trim()}
+              disabled={isSubmitting || !requestForm.title.trim() || (isDev && !requestForm.quoted_cost)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#2EC4B6] rounded-xl hover:bg-[#2EC4B6]/90 disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Submit Request
+              {isDev ? 'Create Invoice' : 'Submit Request'}
             </button>
           </div>
         </div>
@@ -854,6 +971,81 @@ function DeveloperBillingContent() {
                         </div>
                       )}
 
+                      {/* Developer Edit Form */}
+                      {isDev && editingOrderId === order.id ? (
+                        <div className="mt-4 p-4 rounded-xl bg-white border border-gray-200">
+                          <p className="text-sm font-semibold text-gray-900 mb-3">Edit Work Order</p>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Title</label>
+                              <Input
+                                value={editForm.title}
+                                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                className="rounded-lg"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs text-gray-500 mb-1">Amount ($)</label>
+                                <Input
+                                  type="number"
+                                  value={editForm.quoted_cost}
+                                  onChange={(e) => setEditForm({ ...editForm, quoted_cost: e.target.value })}
+                                  placeholder="0"
+                                  className="rounded-lg"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-500 mb-1">Status</label>
+                                <select
+                                  value={editForm.status}
+                                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value as WorkOrder['status'] })}
+                                  className="w-full h-10 px-3 rounded-lg border border-gray-200 text-sm"
+                                >
+                                  <option value="requested">Requested</option>
+                                  <option value="quoted">Quoted</option>
+                                  <option value="approved">Approved</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Description</label>
+                              <Textarea
+                                value={editForm.description}
+                                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                rows={2}
+                                className="rounded-lg text-sm"
+                              />
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={() => handleSaveEdit(order.id)}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 text-sm font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 disabled:opacity-50"
+                              >
+                                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                              </button>
+                              <button
+                                onClick={() => setEditingOrderId(null)}
+                                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : isDev && (
+                        <button
+                          onClick={() => handleStartEdit(order)}
+                          className="mt-4 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50"
+                        >
+                          Edit Work Order
+                        </button>
+                      )}
+
                       {/* Status Actions */}
                       <div className="mt-4 flex flex-wrap gap-2">
                         {/* Client can approve quoted orders */}
@@ -914,17 +1106,76 @@ function DeveloperBillingContent() {
                         
                         {comments.length > 0 && (
                           <div className="space-y-3 mb-4">
-                            {comments.map((comment) => (
-                              <div key={comment.id} className="p-3 rounded-lg bg-white border border-gray-100">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {comment.author_email.split('@')[0]}
-                                  </span>
-                                  <span className="text-xs text-gray-400">{formatRelativeTime(comment.created_at)}</span>
+                            {comments.map((comment) => {
+                              const isOwnComment = comment.author_email === userEmail;
+                              const canModify = isOwnComment || isDev;
+                              const isEditing = editingCommentId === comment.id;
+                              
+                              return (
+                                <div key={comment.id} className="p-3 rounded-lg bg-white border border-gray-100">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium text-gray-900">
+                                        {comment.author_email.split('@')[0]}
+                                      </span>
+                                      <span className="text-xs text-gray-400">{formatRelativeTime(comment.created_at)}</span>
+                                    </div>
+                                    {canModify && !isEditing && (
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          onClick={() => {
+                                            setEditingCommentId(comment.id);
+                                            setEditCommentContent(comment.content);
+                                          }}
+                                          className="p-1 text-gray-400 hover:text-blue-500"
+                                          title="Edit"
+                                        >
+                                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                          </svg>
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteComment(order.id, comment.id)}
+                                          className="p-1 text-gray-400 hover:text-red-500"
+                                          title="Delete"
+                                        >
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {isEditing ? (
+                                    <div className="space-y-2">
+                                      <Textarea
+                                        value={editCommentContent}
+                                        onChange={(e) => setEditCommentContent(e.target.value)}
+                                        rows={2}
+                                        className="text-sm rounded-lg"
+                                      />
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => handleEditComment(order.id, comment.id)}
+                                          className="px-2 py-1 text-xs font-medium text-white bg-blue-500 rounded hover:bg-blue-600"
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditCommentContent('');
+                                          }}
+                                          className="px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800"
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm text-gray-600">{comment.content}</p>
+                                  )}
                                 </div>
-                                <p className="text-sm text-gray-600">{comment.content}</p>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         )}
                         
