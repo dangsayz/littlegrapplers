@@ -7,7 +7,8 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Sparkles } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video } from 'lucide-react';
+import { LocationOfflineOverlay } from '@/components/community/location-offline-overlay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Container } from '@/components/layout/container';
@@ -63,6 +64,7 @@ interface Location {
   address?: string;
   city?: string;
   state?: string;
+  is_active?: boolean;
 }
 
 interface ThreadMedia {
@@ -675,10 +677,23 @@ export default function CommunityPage() {
     }
   }, [slug]);
 
-  // Check if already verified
+  // Check if already verified and fetch basic location info
   useEffect(() => {
     const checkVerification = async () => {
       try {
+        // First fetch location info to check if active
+        const locRes = await fetch(`/api/locations/${slug}`);
+        if (locRes.ok) {
+          const locationData = await locRes.json();
+          setLocation(locationData);
+          
+          // If location is offline, don't proceed with verification
+          if (locationData.is_active === false) {
+            setIsVerified(false);
+            return;
+          }
+        }
+
         const res = await fetch(`/api/locations/${slug}/verify-pin`);
         const data = await res.json();
         setIsVerified(data.verified);
@@ -1075,6 +1090,11 @@ export default function CommunityPage() {
         <div className="animate-pulse text-[#1F2A44]/60">Loading...</div>
       </div>
     );
+  }
+
+  // Location offline check - show overlay if location is disabled
+  if (location && location.is_active === false) {
+    return <LocationOfflineOverlay locationName={location.name} />;
   }
 
   // PIN verification screen with Motion System animations

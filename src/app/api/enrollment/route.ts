@@ -6,6 +6,7 @@ import {
   getClientIdentifier,
   checkHoneypot,
 } from '@/lib/validation';
+import { sendAdminNotification, createEnrollmentNotificationEmail } from '@/lib/email';
 import { z } from 'zod';
 
 const enrollmentSchema = z.object({
@@ -149,6 +150,29 @@ export async function POST(request: NextRequest) {
         location_name: location.name,
         has_account: !!clerkUserId,
       },
+    });
+
+    // Send email notification to all admins
+    const emailNotification = createEnrollmentNotificationEmail({
+      childName: `${data.childFirstName} ${data.childLastName}`,
+      guardianName: `${data.guardianFirstName} ${data.guardianLastName}`,
+      guardianEmail: data.guardianEmail,
+      guardianPhone: data.guardianPhone,
+      locationName: location.name,
+      planType: data.planType,
+      submittedAt: new Date().toLocaleString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+    });
+    
+    // Fire and forget - don't block the response
+    sendAdminNotification(emailNotification).catch(err => {
+      console.error('Failed to send enrollment notification email:', err);
     });
 
     return NextResponse.json({

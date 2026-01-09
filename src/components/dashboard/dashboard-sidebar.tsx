@@ -46,18 +46,20 @@ const navItems: Array<{ label: string; href: Route; icon: LucideIcon; hint: stri
   },
 ];
 
-const adminNavItems: Array<{ label: string; href: Route; icon: LucideIcon; hint: string }> = [
+const adminNavItems: Array<{ label: string; href: Route; icon: LucideIcon; hint: string; badgeKey?: string }> = [
   {
     label: 'Enrollments',
     href: '/dashboard/admin/enrollments' as Route,
     icon: UserPlus,
     hint: 'Review and approve new applications',
+    badgeKey: 'pendingEnrollments',
   },
   {
     label: 'Notifications',
     href: '/dashboard/notifications' as Route,
     icon: Bell,
     hint: 'View and manage system alerts',
+    badgeKey: 'unreadContacts',
   },
   {
     label: 'Video + Images',
@@ -77,6 +79,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
   const [mounted, setMounted] = useState(false);
+  const [badges, setBadges] = useState<{ pendingEnrollments: number; unreadContacts: number }>({ pendingEnrollments: 0, unreadContacts: 0 });
   
   useEffect(() => {
     setMounted(true);
@@ -84,6 +87,28 @@ export function DashboardSidebar() {
   
   const userEmail = user?.emailAddresses[0]?.emailAddress;
   const isAdmin = mounted && isLoaded && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
+
+  // Fetch notification counts for admins
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    const fetchBadges = async () => {
+      try {
+        const res = await fetch('/api/admin/badge-counts');
+        if (res.ok) {
+          const data = await res.json();
+          setBadges(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch badge counts:', err);
+      }
+    };
+
+    fetchBadges();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchBadges, 30000);
+    return () => clearInterval(interval);
+  }, [isAdmin]);
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 border-r border-slate-200/40 bg-gradient-to-b from-white/95 via-slate-50/90 to-sky-50/30 backdrop-blur-xl z-[100]" style={{ overflow: 'visible', clipPath: 'none' }}>
@@ -202,6 +227,12 @@ export function DashboardSidebar() {
                           <item.icon className="h-4 w-4" strokeWidth={1.5} />
                         </div>
                         {item.label}
+                        {/* Badge for notification count */}
+                        {item.badgeKey && badges[item.badgeKey as keyof typeof badges] > 0 && (
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                            {badges[item.badgeKey as keyof typeof badges]}
+                          </span>
+                        )}
                       </Link>
                       {/* Soft tooltip hint */}
                       <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#1F2A44] text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 delay-500 whitespace-nowrap z-[9999]">

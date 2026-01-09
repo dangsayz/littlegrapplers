@@ -391,6 +391,19 @@
   }
 }
 
+/* Gradient animation for animated text and borders */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* Glass edge glow pulse */
 @keyframes glass-glow {
   0%, 100% {

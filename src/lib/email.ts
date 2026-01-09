@@ -7,8 +7,19 @@
  * 3. Verify your domain or use their test email
  */
 
-const ADMIN_EMAIL = 'info@littlegrapplers.net';
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'notifications@littlegrapplers.net';
+import { ADMIN_EMAILS } from '@/lib/constants';
+
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'hello@littlegrapplers.net';
+
+// HTML escape utility to prevent XSS in email templates
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 interface EmailNotification {
   type: 'membership_request' | 'new_thread' | 'new_reply' | 'new_user_signup' | 'waiver_signed' | 'contact_form';
@@ -25,34 +36,43 @@ export async function sendAdminNotification(notification: EmailNotification) {
     return { success: false, reason: 'no_api_key' };
   }
 
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: ADMIN_EMAIL,
-        subject: notification.subject,
-        html: notification.html,
-      }),
-    });
+  // Send to all admin emails
+  const results = await Promise.all(
+    ADMIN_EMAILS.map(async (adminEmail) => {
+      try {
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: FROM_EMAIL,
+            to: adminEmail,
+            subject: notification.subject,
+            html: notification.html,
+          }),
+        });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('[Email] Failed to send:', error);
-      return { success: false, error };
-    }
+        if (!response.ok) {
+          const error = await response.json();
+          console.error(`[Email] Failed to send to ${adminEmail}:`, error);
+          return { success: false, email: adminEmail, error };
+        }
 
-    const data = await response.json();
-    console.log('[Email] Sent successfully:', data.id);
-    return { success: true, id: data.id };
-  } catch (error) {
-    console.error('[Email] Error sending notification:', error);
-    return { success: false, error };
-  }
+        const data = await response.json();
+        console.log(`[Email] Sent to ${adminEmail}:`, data.id);
+        return { success: true, email: adminEmail, id: data.id };
+      } catch (error) {
+        console.error(`[Email] Error sending to ${adminEmail}:`, error);
+        return { success: false, email: adminEmail, error };
+      }
+    })
+  );
+
+  const successCount = results.filter(r => r.success).length;
+  console.log(`[Email] Sent to ${successCount}/${ADMIN_EMAILS.length} admins`);
+  return { success: successCount > 0, results };
 }
 
 export function createMembershipRequestEmail(data: {
@@ -388,6 +408,109 @@ export function createNewThreadEmail(data: {
               <p style="margin-top: 20px;">
                 <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/community/${data.locationSlug}/thread/${data.threadId}" class="button">
                   View Thread
+                </a>
+              </p>
+            </div>
+            <div class="footer">
+              Little Grapplers - Youth BJJ Program
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+  };
+}
+
+export function createEnrollmentNotificationEmail(data: {
+  childName: string;
+  guardianName: string;
+  guardianEmail: string;
+  guardianPhone?: string;
+  locationName: string;
+  planType: string;
+  submittedAt: string;
+}): EmailNotification {
+  // Escape all user-supplied data to prevent XSS
+  const safe = {
+    childName: escapeHtml(data.childName),
+    guardianName: escapeHtml(data.guardianName),
+    guardianEmail: escapeHtml(data.guardianEmail),
+    guardianPhone: data.guardianPhone ? escapeHtml(data.guardianPhone) : '',
+    locationName: escapeHtml(data.locationName),
+    planType: escapeHtml(data.planType),
+    submittedAt: escapeHtml(data.submittedAt),
+  };
+
+  return {
+    type: 'new_user_signup',
+    subject: `New Enrollment - ${safe.childName} at ${safe.locationName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
+            .header h1 { color: white; margin: 0; font-size: 24px; }
+            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
+            .info-row { margin-bottom: 15px; }
+            .label { font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
+            .value { font-size: 16px; color: #111; }
+            .highlight-box { background: linear-gradient(135deg, #2EC4B6 0%, #8FE3CF 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+            .badge { display: inline-block; background: #F7931E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+            .button { display: inline-block; background: #2EC4B6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>New Enrollment Application</h1>
+            </div>
+            <div class="content">
+              <div class="highlight-box">
+                <div style="font-size: 14px; opacity: 0.9;">New Student</div>
+                <div style="font-size: 24px; font-weight: bold;">${safe.childName}</div>
+                <div style="margin-top: 8px;">
+                  <span class="badge">Pending Review</span>
+                </div>
+              </div>
+              
+              <h3 style="margin-top: 25px; color: #1F2A44;">Location</h3>
+              <div class="info-row">
+                <div class="value">${safe.locationName}</div>
+              </div>
+              
+              <h3 style="margin-top: 25px; color: #1F2A44;">Parent/Guardian</h3>
+              <div class="info-row">
+                <div class="label">Name</div>
+                <div class="value">${safe.guardianName}</div>
+              </div>
+              <div class="info-row">
+                <div class="label">Email</div>
+                <div class="value"><a href="mailto:${safe.guardianEmail}">${safe.guardianEmail}</a></div>
+              </div>
+              ${safe.guardianPhone ? `
+              <div class="info-row">
+                <div class="label">Phone</div>
+                <div class="value"><a href="tel:${safe.guardianPhone}">${safe.guardianPhone}</a></div>
+              </div>
+              ` : ''}
+              
+              <div class="info-row" style="margin-top: 25px;">
+                <div class="label">Plan Type</div>
+                <div class="value">${safe.planType}</div>
+              </div>
+              
+              <div class="info-row">
+                <div class="label">Submitted At</div>
+                <div class="value">${safe.submittedAt}</div>
+              </div>
+              
+              <p style="margin-top: 25px;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/admin/enrollments" class="button">
+                  Review Enrollment
                 </a>
               </p>
             </div>

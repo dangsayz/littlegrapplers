@@ -21,10 +21,7 @@ export async function GET(
       return NextResponse.json({ error: 'Location not found' }, { status: 404 });
     }
 
-    if (!location.is_active) {
-      return NextResponse.json({ error: 'Location is not active' }, { status: 404 });
-    }
-
+    // Return location data with is_active status - let frontend handle display
     return NextResponse.json(location);
   } catch (error) {
     console.error('Error fetching location:', error);

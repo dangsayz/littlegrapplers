@@ -57,7 +57,7 @@ export function LocationPinForm({ locationId, locationName, currentPin }: Locati
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm">
           <Key className="h-4 w-4 mr-2" />
           {currentPin ? 'Change PIN' : 'Set PIN'}
         </Button>

@@ -5,6 +5,11 @@ import './globals.css';
 import { SITE_CONFIG } from '@/lib/constants';
 import { SiteFrozenOverlay } from '@/components/site-frozen-overlay';
 import { OrganizationJsonLd } from '@/components/seo/json-ld';
+import { supabaseAdmin } from '@/lib/supabase';
+import { unstable_noStore as noStore } from 'next/cache';
+
+// Force dynamic rendering to always check platform status
+export const dynamic = 'force-dynamic';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -95,13 +100,31 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isFrozen = process.env.SITE_FROZEN === 'true';
-  const freezeMessage = process.env.SITE_FREEZE_MESSAGE;
+  // Prevent caching - always fetch fresh status
+  noStore();
+  
+  let platformStatus = null;
+  
+  try {
+    const { data } = await supabaseAdmin
+      .from('platform_status')
+      .select('*')
+      .limit(1)
+      .single();
+    platformStatus = data;
+  } catch {
+    // Platform status table may not exist yet, fall back to env var
+  }
+
+  const isFrozen = platformStatus 
+    ? !platformStatus.is_enabled 
+    : process.env.SITE_FROZEN === 'true';
+  const freezeMessage = platformStatus?.disabled_reason || process.env.SITE_FREEZE_MESSAGE;
 
   return (
     <ClerkProvider>
@@ -110,7 +133,7 @@ export default function RootLayout({
           <OrganizationJsonLd />
         </head>
         <body className="min-h-screen bg-background font-sans antialiased">
-          {isFrozen && <SiteFrozenOverlay message={freezeMessage} />}
+          {isFrozen && <SiteFrozenOverlay message={freezeMessage} initialStatus={platformStatus} />}
           {children}
         </body>
       </html>

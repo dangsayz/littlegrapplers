@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isAdmin, isSuperAdmin } from '@/lib/admin-roles';
 
 
 export async function GET() {
   const user = await currentUser();
+  const email = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
+  if (!user || !email || !isAdmin(email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   const user = await currentUser();
   const userEmail = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || !userEmail || !ADMIN_EMAILS.includes(userEmail)) {
+  if (!user || !userEmail || !isAdmin(userEmail)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Mail, Shield, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { Save, Mail, Shield, Clock, Power, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,9 +18,10 @@ import {
 
 interface SettingsFormProps {
   settings: Record<string, unknown>;
+  isSuperAdmin?: boolean;
 }
 
-export function SettingsForm({ settings }: SettingsFormProps) {
+export function SettingsForm({ settings, isSuperAdmin = false }: SettingsFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -74,8 +76,34 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Super Admin - Site Control */}
+      {isSuperAdmin && (
+        <Link href="/dashboard/admin/settings/platform" className="group block">
+          <div className="relative overflow-hidden rounded-2xl bg-slate-900 p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5" />
+            
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Minimal power icon */}
+                <div className="h-11 w-11 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
+                  <Power className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg">Site Control</h3>
+                  <p className="text-sm text-slate-400">
+                    Take your website offline instantly
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Email Settings */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-muted-foreground" />
@@ -124,7 +152,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       </Card>
 
       {/* Moderation Settings */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-muted-foreground" />
@@ -153,7 +181,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       </Card>
 
       {/* Community Settings */}
-      <Card>
+      <Card className="border border-white/60 shadow-sm bg-white/70 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-muted-foreground" />

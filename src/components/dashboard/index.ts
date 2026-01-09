@@ -10,3 +10,4 @@ export { WaiverStatusCard } from './waiver-status-card';
 export { RevenueIntelligence } from './revenue-intelligence';
 export { LocationTeaser } from './location-teaser';
 export { PinVerificationDialog, getRememberedPin, hasRememberedPin } from './pin-verification-dialog';
+export { SiteControlToggle } from './site-control-toggle';

@@ -150,9 +150,32 @@ export const UPLOAD_LIMITS = {
 
 /**
  * Admin configuration
+ * 
+ * SUPER_ADMIN_EMAILS: Full platform control (kill-switch, system settings, override all)
+ * ADMIN_EMAILS: Standard admin access (manage students, CRUD operations, view dashboard)
  */
-export const ADMIN_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com', 'info@littlegrapplers.net', 'littlegrapplersjitsu@gmail.com'];
+export const SUPER_ADMIN_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com'];
+
+export const ADMIN_EMAILS = [
+  ...SUPER_ADMIN_EMAILS,
+  'info@littlegrapplers.net',
+  'littlegrapplersjitsu@gmail.com',
+];
+
 export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // Legacy support - primary admin
+
+/**
+ * Admin role types
+ */
+export type AdminRole = 'super_admin' | 'admin' | 'none';
+
+/**
+ * Platform control configuration
+ */
+export const PLATFORM_CONFIG = {
+  paymentGracePeriodDays: 5, // Auto-disable after this many days overdue
+  statusCheckIntervalMs: 60000, // Check platform status every minute
+} as const;
 
 /**
  * Discussion locations (classes)

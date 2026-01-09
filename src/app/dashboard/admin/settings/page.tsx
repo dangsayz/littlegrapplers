@@ -2,18 +2,23 @@ import { redirect } from 'next/navigation';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Save } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { supabaseAdmin } from '@/lib/supabase';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { SettingsForm } from './settings-form';
+import { isSuperAdmin } from '@/lib/admin-roles';
 
 
 export default async function AdminSettingsPage() {
   const user = await currentUser();
+  const email = user?.emailAddresses[0]?.emailAddress;
   
-  if (!user || !user.emailAddresses[0]?.emailAddress || !ADMIN_EMAILS.includes(user.emailAddresses[0].emailAddress)) {
+  if (!user || !email || !ADMIN_EMAILS.includes(email)) {
     redirect('/dashboard');
   }
+  
+  const userIsSuperAdmin = isSuperAdmin(email);
 
   // Fetch current settings
   const { data: settings } = await supabaseAdmin
@@ -44,14 +49,13 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Back Link */}
-      <Link 
-        href="/dashboard/admin"
-        className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Admin
-      </Link>
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: 'Admin', href: '/dashboard/admin' },
+          { label: 'Settings' },
+        ]}
+      />
 
       {/* Page Header - Apple Glass Style */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
@@ -77,7 +81,7 @@ export default async function AdminSettingsPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Settings Form */}
         <div className="lg:col-span-2 space-y-6">
-          <SettingsForm settings={settingsMap} />
+          <SettingsForm settings={settingsMap} isSuperAdmin={userIsSuperAdmin} />
         </div>
 
         {/* Activity Log */}

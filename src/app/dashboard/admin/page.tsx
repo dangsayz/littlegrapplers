@@ -3,6 +3,9 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import type { Route } from 'next';
+
+// Prevent Next.js from caching this page - always fetch fresh platform status
+export const dynamic = 'force-dynamic';
 import { 
   MapPin, 
   Users, 
@@ -17,9 +20,12 @@ import {
   HelpCircle,
   FileText,
   CreditCard,
+  Power,
+  Settings,
 } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
-import { RevenueIntelligence } from '@/components/dashboard';
+import { RevenueIntelligence, SiteControlToggle } from '@/components/dashboard';
+import { isSuperAdmin } from '@/lib/admin-roles';
 
 // Apple-inspired accent colors
 const accentColors = {
@@ -39,6 +45,9 @@ export default async function AdminPage() {
     redirect('/dashboard');
   }
 
+  const userEmail = user.emailAddresses[0].emailAddress;
+  const userIsSuperAdmin = isSuperAdmin(userEmail);
+
   // Fetch dynamic stats
   const [locationsRes, threadsRes, usersRes, contactsRes, waiversRes, newsletterRes, pendingEnrollmentsRes, unpaidWorkOrdersRes] = await Promise.all([
     supabaseAdmin.from('locations').select('*', { count: 'exact', head: true }).eq('is_active', true),
@@ -50,6 +59,16 @@ export default async function AdminPage() {
     supabaseAdmin.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabaseAdmin.from('work_orders').select('id, quoted_cost').eq('status', 'completed').eq('paid', false),
   ]);
+
+  // Fetch platform status separately to handle schema cache issues gracefully
+  let platformEnabled = true;
+  try {
+    const { data } = await supabaseAdmin.from('platform_status').select('is_enabled').limit(1).single();
+    if (data) platformEnabled = data.is_enabled;
+  } catch {
+    // Table may not exist or be in schema cache yet - default to enabled
+    console.log('Platform status table not available, defaulting to enabled');
+  }
 
   // Calculate unpaid work orders total
   const unpaidWorkOrders = unpaidWorkOrdersRes.data || [];
@@ -125,6 +144,15 @@ export default async function AdminPage() {
       stat: stats.users,
       statLabel: 'registered',
     },
+    {
+      title: 'Settings',
+      description: 'Email, moderation & site configuration',
+      icon: Settings,
+      href: '/dashboard/admin/settings',
+      color: accentColors.indigo,
+      stat: null,
+      statLabel: '',
+    },
   ];
 
   return (
@@ -138,6 +166,16 @@ export default async function AdminPage() {
           Manage your Little Grapplers platform
         </p>
       </div>
+
+      {/* Site Control Toggle - Super Admin Only */}
+      {userIsSuperAdmin && (
+        <div className="mb-6">
+          <SiteControlToggle 
+            initialEnabled={platformEnabled} 
+            adminEmail={userEmail} 
+          />
+        </div>
+      )}
 
       {/* Revenue Intelligence Section - Pinned to Top */}
       <RevenueIntelligence 

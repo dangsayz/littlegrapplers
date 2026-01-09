@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2 } from 'lucide-react';
+import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity } from 'lucide-react';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -256,6 +256,62 @@ function DeveloperBillingContent() {
   }>>([]);
   const [historyTotals, setHistoryTotals] = useState({ all: 0, subscription: 0, oneTime: 0 });
 
+  // Balance reminder state
+  const [balanceReminderSettings, setBalanceReminderSettings] = useState<{
+    balance_reminder_enabled: boolean;
+    reminder_frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly';
+    payment_expiration_date: string | null;
+    last_reminder_sent_at: string | null;
+    next_reminder_scheduled_at: string | null;
+    client_email: string;
+    client_name: string;
+  }>({
+    balance_reminder_enabled: false,
+    reminder_frequency: 'weekly',
+    payment_expiration_date: null,
+    last_reminder_sent_at: null,
+    next_reminder_scheduled_at: null,
+    client_email: 'info@littlegrapplers.net',
+    client_name: 'Little Grapplers',
+  });
+  const [sendingReminder, setSendingReminder] = useState(false);
+  const [reminderSuccess, setReminderSuccess] = useState(false);
+  const [showReminderSettings, setShowReminderSettings] = useState(false);
+  const [savingReminderSettings, setSavingReminderSettings] = useState(false);
+
+  // Email activity state
+  const [emailActivityEmail, setEmailActivityEmail] = useState('dangzr1@gmail.com');
+  const [emailActivity, setEmailActivity] = useState<{
+    summary: {
+      total_sent: number;
+      total_delivered: number;
+      total_opened: number;
+      total_clicked: number;
+      total_bounced: number;
+      first_email_at: string | null;
+      last_email_at: string | null;
+      last_opened_at: string | null;
+      open_rate: number;
+    };
+    activity: Array<{
+      id: string;
+      type: 'event' | 'reminder';
+      event_type: string;
+      timestamp: string;
+      email_provider_id?: string;
+      user_agent?: string;
+      ip_address?: string;
+      link_url?: string;
+      bounce_type?: string;
+      bounce_message?: string;
+      amount_due?: number;
+      reminder_type?: string;
+      status?: string;
+    }>;
+  } | null>(null);
+  const [loadingEmailActivity, setLoadingEmailActivity] = useState(false);
+  const [showEmailActivity, setShowEmailActivity] = useState(false);
+
   // Fetch work orders
   const fetchWorkOrders = useCallback(async () => {
     try {
@@ -342,6 +398,103 @@ function DeveloperBillingContent() {
       setTimeout(() => setShowSubscriptionSuccess(false), 5000);
     }
   }, [searchParams]);
+
+  // Fetch balance reminder settings (developer only)
+  useEffect(() => {
+    if (!isDev) return;
+    
+    const fetchReminderSettings = async () => {
+      try {
+        const res = await fetch('/api/admin/balance-reminder');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings) {
+            setBalanceReminderSettings(data.settings);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching reminder settings:', error);
+      }
+    };
+    
+    fetchReminderSettings();
+  }, [isDev]);
+
+  // Fetch email activity
+  const fetchEmailActivity = useCallback(async (email: string) => {
+    if (!email) return;
+    setLoadingEmailActivity(true);
+    try {
+      const res = await fetch(`/api/admin/email-activity?email=${encodeURIComponent(email)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setEmailActivity(data);
+      }
+    } catch (error) {
+      console.error('Error fetching email activity:', error);
+    } finally {
+      setLoadingEmailActivity(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isDev && showEmailActivity && emailActivityEmail) {
+      fetchEmailActivity(emailActivityEmail);
+    }
+  }, [isDev, showEmailActivity, emailActivityEmail, fetchEmailActivity]);
+
+  // Send balance reminder
+  const handleSendReminder = async () => {
+    setSendingReminder(true);
+    setReminderSuccess(false);
+    try {
+      const res = await fetch('/api/admin/balance-reminder/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reminderType: 'manual' }),
+      });
+      
+      if (res.ok) {
+        setReminderSuccess(true);
+        // Refresh settings to get updated last_reminder_sent_at
+        const settingsRes = await fetch('/api/admin/balance-reminder');
+        if (settingsRes.ok) {
+          const data = await settingsRes.json();
+          if (data.settings) {
+            setBalanceReminderSettings(data.settings);
+          }
+        }
+        setTimeout(() => setReminderSuccess(false), 5000);
+      }
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+    } finally {
+      setSendingReminder(false);
+    }
+  };
+
+  // Update balance reminder settings
+  const handleUpdateReminderSettings = async (updates: Partial<typeof balanceReminderSettings>) => {
+    setSavingReminderSettings(true);
+    try {
+      const res = await fetch('/api/admin/balance-reminder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.settings) {
+          setBalanceReminderSettings(prev => ({ ...prev, ...data.settings }));
+        }
+      }
+    } catch (error) {
+      console.error('Error updating reminder settings:', error);
+    } finally {
+      setSavingReminderSettings(false);
+    }
+  };
 
   // Submit new work order request
   const handleSubmitRequest = async () => {
@@ -847,6 +1000,309 @@ function DeveloperBillingContent() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Balance Reminder Controls - Developer Only */}
+      {isDev && unpaidTotal > 0 && (
+        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <Mail className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">Balance Reminders</h2>
+                <p className="text-sm text-gray-500">Send payment reminders to client</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowReminderSettings(!showReminderSettings)}
+              className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+            >
+              <Settings2 className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Reminder Success Message */}
+          {reminderSuccess && (
+            <div className="mx-5 mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              <span className="text-sm text-emerald-700">Reminder sent successfully!</span>
+            </div>
+          )}
+
+          {/* Settings Panel */}
+          {showReminderSettings && (
+            <div className="p-5 border-b border-gray-100 bg-gray-50 space-y-4">
+              {/* Auto-reminder toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Bell className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Automated Reminders</p>
+                    <p className="text-xs text-gray-500">Send reminders on a schedule</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleUpdateReminderSettings({ 
+                    balance_reminder_enabled: !balanceReminderSettings.balance_reminder_enabled 
+                  })}
+                  disabled={savingReminderSettings}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${
+                    balanceReminderSettings.balance_reminder_enabled ? 'bg-emerald-500' : 'bg-gray-200'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    balanceReminderSettings.balance_reminder_enabled ? 'translate-x-5' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Frequency selector */}
+              {balanceReminderSettings.balance_reminder_enabled && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <RefreshCw className="h-4 w-4 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-900">Frequency</p>
+                  </div>
+                  <select
+                    value={balanceReminderSettings.reminder_frequency}
+                    onChange={(e) => handleUpdateReminderSettings({ 
+                      reminder_frequency: e.target.value as 'daily' | 'weekly' | 'biweekly' | 'monthly'
+                    })}
+                    disabled={savingReminderSettings}
+                    className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Every 2 weeks</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Expiration date */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CalendarClock className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Payment Deadline</p>
+                    <p className="text-xs text-gray-500">Auto-disable site after this date</p>
+                  </div>
+                </div>
+                <input
+                  type="date"
+                  value={balanceReminderSettings.payment_expiration_date || ''}
+                  onChange={(e) => handleUpdateReminderSettings({ 
+                    payment_expiration_date: e.target.value || null 
+                  })}
+                  disabled={savingReminderSettings}
+                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
+                />
+              </div>
+
+              {/* Last reminder info */}
+              {balanceReminderSettings.last_reminder_sent_at && (
+                <div className="pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    Last reminder sent: {new Date(balanceReminderSettings.last_reminder_sent_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Send Reminder Button */}
+          <div className="p-5">
+            <button
+              onClick={handleSendReminder}
+              disabled={sendingReminder}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 transition-all"
+            >
+              {sendingReminder ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {sendingReminder ? 'Sending...' : 'Send Balance Reminder'}
+            </button>
+            <p className="text-xs text-gray-400 text-center mt-2">
+              Sends a branded email to {balanceReminderSettings.client_email}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Email Activity Tracker - Developer Only */}
+      {isDev && (
+        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <button
+            onClick={() => setShowEmailActivity(!showEmailActivity)}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                <Activity className="h-5 w-5 text-purple-500" />
+              </div>
+              <div className="text-left">
+                <h2 className="font-semibold text-gray-900">Email Activity Tracker</h2>
+                <p className="text-sm text-gray-500">View opens, clicks, and engagement</p>
+              </div>
+            </div>
+            <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${showEmailActivity ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showEmailActivity && (
+            <div className="border-t border-gray-100">
+              {/* Search */}
+              <div className="p-4 bg-gray-50 border-b border-gray-100">
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      value={emailActivityEmail}
+                      onChange={(e) => setEmailActivityEmail(e.target.value)}
+                      placeholder="Enter email address..."
+                      className="pl-9 rounded-xl border-gray-200"
+                      onKeyDown={(e) => e.key === 'Enter' && fetchEmailActivity(emailActivityEmail)}
+                    />
+                  </div>
+                  <button
+                    onClick={() => fetchEmailActivity(emailActivityEmail)}
+                    disabled={loadingEmailActivity || !emailActivityEmail}
+                    className="px-4 py-2 rounded-xl bg-purple-500 text-white text-sm font-medium hover:bg-purple-600 disabled:opacity-50"
+                  >
+                    {loadingEmailActivity ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
+                  </button>
+                </div>
+              </div>
+
+              {loadingEmailActivity ? (
+                <div className="p-8 text-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-300 mx-auto" />
+                </div>
+              ) : emailActivity ? (
+                <>
+                  {/* Summary Stats */}
+                  <div className="p-4 grid grid-cols-5 gap-3">
+                    <div className="text-center p-3 rounded-xl bg-blue-50">
+                      <p className="text-2xl font-bold text-blue-600">{emailActivity.summary.total_sent}</p>
+                      <p className="text-xs text-blue-600/70 font-medium">Sent</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-emerald-50">
+                      <p className="text-2xl font-bold text-emerald-600">{emailActivity.summary.total_delivered}</p>
+                      <p className="text-xs text-emerald-600/70 font-medium">Delivered</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-purple-50">
+                      <p className="text-2xl font-bold text-purple-600">{emailActivity.summary.total_opened}</p>
+                      <p className="text-xs text-purple-600/70 font-medium">Opened</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-orange-50">
+                      <p className="text-2xl font-bold text-orange-600">{emailActivity.summary.total_clicked}</p>
+                      <p className="text-xs text-orange-600/70 font-medium">Clicked</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-gray-100">
+                      <p className="text-2xl font-bold text-gray-600">{emailActivity.summary.open_rate}%</p>
+                      <p className="text-xs text-gray-500 font-medium">Open Rate</p>
+                    </div>
+                  </div>
+
+                  {/* Last Opened */}
+                  {emailActivity.summary.last_opened_at && (
+                    <div className="mx-4 mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm font-medium text-purple-700">Last opened:</span>
+                        <span className="text-sm text-purple-600">
+                          {new Date(emailActivity.summary.last_opened_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Activity Timeline */}
+                  {emailActivity.activity.length > 0 ? (
+                    <div className="border-t border-gray-100">
+                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                        <p className="text-xs font-semibold text-gray-500 uppercase">Activity Timeline</p>
+                      </div>
+                      <div className="max-h-[300px] overflow-y-auto divide-y divide-gray-100">
+                        {emailActivity.activity.map((event) => {
+                          const eventIcons: Record<string, { icon: typeof Eye; color: string; bg: string }> = {
+                            sent: { icon: Send, color: 'text-blue-500', bg: 'bg-blue-50' },
+                            delivered: { icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                            opened: { icon: Eye, color: 'text-purple-500', bg: 'bg-purple-50' },
+                            clicked: { icon: MousePointer, color: 'text-orange-500', bg: 'bg-orange-50' },
+                            bounced: { icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-50' },
+                            reminder_sent: { icon: Mail, color: 'text-amber-500', bg: 'bg-amber-50' },
+                          };
+                          const eventStyle = eventIcons[event.event_type] || { icon: Mail, color: 'text-gray-500', bg: 'bg-gray-50' };
+                          const IconComponent = eventStyle.icon;
+
+                          return (
+                            <div key={event.id} className="px-4 py-3 flex items-start gap-3">
+                              <div className={`h-8 w-8 rounded-lg ${eventStyle.bg} flex items-center justify-center flex-shrink-0`}>
+                                <IconComponent className={`h-4 w-4 ${eventStyle.color}`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900 capitalize">
+                                    {event.event_type.replace('_', ' ')}
+                                  </span>
+                                  {event.amount_due && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                      {formatCurrency(event.amount_due)}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {new Date(event.timestamp).toLocaleString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                                {event.link_url && (
+                                  <p className="text-xs text-blue-500 truncate mt-1">{event.link_url}</p>
+                                )}
+                                {event.bounce_message && (
+                                  <p className="text-xs text-red-500 mt-1">{event.bounce_message}</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center border-t border-gray-100">
+                      <Mail className="h-8 w-8 text-gray-200 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">No email activity found for this address</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-6 text-center">
+                  <Search className="h-8 w-8 text-gray-200 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">Enter an email address to view activity</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

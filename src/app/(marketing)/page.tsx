@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield, Sparkles, Award } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Play, ChevronDown, Star, Check, Dumbbell, Brain, Heart, Shield, Sparkles, Award, MapPin } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem, HeroText, FadeInCTA } from '@/components/ui/motion';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView } from 'framer-motion';
@@ -15,6 +15,40 @@ const beltJourney = [
   { name: 'Yellow', color: '#FACC15', accent: '#FDE047', glow: 'shadow-yellow-400/50', description: 'Growth' },
   { name: 'Orange', color: '#F97316', accent: '#FB923C', glow: 'shadow-orange-400/50', description: 'Strength' },
   { name: 'Green', color: '#22C55E', accent: '#4ADE80', glow: 'shadow-green-400/50', description: 'Mastery' },
+];
+
+// Location data for showcase
+const featuredLocations = [
+  {
+    id: '1',
+    name: 'Pinnacle Montessori',
+    slug: 'pinnacle-montessori',
+    area: 'Wylie',
+    image: '/images/highlights/LittleGrapplers-05873.jpg',
+    schedule: 'Mondays',
+    color: '#2EC4B6',
+    students: 35,
+  },
+  {
+    id: '2',
+    name: 'Lionheart Central',
+    slug: 'lionheart-central-church',
+    area: 'Plano',
+    image: '/images/highlights/LittleGrapplers-05919.jpg',
+    schedule: 'Tuesdays',
+    color: '#F7931E',
+    students: 28,
+  },
+  {
+    id: '3',
+    name: 'Lionheart First Baptist',
+    slug: 'lionheart-first-baptist-plano',
+    area: 'Plano',
+    image: '/images/highlights/LittleGrapplers-05924.jpg',
+    schedule: 'Wednesdays',
+    color: '#FFC857',
+    students: 22,
+  },
 ];
 
 function BeltJourneyVisual() {
@@ -673,42 +707,243 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          HOW IT WORKS - Large numbered steps
+          LOCATIONS - State-of-the-Art Bento Grid
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="pt-24 md:pt-32 pb-12 md:pb-16 bg-[#F7F9F9]">
-        <Container>
-          <FadeIn direction="up" className="text-center mb-20">
-            <span className="text-[#F7931E] text-sm font-bold tracking-[0.2em] uppercase">How It Works</span>
-            <h2 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-black text-[#1F2A44]">
-              Three simple <span className="text-[#2EC4B6]">steps.</span>
+      <section className="py-24 md:py-32 relative overflow-hidden bg-[#0A0F1C]">
+        {/* Animated mesh gradient background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#1F2A44_0%,#0A0F1C_50%)]" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#2EC4B6]/20 rounded-full blur-[150px] animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#F7931E]/15 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#FFC857]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+          {/* Grid pattern overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        </div>
+
+        <Container className="relative z-10">
+          <FadeIn direction="up" className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[#2EC4B6] text-sm font-semibold tracking-wide mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2EC4B6] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2EC4B6]"></span>
+              </span>
+              Where Champions Train
+            </span>
+            <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight">
+              Three locations.{' '}
+              <span className="relative">
+                <span className="bg-gradient-to-r from-[#2EC4B6] via-[#8FE3CF] to-[#2EC4B6] bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_3s_linear_infinite]">
+                  One mission.
+                </span>
+              </span>
             </h2>
+            <p className="mt-6 text-lg text-white/50 max-w-2xl mx-auto">
+              Building confident kids across the Dallas-Fort Worth metroplex
+            </p>
           </FadeIn>
 
-          <div className="space-y-0">
-            {[
-              { num: '01', title: 'Find', desc: "Check if your daycare is a partner. Not yet? We'll reach out.", color: '#2EC4B6' },
-              { num: '02', title: 'Register', desc: 'Quick online signup. Select program. Done.', color: '#F7931E' },
-              { num: '03', title: 'Train', desc: 'Classes at daycare + online video library access.', color: '#FFC857' },
-            ].map((step, i) => (
-              <FadeIn key={step.num} direction="up" delay={i * 0.1}>
-                <div className="group relative border-b border-[#1F2A44]/10 py-12 md:py-16 hover:bg-white/50 transition-colors rounded-2xl">
-                  <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
-                    <div 
-                      className="text-[8rem] md:text-[10rem] font-black leading-none opacity-30 group-hover:opacity-50 transition-opacity"
-                      style={{ color: step.color }}
-                    >
-                      {step.num}
+          {/* Bento Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
+            {/* Featured Large Card - Spans 7 columns, 2 rows */}
+            <FadeIn direction="up" className="md:col-span-7 md:row-span-2 h-[320px] md:h-[420px]">
+              <Link href={`/community/${featuredLocations[0].slug}`} className="group block h-full">
+                <motion.div 
+                  className="relative h-full rounded-[2rem] overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  {/* Animated gradient border */}
+                  <div className="absolute -inset-[1px] rounded-[2rem] bg-gradient-to-r from-[#2EC4B6] via-[#F7931E] to-[#2EC4B6] bg-[length:200%_auto] animate-[gradient_4s_linear_infinite] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="absolute inset-[1px] rounded-[2rem] bg-[#0D1424] overflow-hidden">
+                    <Image
+                      src={featuredLocations[0].image}
+                      alt={featuredLocations[0].name}
+                      fill
+                      className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0D1424] via-[#0D1424]/60 to-transparent" />
+                    
+                    {/* Content */}
+                    <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between">
+                      <div className="flex items-start justify-between">
+                        <div 
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl border border-white/20"
+                          style={{ backgroundColor: `${featuredLocations[0].color}20` }}
+                        >
+                          <MapPin className="h-4 w-4" style={{ color: featuredLocations[0].color }} />
+                          <span className="text-sm font-semibold text-white">{featuredLocations[0].area}</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/10">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: featuredLocations[0].color }}></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: featuredLocations[0].color }}></span>
+                          </span>
+                          <span className="text-xs font-medium text-white/70">{featuredLocations[0].students} students</span>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm font-medium text-white/40 mb-2">{featuredLocations[0].schedule}</div>
+                        <h3 className="text-2xl md:text-4xl font-bold text-white tracking-tight mb-4">
+                          {featuredLocations[0].name}
+                        </h3>
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 group-hover:gap-3"
+                            style={{ backgroundColor: featuredLocations[0].color, color: '#0D1424' }}
+                          >
+                            Enroll Now
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-3xl md:text-4xl font-bold text-[#1F2A44] mb-3">{step.title}</h3>
-                      <p className="text-lg text-[#1F2A44]/60 max-w-md">{step.desc}</p>
-                    </div>
-                    <ArrowRight className="hidden md:block h-8 w-8 text-[#1F2A44]/20 group-hover:text-[#2EC4B6] group-hover:translate-x-2 transition-all" />
                   </div>
-                </div>
-              </FadeIn>
-            ))}
+                </motion.div>
+              </Link>
+            </FadeIn>
+
+            {/* Second Card - Spans 5 columns */}
+            <FadeIn direction="up" delay={0.1} className="md:col-span-5 h-[200px]">
+              <Link href={`/community/${featuredLocations[1].slug}`} className="group block h-full">
+                <motion.div 
+                  className="relative h-full rounded-[2rem] overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  {/* Gradient border */}
+                  <div 
+                    className="absolute -inset-[1px] rounded-[2rem] opacity-40 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: `linear-gradient(135deg, ${featuredLocations[1].color}, transparent 60%)` }}
+                  />
+                  
+                  <div className="absolute inset-[1px] rounded-[2rem] bg-gradient-to-br from-[#1a2235] to-[#0D1424] overflow-hidden">
+                    <Image
+                      src={featuredLocations[1].image}
+                      alt={featuredLocations[1].name}
+                      fill
+                      className="object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0D1424] via-[#0D1424]/80 to-[#0D1424]/40" />
+                    <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[60px]" style={{ backgroundColor: `${featuredLocations[1].color}30` }} />
+                    
+                    <div className="absolute inset-0 p-6 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <div 
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10"
+                          style={{ backgroundColor: `${featuredLocations[1].color}15` }}
+                        >
+                          <MapPin className="h-3.5 w-3.5" style={{ color: featuredLocations[1].color }} />
+                          <span className="text-xs font-semibold text-white">{featuredLocations[1].area}</span>
+                        </div>
+                        <span className="text-xs font-medium text-white/40">{featuredLocations[1].students} students</span>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs font-medium text-white/30 mb-1">{featuredLocations[1].schedule}</div>
+                        <h3 className="text-xl font-bold text-white tracking-tight mb-3 group-hover:text-[#F7931E] transition-colors">
+                          {featuredLocations[1].name}
+                        </h3>
+                        <div 
+                          className="inline-flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          style={{ color: featuredLocations[1].color }}
+                        >
+                          Enroll Now
+                          <ArrowRight className="h-4 w-4" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </FadeIn>
+
+            {/* Third Card - Spans 5 columns */}
+            <FadeIn direction="up" delay={0.2} className="md:col-span-5 h-[200px]">
+              <Link href={`/community/${featuredLocations[2].slug}`} className="group block h-full">
+                <motion.div 
+                  className="relative h-full rounded-[2rem] overflow-hidden"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  {/* Gradient border */}
+                  <div 
+                    className="absolute -inset-[1px] rounded-[2rem] opacity-40 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: `linear-gradient(135deg, ${featuredLocations[2].color}, transparent 60%)` }}
+                  />
+                  
+                  <div className="absolute inset-[1px] rounded-[2rem] bg-gradient-to-br from-[#1a2235] to-[#0D1424] overflow-hidden">
+                    <Image
+                      src={featuredLocations[2].image}
+                      alt={featuredLocations[2].name}
+                      fill
+                      className="object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0D1424] via-[#0D1424]/80 to-[#0D1424]/40" />
+                    <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-[60px]" style={{ backgroundColor: `${featuredLocations[2].color}25` }} />
+                    
+                    <div className="absolute inset-0 p-6 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <div 
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10"
+                          style={{ backgroundColor: `${featuredLocations[2].color}15` }}
+                        >
+                          <MapPin className="h-3.5 w-3.5" style={{ color: featuredLocations[2].color }} />
+                          <span className="text-xs font-semibold text-white">{featuredLocations[2].area}</span>
+                        </div>
+                        <span className="text-xs font-medium text-white/40">{featuredLocations[2].students} students</span>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs font-medium text-white/30 mb-1">{featuredLocations[2].schedule}</div>
+                        <h3 className="text-xl font-bold text-white tracking-tight mb-3 group-hover:text-[#FFC857] transition-colors">
+                          {featuredLocations[2].name}
+                        </h3>
+                        <div 
+                          className="inline-flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          style={{ color: featuredLocations[2].color }}
+                        >
+                          Enroll Now
+                          <ArrowRight className="h-4 w-4" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </FadeIn>
           </div>
+
+          {/* Stats Row */}
+          <FadeIn direction="up" delay={0.4} className="mt-12">
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white">85+</div>
+                <div className="text-sm text-white/40 mt-1">Active Students</div>
+              </div>
+              <div className="h-8 w-px bg-white/10 hidden md:block" />
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white">3</div>
+                <div className="text-sm text-white/40 mt-1">DFW Locations</div>
+              </div>
+              <div className="h-8 w-px bg-white/10 hidden md:block" />
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white">4.9</div>
+                <div className="text-sm text-white/40 mt-1">Parent Rating</div>
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn direction="up" delay={0.5} className="mt-12 text-center">
+            <Link 
+              href="/locations"
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+            >
+              Explore all locations
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </FadeIn>
         </Container>
       </section>
 
