@@ -16,16 +16,17 @@ export default async function DiscussionsPage() {
     .select('id, name, slug')
     .order('name');
 
-  // Get user's selected location from their waiver (for non-admins)
-  let userLocationId: string | null = null;
+  // SINGLE SOURCE OF TRUTH: Get user's location from enrollments (for non-admins)
+  // enrollment.location_id is the authoritative reference for student-location assignment
+  let userLocationIds: string[] = [];
   if (!isAdmin && userId) {
-    const { data: waiver } = await supabaseAdmin
-      .from('signed_waivers')
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
       .select('location_id')
       .eq('clerk_user_id', userId)
-      .single();
+      .in('status', ['approved', 'active']);
     
-    userLocationId = waiver?.location_id || null;
+    userLocationIds = enrollments?.map(e => e.location_id).filter(Boolean) || [];
   }
 
   // Filter locations: admins see all, users only see their enrolled location
@@ -35,10 +36,10 @@ export default async function DiscussionsPage() {
     slug: loc.slug,
   }));
 
-  // If user has a location, only show that one. If no location found, show all (fallback)
-  const locations = isAdmin || !userLocationId 
+  // If user has locations, only show those. If no location found, show all (fallback)
+  const locations = isAdmin || userLocationIds.length === 0
     ? allLocations 
-    : allLocations.filter(loc => loc.id === userLocationId);
+    : allLocations.filter(loc => userLocationIds.includes(loc.id));
 
   return (
     <div className="space-y-6">

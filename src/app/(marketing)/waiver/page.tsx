@@ -2,13 +2,25 @@ import { Metadata } from 'next';
 import { Container } from '@/components/layout/container';
 import { WaiverForm } from './waiver-form';
 import { FileText, Shield, CreditCard, Camera } from 'lucide-react';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const metadata: Metadata = {
   title: 'Enrollment Waiver - Little Grapplers',
   description: 'Complete the Little Grapplers enrollment waiver and release of liability for your child to participate in Brazilian Jiu-Jitsu classes.',
 };
 
-export default function WaiverPage() {
+async function getLocations() {
+  const { data: locations } = await supabaseAdmin
+    .from('locations')
+    .select('id, name, slug')
+    .eq('is_active', true)
+    .order('name');
+  
+  return locations || [];
+}
+
+export default async function WaiverPage() {
+  const locations = await getLocations();
   return (
     <>
       {/* Hero Section */}
@@ -133,7 +145,7 @@ export default function WaiverPage() {
               <p className="text-muted-foreground">Please fill out the form below and sign digitally to complete your enrollment.</p>
             </div>
             
-            <WaiverForm />
+            <WaiverForm locations={locations} />
           </div>
         </Container>
       </section>

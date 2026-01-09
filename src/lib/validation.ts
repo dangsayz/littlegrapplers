@@ -451,6 +451,87 @@ export function checkSubmissionTiming(
   return elapsed < minSeconds; // Too fast, likely bot
 }
 
+// ============================================================================
+// STUDENT UPDATE SCHEMA (for parent-facing edits with sync)
+// ============================================================================
+
+export const studentUpdateSchema = z.object({
+  child_full_name: z
+    .string()
+    .min(1, 'Child name is required')
+    .max(CHAR_LIMITS.name.max * 2, 'Name is too long')
+    .transform(sanitizeString),
+  child_date_of_birth: z
+    .string()
+    .regex(PATTERNS.date, 'Please enter a valid date')
+    .optional()
+    .nullable(),
+  child_gender: z
+    .enum(['male', 'female', 'other', ''])
+    .optional()
+    .nullable(),
+  medical_conditions: z
+    .string()
+    .max(CHAR_LIMITS.mediumText.max, 'Medical conditions text is too long')
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
+  allergies: z
+    .string()
+    .max(CHAR_LIMITS.mediumText.max, 'Allergies text is too long')
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
+  emergency_contact_name: z
+    .string()
+    .max(CHAR_LIMITS.shortText.max, 'Emergency contact name is too long')
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
+  emergency_contact_phone: z
+    .string()
+    .max(CHAR_LIMITS.phone.max, 'Phone number is too long')
+    .transform((val) => (val ? formatPhoneNumber(val) : null))
+    .optional()
+    .nullable(),
+  emergency_contact_relationship: z
+    .string()
+    .max(CHAR_LIMITS.shortText.max, 'Relationship text is too long')
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
+});
+
+// ============================================================================
+// ENROLLMENT EDIT SCHEMA (for admin-facing edits with sync)
+// ============================================================================
+
+export const enrollmentEditSchema = z.object({
+  guardian_first_name: nameSchema,
+  guardian_last_name: nameSchema,
+  guardian_email: emailSchema,
+  guardian_phone: z
+    .string()
+    .max(CHAR_LIMITS.phone.max)
+    .transform((val) => (val ? formatPhoneNumber(val) : null))
+    .optional()
+    .nullable(),
+  child_first_name: nameSchema,
+  child_last_name: nameSchema,
+  emergency_contact_name: z
+    .string()
+    .max(CHAR_LIMITS.shortText.max)
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
+  emergency_contact_phone: z
+    .string()
+    .max(CHAR_LIMITS.phone.max)
+    .transform((val) => (val ? formatPhoneNumber(val) : null))
+    .optional()
+    .nullable(),
+});
+
 // Type exports
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 export type NewsletterData = z.infer<typeof newsletterSchema>;
@@ -459,3 +540,5 @@ export type DashboardWaiverData = z.infer<typeof dashboardWaiverSchema>;
 export type OnboardingFormData = z.infer<typeof onboardingFormSchema>;
 export type DiscussionData = z.infer<typeof discussionSchema>;
 export type ReplyData = z.infer<typeof replySchema>;
+export type StudentUpdateData = z.infer<typeof studentUpdateSchema>;
+export type EnrollmentEditData = z.infer<typeof enrollmentEditSchema>;

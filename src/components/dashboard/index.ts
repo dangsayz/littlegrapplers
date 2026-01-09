@@ -7,3 +7,6 @@ export { BillingPlaceholder } from './billing-placeholder';
 export { VideoCard } from './video-card';
 export { VideoPlayer } from './video-player';
 export { WaiverStatusCard } from './waiver-status-card';
+export { RevenueIntelligence } from './revenue-intelligence';
+export { LocationTeaser } from './location-teaser';
+export { PinVerificationDialog, getRememberedPin, hasRememberedPin } from './pin-verification-dialog';

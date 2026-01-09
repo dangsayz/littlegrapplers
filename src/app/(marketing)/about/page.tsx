@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Clock, Award, Users, Shield, Trophy } from 'lucide-react';
+import { ArrowRight, Clock, Award, Users, Shield, Trophy, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
@@ -260,6 +260,81 @@ export default function AboutPage() {
                   <span className="w-2 h-2 rounded-full bg-[#FF6B9D]" />
                   One confident, disciplined child at a time.
                 </p>
+              </div>
+            </FadeIn>
+          </div>
+        </Container>
+      </section>
+
+      {/* Active Competitor Section */}
+      <section className="py-32 md:py-40 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1F2A44] via-[#2A3654] to-[#1F2A44]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/10 via-transparent to-[#F7931E]/10" />
+        <div 
+          className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        
+        <Container className="relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            {/* Text */}
+            <FadeIn direction="up">
+              <div className="inline-flex items-center gap-2 mb-6">
+                <div className="h-1 w-8 rounded-full bg-[#2EC4B6]" />
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2EC4B6]">
+                  Active Competitor
+                </p>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight text-white">
+                Not just a coach—<span className="font-serif italic font-normal bg-gradient-to-r from-[#F7931E] to-[#FFC857] bg-clip-text text-transparent">a competitor.</span>
+              </h2>
+              <div className="mt-8 space-y-6 text-lg text-white/70 leading-relaxed">
+                <p>
+                  In addition to running Little Grapplers, Coach Stephen actively competes on the professional BJJ circuit. 
+                  This means your children learn from someone who practices what they preach—testing techniques 
+                  against the best in real competition.
+                </p>
+                <p>
+                  Leading by example isn't just a philosophy; it's how Coach Stephen lives. The discipline, 
+                  preparation, and resilience required for competition directly informs how he teaches your kids.
+                </p>
+              </div>
+              
+              <div className="mt-10 flex flex-wrap gap-3">
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-white/80">
+                  <Target className="h-3.5 w-3.5 text-[#2EC4B6]" />
+                  Active Competitor
+                </span>
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-white/80">
+                  <Trophy className="h-3.5 w-3.5 text-[#FFC857]" />
+                  Tournament Tested
+                </span>
+              </div>
+            </FadeIn>
+
+            {/* Competition Photos Grid */}
+            <FadeIn direction="up" delay={0.2}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-3xl shadow-2xl border-4 border-white/10">
+                  <Image
+                    src="/images/competition/IMG_6155.jpg"
+                    alt="Coach Stephen competing"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44]/60 via-transparent to-transparent" />
+                </div>
+                <div className="relative aspect-[3/4] overflow-hidden rounded-3xl shadow-2xl border-4 border-white/10 mt-8">
+                  <Image
+                    src="/images/competition/IMG_6152.jpeg"
+                    alt="Coach Stephen after competition match"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1F2A44]/60 via-transparent to-transparent" />
+                </div>
               </div>
             </FadeIn>
           </div>

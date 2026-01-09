@@ -151,7 +151,7 @@ export function MobileBottomNav() {
   // Determine user context - only after mounted to prevent hydration mismatch
   const isSignedIn = mounted && isLoaded && !!user;
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-  const isAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
+  const isAdmin = mounted && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
   
   // Determine which nav set to show based on current route and user role
   const isAdminSection = pathname.startsWith('/dashboard/admin');

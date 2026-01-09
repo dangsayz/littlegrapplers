@@ -302,7 +302,7 @@ export default function HomePage() {
                 transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
               >
                 <h2 className="text-[clamp(2.5rem,10vw,8rem)] font-black leading-[0.85] tracking-[-0.03em]">
-                  <span className="text-white/90 drop-shadow-lg">Build </span>
+                  <span className="text-white/90 drop-shadow-lg"></span>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7931E] via-[#FFC857] to-[#F7931E] animate-gradient-x">character.</span>
                 </h2>
               </motion.div>

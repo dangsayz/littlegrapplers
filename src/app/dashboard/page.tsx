@@ -4,6 +4,8 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
+import { LocationTeaser } from '@/components/dashboard';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 interface StudentDisplay {
   id: string;
@@ -13,10 +15,29 @@ interface StudentDisplay {
   stripes: number;
 }
 
+interface LocationActivity {
+  id: string;
+  title: string;
+  createdAt: string;
+  authorEmail: string;
+}
+
+interface PinnedLocation {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  state: string;
+  accessPin: string | null;
+  latestActivity: LocationActivity | null;
+}
+
 export default async function DashboardPage() {
   const { userId } = await auth();
   const user = await currentUser();
   const firstName = user?.firstName || 'there';
+  const userEmail = user?.emailAddresses[0]?.emailAddress || '';
+  const isAdmin = ADMIN_EMAILS.includes(userEmail);
 
   // Fetch students
   const students: StudentDisplay[] = [];
@@ -62,36 +83,93 @@ export default async function DashboardPage() {
       }
     }
 
-    // Fallback to waivers
-    if (students.length === 0) {
-      const { data: waivers } = await supabaseAdmin
-        .from('signed_waivers')
-        .select('id, child_full_name, is_active')
-        .eq('clerk_user_id', userId)
-        .neq('is_active', false);
+    // Also check signed_waivers
+    const { data: waivers } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('id, child_full_name, is_active')
+      .eq('clerk_user_id', userId)
+      .neq('is_active', false);
 
-      if (waivers) {
-        for (const w of waivers) {
-          const parts = (w.child_full_name || '').split(' ');
-          const fName = parts[0] || '';
-          const lName = parts.slice(1).join(' ') || '';
-          const key = `${fName.toLowerCase()}-${lName.toLowerCase()}`;
-          if (!seenNames.has(key)) {
-            seenNames.add(key);
-            students.push({
-              id: w.id,
-              firstName: fName,
-              lastName: lName,
-              beltRank: 'white',
-              stripes: 0,
-            });
-          }
+    if (waivers) {
+      for (const w of waivers) {
+        const parts = (w.child_full_name || '').split(' ');
+        const fName = parts[0] || '';
+        const lName = parts.slice(1).join(' ') || '';
+        const key = `${fName.toLowerCase()}-${lName.toLowerCase()}`;
+        if (!seenNames.has(key)) {
+          seenNames.add(key);
+          students.push({
+            id: w.id,
+            firstName: fName,
+            lastName: lName,
+            beltRank: 'white',
+            stripes: 0,
+          });
+        }
+      }
+    }
+
+    // Also check enrollments table (new enrollment system)
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, child_first_name, child_last_name, status')
+      .eq('clerk_user_id', userId)
+      .in('status', ['active', 'approved', 'pending']);
+
+    if (enrollments) {
+      for (const e of enrollments) {
+        const key = `${(e.child_first_name || '').toLowerCase()}-${(e.child_last_name || '').toLowerCase()}`;
+        if (!seenNames.has(key)) {
+          seenNames.add(key);
+          students.push({
+            id: e.id,
+            firstName: e.child_first_name || '',
+            lastName: e.child_last_name || '',
+            beltRank: 'white',
+            stripes: 0,
+          });
         }
       }
     }
   }
 
   const hasStudents = students.length > 0;
+
+  // Fetch locations with their latest activity
+  const pinnedLocations: PinnedLocation[] = [];
+  const { data: locations } = await supabaseAdmin
+    .from('locations')
+    .select('id, name, slug, city, state, access_pin')
+    .eq('is_active', true)
+    .limit(3);
+
+  if (locations) {
+    for (const loc of locations) {
+      const { data: latestThread } = await supabaseAdmin
+        .from('discussion_threads')
+        .select('id, title, created_at, author_email')
+        .eq('location_id', loc.id)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      pinnedLocations.push({
+        id: loc.id,
+        name: loc.name,
+        slug: loc.slug,
+        city: loc.city,
+        state: loc.state,
+        accessPin: loc.access_pin,
+        latestActivity: latestThread ? {
+          id: latestThread.id,
+          title: latestThread.title,
+          createdAt: latestThread.created_at,
+          authorEmail: latestThread.author_email,
+        } : null,
+      });
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -185,6 +263,11 @@ export default async function DashboardPage() {
             </Link>
           </Button>
         </div>
+      )}
+
+      {/* Locations Teaser */}
+      {pinnedLocations.length > 0 && (
+        <LocationTeaser locations={pinnedLocations} isAdmin={isAdmin} />
       )}
     </div>
   );

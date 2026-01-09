@@ -10,37 +10,37 @@ import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
 const locations = [
   {
     id: '1',
-    name: 'Lionheart Central Church',
-    slug: 'lionheart-central-church',
-    area: 'Dallas',
-    address: '123 Central Ave, Dallas, TX 75001',
+    name: 'Pinnacle at Montessori of St. Paul',
+    slug: 'pinnacle-montessori',
+    area: 'Wylie',
+    address: '2931 Parker Rd, Wylie, TX 75098',
     image: '/images/highlights/LittleGrapplers-05873.jpg',
-    schedule: 'Mon, Wed, Fri',
+    schedule: 'Mondays',
     ageGroups: '3-6 years',
     color: '#2EC4B6',
     students: 35,
   },
   {
     id: '2',
-    name: 'Lionheart First Baptist Plano',
-    slug: 'lionheart-first-baptist-plano',
+    name: 'Lionheart Central Church',
+    slug: 'lionheart-central-church',
     area: 'Plano',
-    address: '456 First Baptist Way, Plano, TX 75023',
+    address: '2301 Premier Dr, Plano, TX 75075',
     image: '/images/highlights/LittleGrapplers-05919.jpg',
-    schedule: 'Tue, Thu',
-    ageGroups: '4-7 years',
+    schedule: 'Tuesdays',
+    ageGroups: '3-6 years',
     color: '#F7931E',
     students: 28,
   },
   {
     id: '3',
-    name: 'Pinnacle at Montessori',
-    slug: 'pinnacle-montessori',
-    area: 'Richardson',
-    address: '789 Montessori Dr, Richardson, TX 75080',
+    name: 'Lionheart First Baptist Plano',
+    slug: 'lionheart-first-baptist-plano',
+    area: 'Plano',
+    address: '3665 W President George Bush Hwy, Plano, TX 75075',
     image: '/images/highlights/LittleGrapplers-05924.jpg',
-    schedule: 'Mon, Wed',
-    ageGroups: '3-5 years',
+    schedule: 'Wednesdays',
+    ageGroups: '3-6 years',
     color: '#FFC857',
     students: 22,
   },
@@ -141,7 +141,7 @@ export default function LocationsPage() {
                       <span className="text-white/80 text-sm font-medium">Little Grapplers</span>
                       <div className="h-8 w-8 rounded-full bg-white/20" />
                     </div>
-                    <div className="text-2xl font-bold text-white tracking-wider mb-4">Dallas Location</div>
+                    <div className="text-2xl font-bold text-white tracking-wider mb-4">Wylie Location</div>
                     <div className="flex justify-between text-sm">
                       <div>
                         <div className="text-white/60 text-xs">STUDENTS</div>
@@ -149,7 +149,7 @@ export default function LocationsPage() {
                       </div>
                       <div>
                         <div className="text-white/60 text-xs">SCHEDULE</div>
-                        <div className="text-white font-medium">M/W/F</div>
+                        <div className="text-white font-medium">Mon</div>
                       </div>
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export default function LocationsPage() {
                       </div>
                       <div>
                         <div className="text-white/60 text-xs">SCHEDULE</div>
-                        <div className="text-white font-medium">T/TH</div>
+                        <div className="text-white font-medium">Tue</div>
                       </div>
                     </div>
                   </div>
@@ -183,7 +183,7 @@ export default function LocationsPage() {
                       <span className="text-[#1F2A44]/80 text-sm font-medium">Little Grapplers</span>
                       <div className="h-8 w-8 rounded-full bg-[#1F2A44]/20" />
                     </div>
-                    <div className="text-2xl font-bold text-[#1F2A44] tracking-wider mb-4">Richardson</div>
+                    <div className="text-2xl font-bold text-[#1F2A44] tracking-wider mb-4">Plano #2</div>
                     <div className="flex justify-between text-sm">
                       <div>
                         <div className="text-[#1F2A44]/60 text-xs">STUDENTS</div>
@@ -191,7 +191,7 @@ export default function LocationsPage() {
                       </div>
                       <div>
                         <div className="text-[#1F2A44]/60 text-xs">SCHEDULE</div>
-                        <div className="text-[#1F2A44] font-medium">M/W</div>
+                        <div className="text-[#1F2A44] font-medium">Wed</div>
                       </div>
                     </div>
                   </div>

@@ -159,9 +159,9 @@ export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // Legacy support - primary admin
  * Each location is an isolated community with PIN-protected access
  */
 export const DISCUSSION_LOCATIONS = [
-  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano' },
-  { id: 'pinnacle-montessori', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX 75075' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX 75075' },
+  { id: 'pinnacle-montessori', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX 75098' },
 ] as const;
 
 export type DiscussionLocationId = (typeof DISCUSSION_LOCATIONS)[number]['id'];

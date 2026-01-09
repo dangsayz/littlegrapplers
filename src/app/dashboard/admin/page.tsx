@@ -12,8 +12,14 @@ import {
   Receipt,
   Inbox,
   AlertCircle,
+  UserPlus,
+  Code2,
+  HelpCircle,
+  FileText,
+  CreditCard,
 } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
+import { RevenueIntelligence } from '@/components/dashboard';
 
 // Apple-inspired accent colors
 const accentColors = {
@@ -34,14 +40,21 @@ export default async function AdminPage() {
   }
 
   // Fetch dynamic stats
-  const [locationsRes, threadsRes, usersRes, contactsRes, waiversRes, newsletterRes] = await Promise.all([
+  const [locationsRes, threadsRes, usersRes, contactsRes, waiversRes, newsletterRes, pendingEnrollmentsRes, unpaidWorkOrdersRes] = await Promise.all([
     supabaseAdmin.from('locations').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('discussion_threads').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('contact_submissions').select('*', { count: 'exact', head: true }).eq('is_read', false),
     supabaseAdmin.from('signed_waivers').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('newsletter_subscribers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    supabaseAdmin.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabaseAdmin.from('work_orders').select('id, quoted_cost').eq('status', 'completed').eq('paid', false),
   ]);
+
+  // Calculate unpaid work orders total
+  const unpaidWorkOrders = unpaidWorkOrdersRes.data || [];
+  const unpaidTotal = unpaidWorkOrders.reduce((sum, wo) => sum + (wo.quoted_cost || 0), 0);
+  const unpaidCount = unpaidWorkOrders.length;
 
   const stats = {
     locations: locationsRes.count || 0,
@@ -50,11 +63,22 @@ export default async function AdminPage() {
     unreadContacts: contactsRes.count || 0,
     students: waiversRes.count || 0,
     subscribers: newsletterRes.count || 0,
+    pendingEnrollments: pendingEnrollmentsRes.count || 0,
   };
 
 
   // Essential admin sections
   const adminSections = [
+    {
+      title: 'Enrollments',
+      description: 'Review and approve new applications',
+      icon: UserPlus,
+      href: '/dashboard/admin/enrollments',
+      color: accentColors.green,
+      stat: stats.pendingEnrollments,
+      statLabel: 'pending',
+      highlight: stats.pendingEnrollments > 0,
+    },
     {
       title: 'Contact Inbox',
       description: 'Website inquiries from contact form',
@@ -76,7 +100,7 @@ export default async function AdminPage() {
     },
     {
       title: 'Waivers',
-      description: 'Signed enrollment waivers',
+      description: 'Signed enrollment waivers (legacy)',
       icon: FileCheck,
       href: '/dashboard/admin/waivers',
       color: accentColors.purple,
@@ -115,7 +139,76 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* INVOICE - Payment Due Card */}
+      {/* Revenue Intelligence Section - Pinned to Top */}
+      <RevenueIntelligence 
+        isConnected={false}
+        metrics={{
+          mrr: null,
+          arr: null,
+          projectedRevenue: null,
+          activeSubscriptions: null,
+          mrrGrowth: null,
+          churnRate: null,
+        }}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          DEVELOPMENT TEAM SECTION - Divider
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <div className="relative my-10">
+        {/* Divider Line */}
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200" />
+        </div>
+        
+        {/* Section Label */}
+        <div className="relative flex justify-center">
+          <div className="bg-gray-50 px-4 py-2 rounded-full border border-gray-200">
+            <div className="flex items-center gap-2">
+              <Code2 className="h-4 w-4 text-indigo-500" />
+              <span className="text-sm font-semibold text-gray-700">Development Team</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Development Section Header */}
+      <div className="mb-6">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <Code2 className="h-5 w-5 text-indigo-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-gray-900">Developer Portal</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Manage work orders, view invoices, and pay your development team
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium">
+            <HelpCircle className="h-3 w-3" />
+            <span>Private to you</span>
+          </div>
+        </div>
+        
+        {/* Quick Hints */}
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
+            <FileText className="h-4 w-4 text-gray-400" />
+            <span className="text-xs text-gray-500">Submit work requests</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
+            <Receipt className="h-4 w-4 text-gray-400" />
+            <span className="text-xs text-gray-500">View completed tasks</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-100">
+            <CreditCard className="h-4 w-4 text-gray-400" />
+            <span className="text-xs text-gray-500">Pay invoices securely</span>
+          </div>
+        </div>
+      </div>
+
+      {/* INVOICE - Payment Due Card (only show if there's unpaid work) */}
+      {unpaidTotal > 0 && (
       <Link
         href={'/dashboard/admin/developer' as Route}
         className="block mb-8 group"
@@ -153,10 +246,10 @@ export default async function AdminPage() {
             <div className="flex items-end justify-between mt-6 pt-4 border-t border-white/20">
               <div>
                 <p className="text-white/60 text-sm mb-1">Amount Due</p>
-                <p className="text-4xl font-bold text-white tracking-tight">$350</p>
+                <p className="text-4xl font-bold text-white tracking-tight">${unpaidTotal.toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-white/60 text-xs mb-2">4 completed tasks</p>
+                <p className="text-white/60 text-xs mb-2">{unpaidCount} completed {unpaidCount === 1 ? 'task' : 'tasks'}</p>
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-green-600 font-semibold text-sm group-hover:bg-white/90 transition-colors">
                   View & Pay
                 </span>
@@ -165,6 +258,7 @@ export default async function AdminPage() {
           </div>
         </div>
       </Link>
+      )}
 
       {/* Quick Stats - Apple Card Style */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">

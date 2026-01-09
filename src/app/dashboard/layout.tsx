@@ -70,7 +70,7 @@ export default async function DashboardLayout({
       <DashboardSidebar />
 
       {/* Main content area */}
-      <div className="lg:pl-64 overflow-x-hidden">
+      <div className="lg:pl-64 relative z-30">
         {/* Header */}
         <DashboardHeader
           firstName={user?.firstName}

@@ -307,11 +307,11 @@ CREATE INDEX IF NOT EXISTS idx_site_settings_key ON site_settings(key);
 -- ============================================
 -- Seed the 3 locations
 -- ============================================
-INSERT INTO locations (name, slug, address, city, state, is_active)
+INSERT INTO locations (name, slug, address, city, state, zip, is_active)
 VALUES 
-  ('Lionheart Central Church', 'lionheart-central-church', '123 Central Ave', 'Dallas', 'TX', true),
-  ('Lionheart First Baptist Plano', 'lionheart-first-baptist-plano', '456 First Baptist Way', 'Plano', 'TX', true),
-  ('Pinnacle at Montessori', 'pinnacle-montessori', '789 Montessori Dr', 'Richardson', 'TX', true)
+  ('Lionheart Central Church', 'lionheart-central-church', '2301 Premier Dr', 'Plano', 'TX', '75075', true),
+  ('Lionheart First Baptist Plano', 'lionheart-first-baptist-plano', '3665 W President George Bush Hwy', 'Plano', 'TX', '75075', true),
+  ('Pinnacle at Montessori of St. Paul', 'pinnacle-montessori', '2931 Parker Rd', 'Wylie', 'TX', '75098', true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================

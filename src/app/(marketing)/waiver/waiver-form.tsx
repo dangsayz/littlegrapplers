@@ -24,18 +24,24 @@ const LIMITS = {
 
 type PlanType = 'month-to-month' | '3-month' | '6-month';
 
-const LOCATIONS = [
-  { id: 'pinnacle-montessori', name: 'Pinnacle @ Montessori', schedule: 'Mondays' },
-  { id: 'lionheart-central', name: 'Lionheart Central Church', schedule: 'Tuesdays' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', schedule: 'Wednesdays' },
-] as const;
+interface Location {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface WaiverFormProps {
+  locations: Location[];
+}
 
 interface FormData {
   locationId: string;
-  guardianFullName: string;
+  guardianFirstName: string;
+  guardianLastName: string;
   guardianEmail: string;
   guardianPhone: string;
-  childFullName: string;
+  childFirstName: string;
+  childLastName: string;
   childDateOfBirth: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
@@ -47,10 +53,12 @@ interface FormData {
 
 const initialFormData: FormData = {
   locationId: '',
-  guardianFullName: '',
+  guardianFirstName: '',
+  guardianLastName: '',
   guardianEmail: '',
   guardianPhone: '',
-  childFullName: '',
+  childFirstName: '',
+  childLastName: '',
   childDateOfBirth: '',
   emergencyContactName: '',
   emergencyContactPhone: '',
@@ -60,7 +68,7 @@ const initialFormData: FormData = {
   agreedToTerms: false,
 };
 
-export function WaiverForm() {
+export function WaiverForm({ locations }: WaiverFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -92,7 +100,7 @@ export function WaiverForm() {
     const timeoutId = setTimeout(() => {
       try {
         // Only save if there's meaningful data
-        if (formData.guardianFullName || formData.childFullName || formData.guardianEmail) {
+        if (formData.guardianFirstName || formData.childFirstName || formData.guardianEmail) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
         }
       } catch (e) {
@@ -165,7 +173,7 @@ export function WaiverForm() {
     }
 
     try {
-      const response = await fetch('/api/waiver', {
+      const response = await fetch('/api/enrollment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -273,7 +281,7 @@ export function WaiverForm() {
         </div>
         
         <div className="grid gap-3 sm:grid-cols-3">
-          {LOCATIONS.map((location) => (
+          {locations.map((location) => (
             <label
               key={location.id}
               className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
@@ -293,7 +301,6 @@ export function WaiverForm() {
               />
               <div className="text-center">
                 <p className="font-semibold text-foreground">{location.name}</p>
-                <p className="mt-1 text-sm text-[#F7931E] font-medium">{location.schedule}</p>
               </div>
             </label>
           ))}
@@ -310,21 +317,39 @@ export function WaiverForm() {
         </div>
         
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="guardianFullName" className="mb-2 block text-sm font-medium">
-              Full Legal Name <span className="text-coral">*</span>
+          <div>
+            <label htmlFor="guardianFirstName" className="mb-2 block text-sm font-medium">
+              First Name <span className="text-coral">*</span>
             </label>
             <input
               type="text"
-              id="guardianFullName"
-              name="guardianFullName"
-              value={formData.guardianFullName}
+              id="guardianFirstName"
+              name="guardianFirstName"
+              value={formData.guardianFirstName}
               onChange={handleChange}
               required
               maxLength={LIMITS.name}
               pattern="[a-zA-Z\s'-]+"
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-              placeholder="Enter your full legal name"
+              placeholder="First name"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="guardianLastName" className="mb-2 block text-sm font-medium">
+              Last Name <span className="text-coral">*</span>
+            </label>
+            <input
+              type="text"
+              id="guardianLastName"
+              name="guardianLastName"
+              value={formData.guardianLastName}
+              onChange={handleChange}
+              required
+              maxLength={LIMITS.name}
+              pattern="[a-zA-Z\s'-]+"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              placeholder="Last name"
             />
           </div>
           
@@ -380,24 +405,42 @@ export function WaiverForm() {
         
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="childFullName" className="mb-2 block text-sm font-medium">
-              Child's Full Name <span className="text-coral">*</span>
+            <label htmlFor="childFirstName" className="mb-2 block text-sm font-medium">
+              Child's First Name <span className="text-coral">*</span>
             </label>
             <input
               type="text"
-              id="childFullName"
-              name="childFullName"
-              value={formData.childFullName}
+              id="childFirstName"
+              name="childFirstName"
+              value={formData.childFirstName}
               onChange={handleChange}
               required
               maxLength={LIMITS.name}
               pattern="[a-zA-Z\s'-]+"
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-              placeholder="Enter child's full name"
+              placeholder="First name"
             />
           </div>
           
           <div>
+            <label htmlFor="childLastName" className="mb-2 block text-sm font-medium">
+              Child's Last Name <span className="text-coral">*</span>
+            </label>
+            <input
+              type="text"
+              id="childLastName"
+              name="childLastName"
+              value={formData.childLastName}
+              onChange={handleChange}
+              required
+              maxLength={LIMITS.name}
+              pattern="[a-zA-Z\s'-]+"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+              placeholder="Last name"
+            />
+          </div>
+          
+          <div className="sm:col-span-2">
             <label htmlFor="childDateOfBirth" className="mb-2 block text-sm font-medium">
               Date of Birth
             </label>

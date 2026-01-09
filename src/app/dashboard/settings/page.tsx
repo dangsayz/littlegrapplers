@@ -45,14 +45,19 @@ export default function SettingsPage() {
   // Fetch profile data on mount
   useEffect(() => {
     const fetchProfile = async () => {
+      // Always set Clerk data first as defaults
+      const clerkEmail = clerkUser?.emailAddresses?.[0]?.emailAddress || '';
+      const clerkFirstName = clerkUser?.firstName || '';
+      const clerkLastName = clerkUser?.lastName || '';
+      
       try {
         const response = await fetch('/api/profile');
         if (response.ok) {
           const data = await response.json();
           setFormData({
-            firstName: data.user.firstName || '',
-            lastName: data.user.lastName || '',
-            email: data.user.email || clerkUser?.emailAddresses?.[0]?.emailAddress || '',
+            firstName: data.user.firstName || clerkFirstName,
+            lastName: data.user.lastName || clerkLastName,
+            email: clerkEmail, // Always use Clerk email
             phone: data.user.phone || '',
             streetAddress: data.user.address?.streetAddress || '',
             city: data.user.address?.city || '',
@@ -61,15 +66,32 @@ export default function SettingsPage() {
             emergencyContactName: data.user.emergencyContactName || '',
             emergencyContactPhone: data.user.emergencyContactPhone || '',
           });
+        } else {
+          // API failed - still populate from Clerk
+          setFormData(prev => ({
+            ...prev,
+            firstName: clerkFirstName,
+            lastName: clerkLastName,
+            email: clerkEmail,
+          }));
         }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
+        // On error, still populate from Clerk
+        setFormData(prev => ({
+          ...prev,
+          firstName: clerkFirstName,
+          lastName: clerkLastName,
+          email: clerkEmail,
+        }));
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProfile();
+    if (clerkUser) {
+      fetchProfile();
+    }
   }, [clerkUser]);
 
   const handleSave = async (section: string) => {

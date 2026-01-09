@@ -3,6 +3,8 @@ import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 // GET: Fetch members for a location
+// IMPORTANT: enrollment.location_id is the SINGLE SOURCE OF TRUTH for student-location assignment.
+// All member/student queries must use this field exclusively to ensure consistent scoping.
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -20,51 +22,51 @@ export async function GET(
     
     const { data: location, error: locError } = await supabaseAdmin
       .from('locations')
-      .select('id, name')
+      .select('id, name, slug')
       .eq(isUUID ? 'id' : 'slug', slug)
       .single();
 
     if (locError || !location) {
+      console.error('Location not found for slug:', slug);
       return NextResponse.json({ error: 'Location not found' }, { status: 404 });
     }
 
-    // Get members for this location
-    const { data: members, error: membersError } = await supabaseAdmin
-      .from('location_members')
-      .select('id, user_id, role, joined_at')
-      .eq('location_id', location.id);
+    // SINGLE SOURCE OF TRUTH: Query enrollments by location_id
+    // Only include approved/active enrollments for this specific location
+    const { data: enrollments, error: enrollError } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, child_first_name, child_last_name, child_date_of_birth, submitted_at, clerk_user_id, status')
+      .eq('location_id', location.id)
+      .in('status', ['approved', 'active']);
 
-    if (membersError) throw membersError;
+    if (enrollError) {
+      console.error('Error fetching enrollments:', enrollError);
+      return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 });
+    }
 
-    // Get user details for members
-    const userIds = (members || []).map(m => m.user_id);
-    const { data: users } = await supabaseAdmin
-      .from('users')
-      .select('id, email, first_name, last_name')
-      .in('id', userIds.length > 0 ? userIds : ['none']);
-
-    const userMap = new Map((users || []).map(u => [u.id, u]));
-
-    const formattedMembers = (members || []).map(m => {
-      const memberUser = userMap.get(m.user_id);
-      const firstName = memberUser?.first_name || 'Unknown';
-      const lastName = memberUser?.last_name || '';
+    // Format members from enrollments (single source of truth)
+    const members = (enrollments || []).map(enrollment => {
+      const firstName = enrollment.child_first_name || 'Unknown';
+      const lastName = enrollment.child_last_name || '';
       const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || '??';
       
       return {
-        id: m.id,
+        id: enrollment.id,
         name: `${firstName} ${lastName[0] ? lastName[0] + '.' : ''}`.trim(),
         fullName: `${firstName} ${lastName}`.trim(),
-        email: memberUser?.email,
-        role: m.role,
+        email: null,
+        role: 'student',
+        type: 'student' as const,
         initials,
-        joinedAt: m.joined_at,
+        joinedAt: enrollment.submitted_at,
+        dateOfBirth: enrollment.child_date_of_birth || null,
       };
     });
 
     return NextResponse.json({ 
-      members: formattedMembers,
-      total: formattedMembers.length,
+      members,
+      total: members.length,
+      studentCount: members.length,
     });
   } catch (error) {
     console.error('Error fetching members:', error);

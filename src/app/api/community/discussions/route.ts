@@ -3,6 +3,29 @@ import { currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAILS } from '@/lib/constants';
+import { sanitizeString } from '@/lib/validation';
+
+// Rate limiting: Track posts per user (in-memory, resets on server restart)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_POSTS = 5; // Max 5 posts per minute
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  const userLimit = rateLimitMap.get(userId);
+  
+  if (!userLimit || now > userLimit.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true };
+  }
+  
+  if (userLimit.count >= RATE_LIMIT_MAX_POSTS) {
+    return { allowed: false, retryAfter: Math.ceil((userLimit.resetAt - now) / 1000) };
+  }
+  
+  userLimit.count++;
+  return { allowed: true };
+}
 
 // GET: Fetch threads for a location (by slug)
 export async function GET(request: NextRequest) {
@@ -50,6 +73,23 @@ export async function GET(request: NextRequest) {
       replyCountMap[r.thread_id] = (replyCountMap[r.thread_id] || 0) + 1;
     });
 
+    // Get media attachments for threads
+    const { data: mediaAttachments } = await supabaseAdmin
+      .from('media_attachments')
+      .select('id, thread_id, file_url, file_type, file_name')
+      .in('thread_id', threadIds.length > 0 ? threadIds : ['none']);
+
+    const mediaMap = new Map<string, Array<{ id: string; url: string; type: string; name: string }>>();
+    (mediaAttachments || []).forEach(m => {
+      const existing = mediaMap.get(m.thread_id) || [];
+      mediaMap.set(m.thread_id, [...existing, {
+        id: m.id,
+        url: m.file_url,
+        type: m.file_type,
+        name: m.file_name,
+      }]);
+    });
+
     // Get unique author IDs and fetch authors
     const authorIds = [...new Set((threads || []).map(t => t.author_id))];
     const { data: authors } = await supabaseAdmin
@@ -70,6 +110,7 @@ export async function GET(request: NextRequest) {
         isLocked: thread.is_locked,
         createdAt: thread.created_at,
         replyCount: replyCountMap[thread.id] || 0,
+        media: mediaMap.get(thread.id) || [],
         author: {
           email: author?.email || thread.author_email || 'unknown',
           firstName: author?.first_name || 'Unknown',
@@ -97,12 +138,24 @@ export async function POST(request: NextRequest) {
     const userEmail = user.emailAddresses[0]?.emailAddress;
     const clerkUserId = user.id;
 
-    const body = await request.json();
-    const { locationSlug, title, content, videoLinks } = body;
+    // Rate limiting check
+    const rateCheck = checkRateLimit(clerkUserId);
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ 
+        error: `Too many posts. Please wait ${rateCheck.retryAfter} seconds.` 
+      }, { status: 429 });
+    }
 
-    if (!locationSlug || !title || !content) {
+    const body = await request.json();
+    const { locationSlug, title: rawTitle, content: rawContent, videoLinks } = body;
+
+    if (!locationSlug || !rawTitle || !rawContent) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Sanitize inputs to prevent XSS
+    const title = sanitizeString(rawTitle);
+    const content = sanitizeString(rawContent);
 
     if (title.length < 3 || title.length > 200) {
       return NextResponse.json({ error: 'Title must be 3-200 characters' }, { status: 400 });

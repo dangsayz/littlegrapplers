@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { UserButton } from '@clerk/nextjs';
-import { Menu, X, ChevronLeft, ChevronDown, MapPin, LayoutDashboard, Shield, Church, Building2, GraduationCap } from 'lucide-react';
+import { Menu, X, ChevronLeft, ChevronDown, MapPin, LayoutDashboard, Shield, Church, Building2, GraduationCap, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useRef } from 'react';
 import { ADMIN_EMAILS } from '@/lib/constants';
+import { PinVerificationDialog, getRememberedPin } from './pin-verification-dialog';
 
 interface DashboardHeaderProps {
   firstName?: string | null;
@@ -17,9 +18,9 @@ interface DashboardHeaderProps {
 }
 
 const LOCATIONS = [
-  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', icon: Church, color: 'bg-violet-500' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', icon: Building2, color: 'bg-blue-500' },
-  { id: 'pinnacle', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori', icon: GraduationCap, color: 'bg-emerald-500' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX', icon: Church, color: 'bg-violet-500' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX', icon: Building2, color: 'bg-blue-500' },
+  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX', icon: GraduationCap, color: 'bg-emerald-500' },
 ] as const;
 
 const mobileNavItems: Array<{ label: string; href: Route }> = [
@@ -32,18 +33,76 @@ const mobileNavItems: Array<{ label: string; href: Route }> = [
 ];
 
 export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [locationsOpen, setLocationsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ slug: string; name: string } | null>(null);
+  const [locationPins, setLocationPins] = useState<Record<string, string>>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isLoaded } = useUser();
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
   const isAdmin = mounted && isLoaded && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
   const displayName = firstName || 'Grappler';
 
+  const handleLocationClick = async (e: React.MouseEvent, location: typeof LOCATIONS[number]) => {
+    e.preventDefault();
+    setLocationsOpen(false);
+
+    // Check if PIN is already verified via server
+    try {
+      const res = await fetch(`/api/locations/${location.slug}/verify-pin`);
+      const data = await res.json();
+      
+      if (data.verified) {
+        router.push(`/community/${location.slug}`);
+        return;
+      }
+    } catch {
+      // Continue to show PIN dialog on error
+    }
+
+    // Check if we have a remembered PIN and try auto-verify
+    const rememberedPin = getRememberedPin(location.slug);
+    if (rememberedPin) {
+      try {
+        const res = await fetch(`/api/locations/${location.slug}/verify-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: rememberedPin }),
+        });
+        
+        if (res.ok) {
+          router.push(`/community/${location.slug}`);
+          return;
+        }
+      } catch {
+        // Continue to show PIN dialog on error
+      }
+    }
+
+    // Show PIN dialog
+    setSelectedLocation({ slug: location.slug, name: location.name });
+    setPinDialogOpen(true);
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isAdmin && locationsOpen && Object.keys(locationPins).length === 0) {
+      fetch('/api/admin/locations/pins')
+        .then(res => res.json())
+        .then(data => {
+          if (data.pins) {
+            setLocationPins(data.pins);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAdmin, locationsOpen, locationPins]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -122,7 +181,7 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 shadow-sm">
                         <LayoutDashboard className="h-5 w-5 text-white" />
                       </div>
-                      <span>My Dashboard</span>
+                      <span>My Family</span>
                     </Link>
                     {isAdmin && (
                       <Link
@@ -149,17 +208,27 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                     {LOCATIONS.map((location) => {
                       const IconComponent = location.icon;
                       return (
-                        <Link
+                        <button
                           key={location.id}
-                          href={`/community/${location.slug}`}
-                          onClick={() => setLocationsOpen(false)}
-                          className="group flex items-center gap-4 px-3 py-3 rounded-xl text-[15px] font-medium text-gray-900 hover:bg-gray-100/80 transition-all"
+                          onClick={(e) => handleLocationClick(e, location)}
+                          className="group flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-gray-100/80 transition-all w-full text-left"
                         >
                           <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${location.color} shadow-sm`}>
                             <IconComponent className="h-5 w-5 text-white" />
                           </div>
-                          <span className="truncate">{location.name}</span>
-                        </Link>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[15px] font-medium text-gray-900 truncate">{location.name}</p>
+                            <p className="text-[12px] text-gray-400 truncate">{location.address}</p>
+                          </div>
+                          {isAdmin && locationPins[location.slug] && (
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 border border-gray-200/60">
+                              <Key className="h-3 w-3 text-gray-400" />
+                              <span className="text-[11px] font-mono font-medium text-gray-500 tracking-wide">
+                                {locationPins[location.slug]}
+                              </span>
+                            </div>
+                          )}
+                        </button>
                       );
                     })}
                   </div>
@@ -170,10 +239,23 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
             <span className="hidden sm:inline text-sm text-muted-foreground">
               {firstName} {lastName}
             </span>
-            <UserButton afterSignOutUrl="/" />
+            {mounted && <UserButton afterSignOutUrl="/" />}
           </div>
         </div>
       </header>
+
+      {/* PIN Verification Dialog */}
+      {selectedLocation && (
+        <PinVerificationDialog
+          isOpen={pinDialogOpen}
+          onClose={() => {
+            setPinDialogOpen(false);
+            setSelectedLocation(null);
+          }}
+          locationSlug={selectedLocation.slug}
+          locationName={selectedLocation.name}
+        />
+      )}
 
       {/* Mobile navigation overlay */}
       {mobileMenuOpen && (

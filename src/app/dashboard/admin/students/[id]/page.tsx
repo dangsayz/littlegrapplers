@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabaseAdmin } from '@/lib/supabase';
+import { StudentActions } from './student-actions';
 
 
 export default async function AdminStudentDetailPage({
@@ -33,14 +34,59 @@ export default async function AdminStudentDetailPage({
     redirect('/dashboard');
   }
 
-  // Fetch student (waiver) data
-  const { data: student, error } = await supabaseAdmin
-    .from('signed_waivers')
-    .select('*')
+  // First try to fetch from students table (new onboarding system)
+  const { data: studentRecord, error: studentError } = await supabaseAdmin
+    .from('students')
+    .select(`
+      *,
+      parent:parents(*)
+    `)
     .eq('id', id)
     .single();
 
-  if (error || !student) {
+  // If not found in students, try signed_waivers (legacy)
+  let student: any = null;
+  let isLegacyWaiver = false;
+
+  if (studentRecord) {
+    // Transform to unified format
+    student = {
+      id: studentRecord.id,
+      child_full_name: `${studentRecord.first_name} ${studentRecord.last_name}`,
+      child_date_of_birth: studentRecord.date_of_birth,
+      child_gender: null,
+      medical_conditions: studentRecord.medical_conditions,
+      allergies: null,
+      parent_first_name: studentRecord.parent?.first_name,
+      parent_last_name: studentRecord.parent?.last_name,
+      parent_email: null, // Would need to join with users table
+      parent_phone: studentRecord.parent?.phone,
+      parent_address: null,
+      emergency_contact_name: studentRecord.parent?.emergency_contact_name,
+      emergency_contact_phone: studentRecord.parent?.emergency_contact_phone,
+      emergency_contact_relationship: null,
+      signed_at: studentRecord.created_at,
+      created_at: studentRecord.created_at,
+      belt_rank: studentRecord.belt_rank,
+      stripes: studentRecord.stripes,
+      notes: studentRecord.notes,
+    };
+  } else {
+    // Try legacy signed_waivers table
+    const { data: waiver, error: waiverError } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (waiverError || !waiver) {
+      notFound();
+    }
+    student = waiver;
+    isLegacyWaiver = true;
+  }
+
+  if (!student) {
     notFound();
   }
 
@@ -272,31 +318,12 @@ export default async function AdminStudentDetailPage({
       {/* Actions */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4">
-            <Button variant="outline" asChild>
-              <a href={`mailto:${student.parent_email}`}>
-                <Mail className="h-4 w-4 mr-2" />
-                Email Parent
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href={`tel:${student.parent_phone}`}>
-                <Phone className="h-4 w-4 mr-2" />
-                Call Parent
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/admin/students/${id}/edit`}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit Details
-              </Link>
-            </Button>
-            <Button variant="destructive" asChild>
-              <Link href={`/dashboard/admin/students/${id}/delete`}>
-                Delete Student
-              </Link>
-            </Button>
-          </div>
+          <StudentActions
+            studentId={id}
+            studentName={student.child_full_name}
+            parentEmail={student.parent_email}
+            parentPhone={student.parent_phone}
+          />
         </CardContent>
       </Card>
     </div>

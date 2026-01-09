@@ -42,19 +42,10 @@ export async function POST(request: NextRequest) {
           },
         ];
 
-    // Calculate the next 1st of the month for billing anchor
-    const now = new Date();
-    const nextFirst = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const billingAnchor = Math.floor(nextFirst.getTime() / 1000);
-
     const session = await devStripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'subscription',
-      subscription_data: {
-        billing_cycle_anchor: billingAnchor,
-        proration_behavior: 'none',
-      },
       success_url: `${baseUrl}/dashboard/admin/developer?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/dashboard/admin/developer?subscription=cancelled`,
       metadata: {

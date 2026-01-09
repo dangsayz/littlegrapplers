@@ -36,7 +36,14 @@ export async function PATCH(
       .single();
 
     if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Location not found' }, { status: 404 });
+      }
       throw error;
+    }
+
+    if (!location) {
+      return NextResponse.json({ error: 'Location not found' }, { status: 404 });
     }
 
     return NextResponse.json({

@@ -22,13 +22,15 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { title, description } = body;
+    const { title, description, allLocations, locationIds } = body;
 
+    // Update media record
     const { data: media, error } = await supabaseAdmin
       .from('media')
       .update({
         title,
         description,
+        all_locations: allLocations,
       })
       .eq('id', id)
       .select()
@@ -39,7 +41,42 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });
     }
 
-    return NextResponse.json({ media });
+    // Update location assignments if provided
+    if (typeof allLocations !== 'undefined') {
+      // Delete existing location assignments
+      await supabaseAdmin
+        .from('media_locations')
+        .delete()
+        .eq('media_id', id);
+
+      // Add new location assignments if not all locations
+      if (!allLocations && locationIds?.length > 0) {
+        await supabaseAdmin.from('media_locations').insert(
+          locationIds.map((locationId: string) => ({
+            media_id: id,
+            location_id: locationId,
+          }))
+        );
+      }
+    }
+
+    // Fetch updated media with locations
+    const { data: updatedMedia } = await supabaseAdmin
+      .from('media')
+      .select(`
+        *,
+        media_locations (
+          location_id,
+          locations (
+            id,
+            name
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    return NextResponse.json({ media: updatedMedia || media });
   } catch (error) {
     console.error('Media update error:', error);
     return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });

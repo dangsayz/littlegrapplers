@@ -47,29 +47,16 @@ async function getUserLocationIds(): Promise<string[]> {
   const user = await currentUser();
   if (!user) return [];
 
-  // Get user's students and their locations
-  const { data: userData } = await supabaseAdmin
-    .from('users')
-    .select('id')
+  // SINGLE SOURCE OF TRUTH: Get user's location IDs from enrollments
+  // enrollment.location_id is the authoritative reference for student-location assignment
+  const { data: enrollments } = await supabaseAdmin
+    .from('enrollments')
+    .select('location_id')
     .eq('clerk_user_id', user.id)
-    .single();
+    .in('status', ['approved', 'active']);
 
-  if (!userData) return [];
-
-  const { data: parent } = await supabaseAdmin
-    .from('parents')
-    .select('id')
-    .eq('user_id', userData.id)
-    .single();
-
-  if (!parent) return [];
-
-  const { data: studentLocations } = await supabaseAdmin
-    .from('student_locations')
-    .select('location_id, students!inner(parent_id)')
-    .eq('students.parent_id', parent.id);
-
-  return studentLocations?.map((sl) => sl.location_id).filter(Boolean) || [];
+  const locationIds = enrollments?.map((e) => e.location_id).filter(Boolean) || [];
+  return [...new Set(locationIds)]; // Deduplicate
 }
 
 interface PageProps {

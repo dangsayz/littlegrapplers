@@ -63,6 +63,8 @@ export default function AdminMediaPage() {
   const [filter, setFilter] = useState<'all' | 'video' | 'image'>('all');
   const [previewMedia, setPreviewMedia] = useState<MediaItem | null>(null);
   const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
+  const [editAllLocations, setEditAllLocations] = useState(true);
+  const [editLocationIds, setEditLocationIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const [uploadForm, setUploadForm] = useState({
@@ -221,6 +223,8 @@ export default function AdminMediaPage() {
         body: JSON.stringify({
           title: editingMedia.title,
           description: editingMedia.description,
+          allLocations: editAllLocations,
+          locationIds: editLocationIds,
         }),
       });
 
@@ -373,6 +377,8 @@ export default function AdminMediaPage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingMedia(item);
+                      setEditAllLocations(item.all_locations);
+                      setEditLocationIds(item.media_locations?.map(ml => ml.location_id) || []);
                     }}
                     className="h-8 w-8 rounded-lg bg-gray-900/80 text-white flex items-center justify-center hover:bg-gray-900"
                   >
@@ -393,7 +399,11 @@ export default function AdminMediaPage() {
               {/* Info */}
               <div 
                 className="p-3 cursor-pointer hover:bg-gray-50"
-                onClick={() => setEditingMedia(item)}
+                onClick={() => {
+                  setEditingMedia(item);
+                  setEditAllLocations(item.all_locations);
+                  setEditLocationIds(item.media_locations?.map(ml => ml.location_id) || []);
+                }}
               >
                 <p className="font-medium text-gray-900 text-sm truncate">{item.title}</p>
                 <div className="flex items-center justify-between mt-1">
@@ -611,24 +621,56 @@ export default function AdminMediaPage() {
                 />
               </div>
 
-              {/* Location Info */}
-              <div className="p-4 bg-gray-50 rounded-xl space-y-2">
-                <p className="text-sm font-medium text-gray-700">Shared to</p>
-                <div className="flex flex-wrap gap-2">
-                  {editingMedia.all_locations ? (
-                    <span className="px-3 py-1.5 bg-teal-100 text-teal-700 text-sm font-medium rounded-lg">
-                      All Locations
-                    </span>
-                  ) : editingMedia.media_locations && editingMedia.media_locations.length > 0 ? (
-                    editingMedia.media_locations.map((loc) => (
-                      <span key={loc.location_id} className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg">
-                        {loc.locations?.name || 'Unknown'}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-sm text-gray-500">No locations assigned</span>
-                  )}
+              {/* Location Selection */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">All Locations</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Visible to every gym</p>
+                  </div>
+                  <Switch
+                    checked={editAllLocations}
+                    onCheckedChange={(checked) => {
+                      setEditAllLocations(checked);
+                      if (checked) setEditLocationIds([]);
+                    }}
+                  />
                 </div>
+
+                {!editAllLocations && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Select Locations</p>
+                    <div className="space-y-2 max-h-36 overflow-y-auto">
+                      {locations.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-4">No locations found</p>
+                      ) : (
+                        locations.map((location) => (
+                          <label
+                            key={location.id}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                              editLocationIds.includes(location.id)
+                                ? 'bg-teal-50 border-2 border-teal-500'
+                                : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                            }`}
+                          >
+                            <Checkbox
+                              checked={editLocationIds.includes(location.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setEditLocationIds(prev => [...prev, location.id]);
+                                } else {
+                                  setEditLocationIds(prev => prev.filter(id => id !== location.id));
+                                }
+                              }}
+                              className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                            />
+                            <span className="text-sm font-medium text-gray-900">{location.name}</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* File Info */}

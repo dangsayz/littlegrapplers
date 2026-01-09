@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChevronDown, MapPin, Shield, ArrowUpRight, LayoutDashboard, Key } from 'lucide-react';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS, ADMIN_EMAILS } from '@/lib/constants';
+import { PinVerificationDialog, getRememberedPin } from '@/components/dashboard/pin-verification-dialog';
 
 // Magnetic button effect hook
 function useMagnetic(strength: number = 0.3) {
@@ -62,23 +63,81 @@ function NavLink({ href, label, isActive }: { href: string; label: string; isAct
 }
 
 const LOCATIONS = [
-  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano' },
-  { id: 'pinnacle', name: 'Pinnacle at Montessori', slug: 'pinnacle-montessori' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX' },
+  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX' },
 ] as const;
 
 
 function LocationDropdown() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ slug: string; name: string } | null>(null);
+  const [locationPins, setLocationPins] = useState<Record<string, string>>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isLoaded } = useUser();
   const userEmail = user?.emailAddresses?.[0]?.emailAddress;
   const isAdmin = mounted && isLoaded && userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
+  const handleLocationClick = async (e: React.MouseEvent, location: typeof LOCATIONS[number]) => {
+    e.preventDefault();
+    setIsOpen(false);
+
+    // Check if PIN is already verified via server
+    try {
+      const res = await fetch(`/api/locations/${location.slug}/verify-pin`);
+      const data = await res.json();
+      
+      if (data.verified) {
+        router.push(`/community/${location.slug}`);
+        return;
+      }
+    } catch {
+      // Continue to show PIN dialog on error
+    }
+
+    // Check if we have a remembered PIN and try auto-verify
+    const rememberedPin = getRememberedPin(location.slug);
+    if (rememberedPin) {
+      try {
+        const res = await fetch(`/api/locations/${location.slug}/verify-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: rememberedPin }),
+        });
+        
+        if (res.ok) {
+          router.push(`/community/${location.slug}`);
+          return;
+        }
+      } catch {
+        // Continue to show PIN dialog on error
+      }
+    }
+
+    // Show PIN dialog
+    setSelectedLocation({ slug: location.slug, name: location.name });
+    setPinDialogOpen(true);
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isAdmin && isOpen && Object.keys(locationPins).length === 0) {
+      fetch('/api/admin/locations/pins')
+        .then(res => res.json())
+        .then(data => {
+          if (data.pins) {
+            setLocationPins(data.pins);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAdmin, isOpen, locationPins]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -134,7 +193,7 @@ function LocationDropdown() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 shadow-sm group-hover:shadow-md transition-shadow">
               <LayoutDashboard className="h-4 w-4 text-white" />
             </div>
-            <span className="group-hover:text-teal-700 transition-colors">My Dashboard</span>
+            <span className="group-hover:text-teal-700 transition-colors">My Family</span>
           </Link>
           {isAdmin && (
             <Link
@@ -161,21 +220,44 @@ function LocationDropdown() {
             const theme = colors[index % colors.length];
             
             return (
-              <Link
+              <button
                 key={location.id}
-                href={`/community/${location.slug}`}
-                onClick={() => setIsOpen(false)}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-gradient-to-r ${theme.hover} transition-all`}
+                onClick={(e) => handleLocationClick(e, location)}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-gradient-to-r ${theme.hover} transition-all w-full text-left`}
               >
                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${theme.gradient} shadow-sm group-hover:shadow-md transition-shadow`}>
                   <MapPin className="h-4 w-4 text-white" />
                 </div>
-                <span className={`${theme.text} transition-colors`}>{location.name}</span>
-              </Link>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${theme.text} transition-colors truncate`}>{location.name}</p>
+                  <p className="text-[11px] text-slate-400 truncate">{location.address}</p>
+                </div>
+                {isAdmin && locationPins[location.slug] && (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100/80 border border-slate-200/60">
+                    <Key className="h-2.5 w-2.5 text-slate-400" />
+                    <span className="text-[10px] font-mono font-medium text-slate-500 tracking-wide">
+                      {locationPins[location.slug]}
+                    </span>
+                  </div>
+                )}
+              </button>
             );
           })}
         </div>
       </div>
+
+      {/* PIN Verification Dialog */}
+      {selectedLocation && (
+        <PinVerificationDialog
+          isOpen={pinDialogOpen}
+          onClose={() => {
+            setPinDialogOpen(false);
+            setSelectedLocation(null);
+          }}
+          locationSlug={selectedLocation.slug}
+          locationName={selectedLocation.name}
+        />
+      )}
     </div>
   );
 }
@@ -411,7 +493,7 @@ export function Header() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500">
                         <LayoutDashboard className="h-4 w-4 text-white" />
                       </div>
-                      My Dashboard
+                      My Family
                     </Link>
                     
                     {isAdmin && (
@@ -448,7 +530,10 @@ export function Header() {
                           <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${theme.gradient}`}>
                             <MapPin className="h-4 w-4 text-white" />
                           </div>
-                          {location.name}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-700 truncate">{location.name}</p>
+                            <p className="text-[11px] text-slate-400 truncate">{location.address}</p>
+                          </div>
                         </Link>
                       );
                     })}

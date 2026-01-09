@@ -4,6 +4,60 @@ import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
+// GET: Fetch replies for a thread
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ threadId: string }> }
+) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { threadId } = await params;
+
+    // Fetch replies with author info
+    const { data: replies, error } = await supabaseAdmin
+      .from('discussion_replies')
+      .select(`
+        id,
+        content,
+        created_at,
+        author_email,
+        author:users!discussion_replies_author_id_fkey (
+          first_name,
+          last_name,
+          email
+        )
+      `)
+      .eq('thread_id', threadId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching replies:', error);
+      return NextResponse.json({ error: 'Failed to fetch replies' }, { status: 500 });
+    }
+
+    const formattedReplies = (replies || []).map(reply => ({
+      id: reply.id,
+      content: reply.content,
+      createdAt: reply.created_at,
+      authorEmail: reply.author_email,
+      author: {
+        email: reply.author_email,
+        firstName: (reply.author as any)?.first_name || null,
+        lastName: (reply.author as any)?.last_name || null,
+      },
+    }));
+
+    return NextResponse.json({ replies: formattedReplies });
+  } catch (error) {
+    console.error('Error fetching replies:', error);
+    return NextResponse.json({ error: 'Failed to fetch replies' }, { status: 500 });
+  }
+}
+
 // POST: Create a reply to a thread
 export async function POST(
   request: NextRequest,

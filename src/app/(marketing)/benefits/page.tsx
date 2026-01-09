@@ -131,6 +131,78 @@ export default function BenefitsPage() {
         </Container>
       </section>
 
+      {/* Leading By Example Section - Coach Stephen */}
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/10 via-transparent to-[#F7931E]/10" />
+        
+        <Container className="relative z-10">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
+            <FadeIn direction="up">
+              <div className="grid grid-cols-2 gap-4">
+                <motion.div 
+                  className="relative aspect-[3/4] overflow-hidden rounded-2xl"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  <Image
+                    src="/images/competition/IMG_6155.jpg"
+                    alt="Coach Stephen competing at ADCC"
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
+                <motion.div 
+                  className="relative aspect-[3/4] overflow-hidden rounded-2xl mt-8"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  <Image
+                    src="/images/competition/IMG_6152.jpeg"
+                    alt="Coach Stephen on the competition mats"
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
+              </div>
+            </FadeIn>
+            <FadeIn direction="up" delay={0.2}>
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-xs font-semibold uppercase tracking-wider mb-6">
+                Meet Your Coach
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-white">
+                Learn from an{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF]">Active Competitor</span>
+              </h2>
+              <p className="mt-6 text-lg text-slate-300 leading-relaxed">
+                Coach Stephen doesn't just teach BJJ—he lives it. As an active competitor on the professional circuit, 
+                he brings real-world experience and current techniques directly to your children.
+              </p>
+              <div className="mt-8 space-y-4">
+                <div className="flex gap-4 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] shadow-lg">
+                    <Award className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Competition Tested</h3>
+                    <p className="mt-1 text-sm text-slate-400">Techniques refined through real competition experience</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#F7931E] to-[#FFC857] shadow-lg">
+                    <Target className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Current & Relevant</h3>
+                    <p className="mt-1 text-sm text-slate-400">Always learning and bringing the latest to your kids</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </Container>
+      </section>
+
       {/* Physical Benefits */}
       <section className="py-24 md:py-32 bg-gradient-to-b from-white to-slate-50">
         <Container>

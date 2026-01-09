@@ -102,6 +102,32 @@ export default async function StudentsPage() {
     }
   }
 
+  // Also check enrollments table (new enrollment system)
+  const { data: enrollments } = await supabaseAdmin
+    .from('enrollments')
+    .select('id, child_first_name, child_last_name, child_date_of_birth, status')
+    .eq('clerk_user_id', userId)
+    .in('status', ['active', 'approved', 'pending']);
+
+  if (enrollments) {
+    for (const e of enrollments) {
+      const key = `${(e.child_first_name || '').toLowerCase()}-${(e.child_last_name || '').toLowerCase()}`;
+      if (!seenNames.has(key)) {
+        seenNames.add(key);
+        students.push({
+          id: e.id,
+          firstName: e.child_first_name || '',
+          lastName: e.child_last_name || '',
+          beltRank: 'white',
+          stripes: 0,
+          avatarUrl: null,
+          dateOfBirth: e.child_date_of_birth,
+          source: 'waiver',
+        });
+      }
+    }
+  }
+
   const hasStudents = students.length > 0;
 
   return (
