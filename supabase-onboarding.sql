@@ -98,16 +98,16 @@ CREATE TRIGGER update_students_updated_at BEFORE UPDATE ON students
 -- ============================================
 -- Seed locations (if not exists)
 -- ============================================
-INSERT INTO locations (name, slug, address, city, state, is_active)
-SELECT 'Lionheart Central Church', 'lionheart-central-church', '123 Central Ave', 'Dallas', 'TX', true
+INSERT INTO locations (name, slug, address, city, state, zip, is_active)
+SELECT 'Lionheart Central Church', 'lionheart-central-church', '2301 Premier Dr', 'Plano', 'TX', '75075', true
 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE slug = 'lionheart-central-church');
 
-INSERT INTO locations (name, slug, address, city, state, is_active)
-SELECT 'Lionheart First Baptist Plano', 'lionheart-first-baptist-plano', '456 First Baptist Way', 'Plano', 'TX', true
+INSERT INTO locations (name, slug, address, city, state, zip, is_active)
+SELECT 'Lionheart First Baptist Plano', 'lionheart-first-baptist-plano', '3665 W President George Bush Hwy', 'Plano', 'TX', '75075', true
 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE slug = 'lionheart-first-baptist-plano');
 
-INSERT INTO locations (name, slug, address, city, state, is_active)
-SELECT 'Pinnacle at Montessori', 'pinnacle-montessori', '789 Montessori Dr', 'Richardson', 'TX', true
+INSERT INTO locations (name, slug, address, city, state, zip, is_active)
+SELECT 'Pinnacle at Montessori of St. Paul', 'pinnacle-montessori', '2931 Parker Rd', 'Wylie', 'TX', '75098', true
 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE slug = 'pinnacle-montessori');
 
 -- ============================================
