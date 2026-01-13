@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -20,6 +21,17 @@ interface RevenueMetric {
   change?: string | null;
   trend?: 'up' | 'down' | 'neutral';
   icon: React.ElementType;
+}
+
+interface StripeMetrics {
+  mrr: number | null;
+  arr: number | null;
+  projectedRevenue: number | null;
+  activeSubscriptions: number | null;
+  mrrGrowth: number | null;
+  churnRate: number | null;
+  monthlySubscribers: number;
+  threeMonthPurchases: number;
 }
 
 interface RevenueIntelligenceProps {
@@ -110,8 +122,35 @@ function MiniChart({ isLoading }: { isLoading: boolean }) {
   );
 }
 
-export function RevenueIntelligence({ isConnected = false, metrics }: RevenueIntelligenceProps) {
-  const isLoading = !isConnected;
+export function RevenueIntelligence({ isConnected: initialConnected = false, metrics: initialMetrics }: RevenueIntelligenceProps) {
+  const [isConnected, setIsConnected] = useState(initialConnected);
+  const [metrics, setMetrics] = useState<StripeMetrics | null>(initialMetrics as StripeMetrics | null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [planCounts, setPlanCounts] = useState({ monthly: 0, threeMonth: 0 });
+
+  useEffect(() => {
+    async function fetchStripeMetrics() {
+      try {
+        const response = await fetch('/api/admin/stripe-metrics');
+        const data = await response.json();
+        
+        if (data.isConnected) {
+          setIsConnected(true);
+          setMetrics(data.metrics);
+          setPlanCounts({
+            monthly: data.metrics.monthlySubscribers || 0,
+            threeMonth: data.metrics.threeMonthPurchases || 0,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch Stripe metrics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchStripeMetrics();
+  }, []);
   
   const formatCurrency = (value: number | null | undefined): string | null => {
     if (value === null || value === undefined) return null;
@@ -299,7 +338,9 @@ export function RevenueIntelligence({ isConnected = false, metrics }: RevenueInt
                 <Users className="h-4 w-4" />
                 <span className="text-sm">Subscribers</span>
               </div>
-              <span className="text-lg font-semibold text-gray-400">0</span>
+              <span className={`text-lg font-semibold ${planCounts.monthly > 0 ? 'text-gray-900' : 'text-gray-400'}`}>
+                {planCounts.monthly}
+              </span>
             </div>
           </div>
           
@@ -317,7 +358,9 @@ export function RevenueIntelligence({ isConnected = false, metrics }: RevenueInt
                 <Users className="h-4 w-4" />
                 <span className="text-sm">Purchased</span>
               </div>
-              <span className="text-lg font-semibold text-gray-400">0</span>
+              <span className={`text-lg font-semibold ${planCounts.threeMonth > 0 ? 'text-gray-900' : 'text-gray-400'}`}>
+                {planCounts.threeMonth}
+              </span>
             </div>
           </div>
         </div>

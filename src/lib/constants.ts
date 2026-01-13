@@ -164,6 +164,17 @@ export const ADMIN_EMAILS = [
 
 export const DEVELOPER_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com'];
 
+/**
+ * Test/Admin emails to exclude from revenue metrics and user counts
+ * These are internal accounts that should not be counted in business metrics
+ */
+export const EXCLUDED_FROM_METRICS_EMAILS = [
+  'dangzr1@gmail.com',
+  'walkawayy@icloud.com',
+  'info@littlegrapplers.net',
+  'littlegrapplersjitsu@gmail.com',
+];
+
 export const ADMIN_EMAIL = ADMIN_EMAILS[0]; // Legacy support - primary admin
 
 /**

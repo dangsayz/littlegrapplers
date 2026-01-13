@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { ADMIN_EMAILS } from '@/lib/constants';
+import { ADMIN_EMAILS, EXCLUDED_FROM_METRICS_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import type { Route } from 'next';
@@ -48,17 +48,25 @@ export default async function AdminPage() {
   const userEmail = user.emailAddresses[0].emailAddress;
   const userIsSuperAdmin = isSuperAdmin(userEmail);
 
-  // Fetch dynamic stats
-  const [locationsRes, threadsRes, usersRes, contactsRes, waiversRes, newsletterRes, pendingEnrollmentsRes, unpaidWorkOrdersRes] = await Promise.all([
+  // Fetch dynamic stats (excluding admin/test accounts from user and waiver counts)
+  const [locationsRes, threadsRes, contactsRes, newsletterRes, pendingEnrollmentsRes, unpaidWorkOrdersRes] = await Promise.all([
     supabaseAdmin.from('locations').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('discussion_threads').select('*', { count: 'exact', head: true }),
-    supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('contact_submissions').select('*', { count: 'exact', head: true }).eq('is_read', false),
-    supabaseAdmin.from('signed_waivers').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('newsletter_subscribers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
     supabaseAdmin.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabaseAdmin.from('work_orders').select('id, quoted_cost').eq('status', 'completed').eq('paid', false),
   ]);
+
+  // Fetch users excluding admin/test emails
+  const { data: allUsers } = await supabaseAdmin.from('users').select('email');
+  const realUsers = (allUsers || []).filter(u => !EXCLUDED_FROM_METRICS_EMAILS.includes(u.email?.toLowerCase() || ''));
+  const usersCount = realUsers.length;
+
+  // Fetch waivers excluding admin/test emails
+  const { data: allWaivers } = await supabaseAdmin.from('signed_waivers').select('guardian_email');
+  const realWaivers = (allWaivers || []).filter(w => !EXCLUDED_FROM_METRICS_EMAILS.includes(w.guardian_email?.toLowerCase() || ''));
+  const waiversCount = realWaivers.length;
 
   // Fetch platform status separately to handle schema cache issues gracefully
   let platformEnabled = true;
@@ -78,9 +86,9 @@ export default async function AdminPage() {
   const stats = {
     locations: locationsRes.count || 0,
     threads: threadsRes.count || 0,
-    users: usersRes.count || 0,
+    users: usersCount,
     unreadContacts: contactsRes.count || 0,
-    students: waiversRes.count || 0,
+    students: waiversCount,
     subscribers: newsletterRes.count || 0,
     pendingEnrollments: pendingEnrollmentsRes.count || 0,
   };
