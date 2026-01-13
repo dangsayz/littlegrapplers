@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity } from 'lucide-react';
+import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity, UserCircle } from 'lucide-react';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -192,9 +192,13 @@ function DeveloperBillingContent() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const userEmail = user?.emailAddresses[0]?.emailAddress;
-  const isDev = DEV_EMAILS.includes(userEmail || '');
+  const actuallyIsDev = DEV_EMAILS.includes(userEmail || '');
   const isClient = CLIENT_EMAILS.includes(userEmail || '');
-  const isAuthorized = isDev || isClient;
+  const isAuthorized = actuallyIsDev || isClient;
+  
+  // View as Stephen toggle (developer only)
+  const [viewAsClient, setViewAsClient] = useState(false);
+  const isDev = actuallyIsDev && !viewAsClient;
   
   // Work orders state
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -831,6 +835,26 @@ function DeveloperBillingContent() {
           </button>
         )}
       </div>
+
+      {/* View as Stephen Toggle - Developer Only */}
+      {actuallyIsDev && (
+        <div className="mb-6">
+          <button
+            onClick={() => setViewAsClient(!viewAsClient)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+              viewAsClient
+                ? 'bg-purple-50 border-purple-200 text-purple-700'
+                : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <UserCircle className="h-4 w-4" />
+            {viewAsClient ? 'Viewing as Stephen' : 'View as Stephen'}
+            <span className={`ml-1 w-8 h-5 rounded-full relative transition-colors ${viewAsClient ? 'bg-purple-500' : 'bg-gray-300'}`}>
+              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${viewAsClient ? 'left-3.5' : 'left-0.5'}`} />
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Success Messages */}
       {showPaymentSuccess && (
