@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, Save, MapPin } from 'lucide-react';
+import { ArrowLeft, User, Save, MapPin, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ export default function NewStudentPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,15 +53,32 @@ export default function NewStudentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // TODO: Implement actual student creation via API
-    // await createStudent(formData);
+    try {
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          locationId: formData.locationId,
+        }),
+      });
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
 
-    // Redirect back to students list
-    router.push('/dashboard/students');
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add student');
+      }
+
+      // Redirect to checkout to complete membership
+      router.push('/dashboard/checkout');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add student');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,6 +101,11 @@ export default function NewStudentPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+                {error}
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -156,11 +179,14 @@ export default function NewStudentPage() {
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
-                  'Saving...'
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Add Student
+                    Add Student & Continue to Checkout
                   </>
                 )}
               </Button>

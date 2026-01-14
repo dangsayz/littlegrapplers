@@ -348,7 +348,7 @@ export default function OnboardingPage() {
         clearSavedDraft();
         setIsComplete(true);
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/dashboard/checkout');
         }, 1500);
       } else {
         const data = await res.json();

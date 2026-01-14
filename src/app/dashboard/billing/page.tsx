@@ -1,7 +1,8 @@
-import { CreditCard, Receipt, AlertCircle, FileCode, CheckCircle2, Clock, Circle } from 'lucide-react';
+import { CreditCard, Receipt, FileCode, CheckCircle2, Clock, Circle, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 const seoWorkOrder: {
   title: string;
@@ -48,45 +49,33 @@ export default async function BillingPage() {
         </p>
       </div>
 
-      {/* Coming Soon Notice */}
-      <Card className="border-brand/30 bg-brand/5">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-brand mt-0.5" />
-            <div>
-              <p className="font-medium text-brand">
-                Coming Soon
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Online payment processing will be available soon. For now, please contact us directly for billing inquiries.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Payment Method */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      {/* Membership Plans */}
+      <Card className="border-brand/30 bg-gradient-to-br from-brand/5 to-transparent">
+        <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-brand" />
-            Payment Method
+            Membership Plans
           </CardTitle>
-          <Badge variant="secondary">Coming Soon</Badge>
         </CardHeader>
-        <CardContent>
-          <div className="text-center py-6">
-            <CreditCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground mb-4">
-              No payment method on file
-            </p>
-            <Button disabled>
-              Add Payment Method
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">
-              Available soon
-            </p>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="p-4 rounded-lg border bg-white">
+              <p className="font-semibold">Monthly Agreement</p>
+              <p className="text-2xl font-bold text-brand">$50<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+              <p className="text-sm text-muted-foreground mt-1">Cancel anytime</p>
+            </div>
+            <div className="p-4 rounded-lg border bg-white">
+              <p className="font-semibold">3 Months Paid-In-Full</p>
+              <p className="text-2xl font-bold text-brand">$150<span className="text-sm font-normal text-muted-foreground"> one time</span></p>
+              <p className="text-sm text-muted-foreground mt-1">Save vs monthly</p>
+            </div>
           </div>
+          <Button asChild className="w-full">
+            <Link href="/dashboard/checkout" className="flex items-center justify-center gap-2">
+              Start Membership
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </CardContent>
       </Card>
 

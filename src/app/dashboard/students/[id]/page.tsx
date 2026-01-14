@@ -59,32 +59,98 @@ export default async function StudentPage({ params }: StudentPageProps) {
     return <div>Please sign in to view this student.</div>;
   }
 
-  const { data: waiver, error } = await supabaseAdmin
-    .from('signed_waivers')
-    .select('id, child_full_name, child_date_of_birth, is_active')
-    .eq('id', id)
+  let student: Student | null = null;
+
+  // First, check the students table (via parent relationship)
+  const { data: dbUser } = await supabaseAdmin
+    .from('users')
+    .select('id')
     .eq('clerk_user_id', userId)
-    .neq('is_active', false)
     .single();
 
-  if (error || !waiver) {
-    notFound();
+  if (dbUser) {
+    const { data: parent } = await supabaseAdmin
+      .from('parents')
+      .select('id')
+      .eq('user_id', dbUser.id)
+      .single();
+
+    if (parent) {
+      const { data: studentRecord } = await supabaseAdmin
+        .from('students')
+        .select('id, first_name, last_name, date_of_birth, belt_rank, stripes, avatar_url, is_active')
+        .eq('id', id)
+        .eq('parent_id', parent.id)
+        .neq('is_active', false)
+        .single();
+
+      if (studentRecord) {
+        student = {
+          id: studentRecord.id,
+          firstName: studentRecord.first_name || '',
+          lastName: studentRecord.last_name || '',
+          dateOfBirth: studentRecord.date_of_birth ? new Date(studentRecord.date_of_birth) : null,
+          beltRank: studentRecord.belt_rank || 'white',
+          stripes: studentRecord.stripes || 0,
+          avatarUrl: studentRecord.avatar_url || null,
+          memberships: [],
+        };
+      }
+    }
   }
 
-  const nameParts = (waiver.child_full_name ?? '').trim().split(' ').filter(Boolean);
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts.slice(1).join(' ') || '';
+  // If not found in students table, check signed_waivers
+  if (!student) {
+    const { data: waiver } = await supabaseAdmin
+      .from('signed_waivers')
+      .select('id, child_full_name, child_date_of_birth, is_active')
+      .eq('id', id)
+      .eq('clerk_user_id', userId)
+      .neq('is_active', false)
+      .single();
 
-  const student: Student = {
-    id: waiver.id,
-    firstName,
-    lastName,
-    dateOfBirth: waiver.child_date_of_birth ? new Date(waiver.child_date_of_birth) : null,
-    beltRank: 'white',
-    stripes: 0,
-    avatarUrl: null,
-    memberships: [],
-  };
+    if (waiver) {
+      const nameParts = (waiver.child_full_name ?? '').trim().split(' ').filter(Boolean);
+      student = {
+        id: waiver.id,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        dateOfBirth: waiver.child_date_of_birth ? new Date(waiver.child_date_of_birth) : null,
+        beltRank: 'white',
+        stripes: 0,
+        avatarUrl: null,
+        memberships: [],
+      };
+    }
+  }
+
+  // If still not found, check enrollments table
+  if (!student) {
+    const { data: enrollment } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, child_first_name, child_last_name, child_date_of_birth, status')
+      .eq('id', id)
+      .eq('clerk_user_id', userId)
+      .in('status', ['active', 'approved', 'pending'])
+      .single();
+
+    if (enrollment) {
+      student = {
+        id: enrollment.id,
+        firstName: enrollment.child_first_name || '',
+        lastName: enrollment.child_last_name || '',
+        dateOfBirth: enrollment.child_date_of_birth ? new Date(enrollment.child_date_of_birth) : null,
+        beltRank: 'white',
+        stripes: 0,
+        avatarUrl: null,
+        memberships: [],
+      };
+    }
+  }
+
+  if (!student) {
+    notFound();
+  }
 
   const belt = beltConfig[student.beltRank] || beltConfig.white;
   const age = student.dateOfBirth
