@@ -63,10 +63,95 @@ function NavLink({ href, label, isActive }: { href: string; label: string; isAct
 }
 
 const LOCATIONS = [
-  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX' },
-  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', shortName: 'Central', address: '2301 Premier Dr, Plano, TX' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', shortName: 'FBP', address: '3665 W President George Bush Hwy, Plano, TX' },
+  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', shortName: 'Pinnacle', address: '2931 Parker Rd, Wylie, TX' },
 ] as const;
+
+// Location selector for logged-in users - shows 3 locations with active one highlighted
+function LocationSelector({ userLocationId }: { userLocationId: string | null }) {
+  const router = useRouter();
+  const [selectedLocationSlug, setSelectedLocationSlug] = useState<string | null>(null);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+
+  const handleLocationClick = async (location: typeof LOCATIONS[number], isActive: boolean) => {
+    if (!isActive) return; // Disabled locations can't be clicked
+    
+    // Check if PIN is already verified
+    try {
+      const res = await fetch(`/api/locations/${location.slug}/verify-pin`);
+      const data = await res.json();
+      if (data.verified) {
+        router.push(`/community/${location.slug}`);
+        return;
+      }
+    } catch {
+      // Continue to PIN dialog
+    }
+
+    // Check remembered PIN
+    const rememberedPin = getRememberedPin(location.slug);
+    if (rememberedPin) {
+      try {
+        const res = await fetch(`/api/locations/${location.slug}/verify-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: rememberedPin }),
+        });
+        if (res.ok) {
+          router.push(`/community/${location.slug}`);
+          return;
+        }
+      } catch {
+        // Continue to PIN dialog
+      }
+    }
+
+    setSelectedLocationSlug(location.slug);
+    setPinDialogOpen(true);
+  };
+
+  return (
+    <>
+      <div className="flex items-center gap-1">
+        {LOCATIONS.map((location) => {
+          // Location is active if user has subscription there, or if admin (all active)
+          const isActive = userLocationId === 'all' || userLocationId === location.id || userLocationId === location.slug;
+          
+          return (
+            <button
+              key={location.id}
+              onClick={() => handleLocationClick(location, isActive)}
+              disabled={!isActive}
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all',
+                isActive
+                  ? 'bg-teal-50 text-teal-700 hover:bg-teal-100 cursor-pointer'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
+              )}
+              title={isActive ? location.name : `${location.name} (not enrolled)`}
+            >
+              <MapPin className="h-3 w-3" />
+              <span className="hidden sm:inline">{location.shortName}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedLocationSlug && (
+        <PinVerificationDialog
+          isOpen={pinDialogOpen}
+          onClose={() => {
+            setPinDialogOpen(false);
+            setSelectedLocationSlug(null);
+          }}
+          locationSlug={selectedLocationSlug}
+          locationName={LOCATIONS.find(l => l.slug === selectedLocationSlug)?.name || ''}
+        />
+      )}
+    </>
+  );
+}
 
 
 function LocationDropdown() {
@@ -267,6 +352,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileDashboardOpen, setIsMobileDashboardOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [userLocationId, setUserLocationId] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
   const isSignedIn = mounted && isLoaded && !!user;
@@ -277,6 +363,16 @@ export function Header() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch user's subscription location
+  useEffect(() => {
+    if (isSignedIn) {
+      fetch('/api/user/subscription-location')
+        .then(res => res.json())
+        .then(data => setUserLocationId(data.locationId))
+        .catch(() => setUserLocationId(null));
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -345,10 +441,19 @@ export function Header() {
               </div>
             </div>
 
+            {/* Location Selector for logged-in users - Mobile */}
+            {isSignedIn && (
+              <div className="lg:hidden">
+                <LocationSelector userLocationId={isAdmin ? 'all' : userLocationId} />
+              </div>
+            )}
+
             {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
               {isSignedIn ? (
                 <>
+                  <LocationSelector userLocationId={isAdmin ? 'all' : userLocationId} />
+                  <div className="w-px h-6 bg-slate-200" />
                   <LocationDropdown />
                   <UserButton 
                     afterSignOutUrl="/"
@@ -430,7 +535,7 @@ export function Header() {
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
-        <div className="flex flex-col h-full pt-24 pb-28 px-6">
+        <div className="flex flex-col h-full pt-24 pb-40 px-6 overflow-y-auto">
           {/* Nav Links */}
           <nav className="flex-1 space-y-1">
             {NAV_LINKS.map((link, i) => {
