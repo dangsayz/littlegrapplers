@@ -134,6 +134,8 @@ const HOW_HEARD_OPTIONS = [
   { value: 'other', label: 'Other' },
 ];
 
+const STORAGE_KEY = 'littlegrapplers_onboarding_draft';
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
@@ -143,6 +145,7 @@ export default function OnboardingPage() {
   const [isComplete, setIsComplete] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [error, setError] = useState('');
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -215,6 +218,52 @@ export default function OnboardingPage() {
     };
     fetchLocations();
   }, []);
+
+  // Auto-save to localStorage whenever form data changes
+  useEffect(() => {
+    if (hasRestoredDraft) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          formData,
+          currentStep,
+          savedAt: new Date().toISOString(),
+        }));
+      } catch (err) {
+        console.error('Failed to save draft:', err);
+      }
+    }
+  }, [formData, currentStep, hasRestoredDraft]);
+
+  // Restore from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.formData) {
+          setFormData((prev) => ({
+            ...prev,
+            ...parsed.formData,
+          }));
+          if (parsed.currentStep) {
+            setCurrentStep(parsed.currentStep);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to restore draft:', err);
+    }
+    setHasRestoredDraft(true);
+  }, []);
+
+  // Clear saved draft on successful submission
+  const clearSavedDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      console.error('Failed to clear draft:', err);
+    }
+  };
 
   const updateField = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -296,6 +345,7 @@ export default function OnboardingPage() {
       });
 
       if (res.ok) {
+        clearSavedDraft();
         setIsComplete(true);
         setTimeout(() => {
           router.push('/dashboard');

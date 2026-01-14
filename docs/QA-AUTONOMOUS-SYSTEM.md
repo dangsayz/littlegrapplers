@@ -645,11 +645,43 @@ CREATE TABLE qa_invariant_checks (
 ### Updated /qa-checklist Workflow
 When invoked, this workflow now:
 
-1. **Runs Validation Mesh** - All 4 layers execute in parallel
-2. **Pattern Match Check** - Scans for known failure signatures
-3. **Auto-Resolution** - Executes deterministic fixes for known patterns
-4. **Reports Unknowns** - Flags new failure types for codification
-5. **Updates Knowledge Base** - Learning from this run
+1. **Runs Validation Mesh** - All 5 layers execute in parallel
+2. **Schema-Code Sync** - Verifies database tables/columns match code expectations
+3. **Pattern Match Check** - Scans for known failure signatures
+4. **Auto-Resolution** - Executes deterministic fixes for known patterns
+5. **Reports Unknowns** - Flags new failure types for codification
+6. **Updates Knowledge Base** - Learning from this run
+
+---
+
+## Known Failure Patterns
+
+### Pattern #1: Missing Database Schema (Codified: 2026-01-14)
+
+**Fingerprint:** `db-schema-mismatch-onboarding`
+
+**Trigger:** API route references table/column that doesn't exist in production database
+
+**Detection:**
+- Error message: "Failed to complete onboarding" (generic 500)
+- Actual error in logs: Column/table does not exist
+- Code references `.from('table_name')` but table not in migrations
+
+**Root Cause:**
+- Migration files exist locally but were never run in production
+- Code was deployed before database was updated
+- UNIQUE/NOT NULL constraints block expected operations
+
+**Resolution:**
+1. Grep all API routes for Supabase table/column references
+2. Cross-reference against `/supabase-*.sql` migration files
+3. Identify missing migrations
+4. Run `/supabase-verify-onboarding-tables.sql` in Supabase SQL Editor
+
+**Prevention:**
+- Layer 5 (Schema-Code Sync) must run before every deployment
+- All INSERT/UPDATE operations must have error checking
+- Generic error messages must log actual error details
 
 ### Invocation
 ```

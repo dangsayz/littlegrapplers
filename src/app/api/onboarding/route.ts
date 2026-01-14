@@ -144,15 +144,20 @@ export async function POST(request: NextRequest) {
     if (studentError) throw studentError;
 
     // Assign student to location
-    await supabaseAdmin
+    const { error: studentLocationError } = await supabaseAdmin
       .from('student_locations')
       .insert({
         student_id: student.id,
         location_id: locationId,
       });
 
+    if (studentLocationError) {
+      console.error('Student location assignment error:', studentLocationError);
+      throw new Error(`Failed to assign student to location: ${studentLocationError.message}`);
+    }
+
     // Also add user to user_locations for community access
-    await supabaseAdmin
+    const { error: userLocationError } = await supabaseAdmin
       .from('user_locations')
       .upsert({
         user_id: userId,
@@ -161,26 +166,36 @@ export async function POST(request: NextRequest) {
         onConflict: 'user_id,location_id',
       });
 
+    if (userLocationError) {
+      console.error('User location assignment error:', userLocationError);
+      // Non-critical, continue
+    }
+
     // Link existing signed waiver to this student (if exists)
     // This syncs waiver-only users to the proper students table
     const { data: existingWaiver } = await supabaseAdmin
       .from('signed_waivers')
       .select('id')
       .eq('clerk_user_id', clerkUserId)
-      .single();
+      .maybeSingle(); // Use maybeSingle to avoid error when no row found
 
     if (existingWaiver) {
       // Update the waiver with user_id and mark as linked to student
-      await supabaseAdmin
+      const { error: waiverUpdateError } = await supabaseAdmin
         .from('signed_waivers')
         .update({
           user_id: userId,
-          // Add student_id column link if it exists, or store in metadata
         })
         .eq('id', existingWaiver.id);
+
+      if (waiverUpdateError) {
+        console.error('Waiver update error:', waiverUpdateError);
+        // Non-critical, continue
+      }
     } else {
       // Create a waiver record from onboarding data for consistency
-      await supabaseAdmin
+      // Note: location_id column may not exist in older schemas
+      const { error: waiverInsertError } = await supabaseAdmin
         .from('signed_waivers')
         .insert({
           user_id: userId,
@@ -195,13 +210,17 @@ export async function POST(request: NextRequest) {
           digital_signature: `${firstName} ${lastName}`,
           photo_media_consent: photoConsent,
           agreed_to_terms: waiverAccepted,
-          location_id: locationId,
           signed_at: new Date().toISOString(),
         });
+
+      if (waiverInsertError) {
+        console.error('Waiver insert error:', waiverInsertError);
+        // Non-critical for onboarding completion, continue
+      }
     }
 
-    // Log activity
-    await supabaseAdmin.from('activity_logs').insert({
+    // Log activity (non-critical)
+    const { error: activityLogError } = await supabaseAdmin.from('activity_logs').insert({
       admin_email: userEmail,
       action: 'user.onboarding_complete',
       entity_type: 'user',
@@ -211,6 +230,9 @@ export async function POST(request: NextRequest) {
         location_id: locationId,
       },
     });
+    if (activityLogError) {
+      console.error('Activity log error:', activityLogError);
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -220,7 +242,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Onboarding error:', error);
-    return NextResponse.json({ error: 'Failed to complete onboarding' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // Log detailed error for server-side debugging
+    console.error('Onboarding error details:', JSON.stringify({
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+    }));
+    return NextResponse.json({ 
+      error: 'Failed to complete onboarding',
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+    }, { status: 500 });
   }
 }
 

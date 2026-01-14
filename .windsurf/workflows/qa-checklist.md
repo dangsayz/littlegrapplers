@@ -16,17 +16,25 @@ When this workflow is called, execute the following autonomous pipeline:
 1. Read the system architecture at `/docs/QA-AUTONOMOUS-SYSTEM.md`
 2. Read the checklist at `/docs/QA-MASTER-CHECKLIST.md`
 
-3. Run **Validation Mesh** (all 4 layers):
+3. Run **Validation Mesh** (all 5 layers):
    - **Layer 1 (Static):** Check for code patterns, type safety, security issues
    - **Layer 2 (Runtime):** Verify invariants - Stripe webhooks, subscription sync, API health
    - **Layer 3 (State):** Database consistency, cache state, session validity
    - **Layer 4 (Cross-System):** Stripe/Clerk/Supabase sync audit
+   - **Layer 5 (Schema-Code Sync):** Verify database schema matches code expectations
+
+4. **CRITICAL: Schema-Code Sync Check** (Layer 5):
+   - Grep all API routes for Supabase `.from('table_name')` calls
+   - Extract all table names and column references from code
+   - Cross-reference against `/supabase-*.sql` migration files
+   - Flag any table/column referenced in code but missing from migrations
+   - Check for unapplied migrations (files exist but not run in prod)
 
 ---
 
 ## PHASE 2: PATTERN MATCHING
 
-4. For each issue detected:
+5. For each issue detected:
    - Generate a **fingerprint** (hash of error + context)
    - Search for matching patterns in knowledge base
    - If match found with confidence > 0.8: proceed to auto-resolution
@@ -36,12 +44,12 @@ When this workflow is called, execute the following autonomous pipeline:
 
 ## PHASE 3: RESOLUTION
 
-5. For matched patterns:
+6. For matched patterns:
    - Execute the deterministic resolution action
    - Log the result (success/failure)
    - Update pattern confidence score
 
-6. For unmatched issues:
+7. For unmatched issues:
    - Capture full failure signature
    - Attempt to synthesize resolution from similar patterns
    - If 3+ similar failures exist: create new pattern rule
@@ -51,7 +59,7 @@ When this workflow is called, execute the following autonomous pipeline:
 
 ## PHASE 4: REPORTING
 
-7. Generate **Autonomous QA Report**:
+8. Generate **Autonomous QA Report**:
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -61,7 +69,8 @@ When this workflow is called, execute the following autonomous pipeline:
 ║ ├── Static Layer:      [PASS/FAIL] (X issues)                ║
 ║ ├── Runtime Layer:     [PASS/FAIL] (X issues)                ║
 ║ ├── State Layer:       [PASS/FAIL] (X issues)                ║
-║ └── Cross-System:      [PASS/FAIL] (X issues)                ║
+║ ├── Cross-System:      [PASS/FAIL] (X issues)                ║
+║ └── Schema-Code Sync:  [PASS/FAIL] (X issues)                ║
 ╠══════════════════════════════════════════════════════════════╣
 ║ Pattern Matches: X known patterns detected                    ║
 ║ Auto-Resolved:   X issues fixed autonomously                  ║
@@ -77,7 +86,7 @@ When this workflow is called, execute the following autonomous pipeline:
 
 ## PHASE 5: LEARNING
 
-8. Update knowledge base:
+9. Update knowledge base:
    - Increment occurrence counts for matched patterns
    - Update confidence scores based on resolution success
    - Store new failure signatures
@@ -94,6 +103,7 @@ When invoking `/qa-checklist`, you can specify:
 - **`--layer=runtime`:** Run only runtime invariants
 - **`--layer=state`:** Run only state assertions
 - **`--layer=audit`:** Run only cross-system audit
+- **`--layer=schema`:** Run only schema-code sync verification
 - **`--dry-run`:** Show what would be resolved without executing
 - **`--pattern-scan`:** Only check for known failure patterns
 - **`--report-only`:** Generate report without auto-resolution

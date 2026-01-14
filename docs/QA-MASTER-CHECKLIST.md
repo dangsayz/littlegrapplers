@@ -305,7 +305,24 @@ pnpm typecheck               # TypeScript passes
 | Same user, two tabs | Session consistent | [ ] |
 | Stale data update | Handled gracefully | [ ] |
 
-### 9.4 Browser Compatibility
+### 9.4 Form Data Persistence (Auto-Save)
+
+> **Added after user feedback:** Forms should not lose data on refresh/error.
+
+| Scenario | Expected | Status |
+|----------|----------|--------|
+| Page refresh during form entry | Form data restored from localStorage | [ ] |
+| Error occurs, user refreshes | Form data preserved | [ ] |
+| Successful submission | Saved draft cleared | [ ] |
+| Browser closed, reopened | Draft data still available | [ ] |
+
+**Implementation Checklist:**
+- [ ] Multi-step forms save to localStorage on every change
+- [ ] Current step is also saved and restored
+- [ ] Draft is cleared on successful submission
+- [ ] Uses unique storage key per form (e.g., `littlegrapplers_onboarding_draft`)
+
+### 9.5 Browser Compatibility
 | Scenario | Expected | Status |
 |----------|----------|--------|
 | Chrome (latest) | Full functionality | [ ] |
@@ -506,10 +523,52 @@ grep -r "console.log" src/app/api/   # Check for debug logs in APIs
 | `enrollments` | Waiver/enrollment data | Core schema | [ ] |
 | `subscriptions` | Stripe subscription sync | Core schema | [ ] |
 | `users` | User profiles | Core schema | [ ] |
-| `students` | Student records | Core schema | [ ] |
+| `students` | Student records | `/supabase-onboarding.sql` | [ ] |
+| `parents` | Parent profiles | `/supabase-onboarding.sql` | [ ] |
+| `student_locations` | Student-location assignments | `/supabase-onboarding.sql` | [ ] |
+| `user_locations` | User-location access | `/supabase-schema.sql` | [ ] |
+| `signed_waivers` | Signed waivers | `/supabase-waiver.sql` | [ ] |
 | `locations` | Location data | Core schema | [ ] |
+| `activity_logs` | Admin audit trail | `/supabase-schema.sql` | [ ] |
 
-### 12.3 Common Database Errors
+### 12.3 Schema-Code Sync Verification (CRITICAL)
+
+> **This section was added after a production bug where code referenced non-existent database columns.**
+
+#### Executable Check Commands
+```bash
+# 1. Find all Supabase table references in code
+grep -r "\.from\(['\"]" src/app/api/ --include="*.ts" | grep -oP "from\(['\"]\\K[^'\"]+(?=['\"])"
+
+# 2. Find all column references in insert/update operations
+grep -r "\.insert\|\.update\|\.upsert" src/app/api/ --include="*.ts" -A 5
+
+# 3. List all migration files
+ls -la supabase*.sql
+
+# 4. Verify critical columns exist in migrations
+grep -l "is_active" supabase*.sql
+grep -l "location_id" supabase*.sql
+```
+
+#### Critical Column Verification
+| Column | Table | Migration File | Required By | Status |
+|--------|-------|----------------|-------------|--------|
+| `is_active` | `students` | `/supabase-verify-onboarding-tables.sql` | Student queries | [ ] |
+| `location_id` | `signed_waivers` | `/supabase-add-location-to-waiver.sql` | Waiver location tracking | [ ] |
+| `tshirt_size` | `students` | `/supabase-onboarding.sql` | Onboarding form | [ ] |
+| `onboarding_completed` | `parents` | `/supabase-onboarding.sql` | Onboarding status | [ ] |
+
+#### Pre-Deploy Schema Checklist
+| Check | How to Verify | Status |
+|-------|---------------|--------|
+| All `/supabase-*.sql` files have been run in prod | Compare file list to Supabase migration history | [ ] |
+| API routes only reference existing tables | Run grep check above | [ ] |
+| INSERT operations only use existing columns | Run grep check above | [ ] |
+| UNIQUE constraints won't block expected operations | Review constraint definitions | [ ] |
+| NOT NULL constraints have defaults or are always provided | Review schema + API code | [ ] |
+
+### 12.4 Common Database Errors
 | Error Code | Meaning | Resolution |
 |------------|---------|------------|
 | `42P01` | Table does not exist | Run migration SQL |
