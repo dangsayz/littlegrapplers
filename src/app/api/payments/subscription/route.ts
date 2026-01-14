@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
           metadata: {
             clerk_user_id: userId,
             plan_type: planType,
+            location_id: waiver.location_id || '',
           },
         },
       }),

@@ -92,6 +92,8 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
   // Handle subscription checkout (new enrollment flow)
   if (clerkUserId && planType) {
+    const locationId = session.metadata?.location_id || null;
+    
     // For one-time payments (3-month), create a subscription record
     if (session.mode === 'payment') {
       const { error } = await supabase
@@ -100,10 +102,12 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
           stripe_subscription_id: `one_time_${session.id}`,
           clerk_user_id: clerkUserId,
           status: 'active',
+          plan_id: 'threeMonth',
           plan_name: '3-Month Paid-In-Full',
           current_period_start: new Date().toISOString(),
           current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
           cancel_at_period_end: true,
+          location_id: locationId || null,
         });
 
       if (error) {
@@ -259,6 +263,7 @@ async function handleRefund(charge: Stripe.Charge) {
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const clerkUserId = subscription.metadata?.clerk_user_id;
   const planType = subscription.metadata?.plan_type || 'monthly';
+  const locationId = subscription.metadata?.location_id || null;
   
   if (!clerkUserId) {
     console.error('No clerk_user_id in subscription metadata');
@@ -282,10 +287,12 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       stripe_subscription_id: subscription.id,
       clerk_user_id: clerkUserId,
       status: status,
+      plan_id: planType === 'monthly' ? 'monthly' : 'threeMonth',
       plan_name: planType === 'monthly' ? 'Monthly Agreement' : '3-Month Paid-In-Full',
       current_period_start: currentPeriodStart,
       current_period_end: currentPeriodEnd,
       cancel_at_period_end: subscription.cancel_at_period_end,
+      location_id: locationId || null,
       updated_at: new Date().toISOString(),
     }, {
       onConflict: 'stripe_subscription_id',

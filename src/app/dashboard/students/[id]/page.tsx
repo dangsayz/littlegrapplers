@@ -85,30 +85,23 @@ export default async function StudentPage({ params }: StudentPageProps) {
         .single();
 
       if (studentRecord) {
-        // Fetch student's location from student_locations
-        const { data: studentLocation } = await supabaseAdmin
-          .from('student_locations')
-          .select('location_id, locations(id, name)')
-          .eq('student_id', studentRecord.id)
-          .single();
-
-        // Fetch active subscription for this user
+        // Fetch active subscription with location for this user
         const { data: subscription } = await supabaseAdmin
           .from('subscriptions')
-          .select('id, status, plan_name')
+          .select('id, status, plan_name, location_id, locations(id, name)')
           .eq('clerk_user_id', userId)
           .eq('status', 'active')
           .single();
 
         const memberships: Student['memberships'] = [];
-        if (subscription && studentLocation?.locations) {
-          const loc = studentLocation.locations as { id: string; name: string };
+        if (subscription) {
+          const loc = subscription.locations as unknown as { id: string; name: string } | null;
           memberships.push({
             id: subscription.id,
             status: subscription.status,
             program: {
               name: subscription.plan_name,
-              location: { name: loc.name },
+              location: { name: loc?.name || 'Location TBD' },
             },
           });
         }
@@ -140,30 +133,23 @@ export default async function StudentPage({ params }: StudentPageProps) {
     if (waiver) {
       const nameParts = (waiver.child_full_name ?? '').trim().split(' ').filter(Boolean);
       
-      // Fetch location from waiver if available
-      const { data: waiverWithLocation } = await supabaseAdmin
-        .from('signed_waivers')
-        .select('location_id, locations(id, name)')
-        .eq('id', id)
-        .single();
-
-      // Fetch active subscription for this user
+      // Fetch active subscription with location for this user
       const { data: subscription } = await supabaseAdmin
         .from('subscriptions')
-        .select('id, status, plan_name')
+        .select('id, status, plan_name, location_id, locations(id, name)')
         .eq('clerk_user_id', userId)
         .eq('status', 'active')
         .single();
 
       const memberships: Student['memberships'] = [];
-      if (subscription && waiverWithLocation?.locations) {
-        const loc = waiverWithLocation.locations as { id: string; name: string };
+      if (subscription) {
+        const loc = subscription.locations as unknown as { id: string; name: string } | null;
         memberships.push({
           id: subscription.id,
           status: subscription.status,
           program: {
             name: subscription.plan_name,
-            location: { name: loc.name },
+            location: { name: loc?.name || 'Location TBD' },
           },
         });
       }
@@ -192,30 +178,23 @@ export default async function StudentPage({ params }: StudentPageProps) {
       .single();
 
     if (enrollment) {
-      // Fetch location from enrollment
-      const { data: enrollmentWithLocation } = await supabaseAdmin
-        .from('enrollments')
-        .select('location_id, locations(id, name)')
-        .eq('id', id)
-        .single();
-
-      // Fetch active subscription for this user
+      // Fetch active subscription with location for this user
       const { data: subscription } = await supabaseAdmin
         .from('subscriptions')
-        .select('id, status, plan_name')
+        .select('id, status, plan_name, location_id, locations(id, name)')
         .eq('clerk_user_id', userId)
         .eq('status', 'active')
         .single();
 
       const memberships: Student['memberships'] = [];
-      if (subscription && enrollmentWithLocation?.locations) {
-        const loc = enrollmentWithLocation.locations as { id: string; name: string };
+      if (subscription) {
+        const loc = subscription.locations as unknown as { id: string; name: string } | null;
         memberships.push({
           id: subscription.id,
           status: subscription.status,
           program: {
             name: subscription.plan_name,
-            location: { name: loc.name },
+            location: { name: loc?.name || 'Location TBD' },
           },
         });
       }

@@ -471,31 +471,30 @@ export function Header() {
                   </span>
                 </div>
                 
-                {/* Dashboard Dropdown for Mobile */}
+                {/* Go to Dashboard - Primary CTA */}
+                <Link
+                  href="/dashboard"
+                  className="flex flex-col items-center justify-center w-full py-4 rounded-xl bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] text-white font-bold hover:shadow-lg transition-all"
+                >
+                  <span className="text-lg">Go to My Dashboard</span>
+                  <span className="text-xs font-normal opacity-90 mt-0.5">View students & complete enrollment</span>
+                </Link>
+                
+                {/* Dashboard Dropdown for Community */}
                 <button
                   onClick={() => setIsMobileDashboardOpen(!isMobileDashboardOpen)}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#2EC4B6] to-[#8FE3CF] text-white font-bold hover:shadow-lg transition-all"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-all mt-2"
                 >
-                  Dashboard
+                  Community Boards
                   <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', isMobileDashboardOpen && 'rotate-180')} />
                 </button>
                 
-                {/* Mobile Dashboard Menu Items */}
+                {/* Mobile Community Boards Menu */}
                 <div className={cn(
                   'overflow-hidden transition-all duration-300',
                   isMobileDashboardOpen ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'
                 )}>
                   <div className="space-y-1 bg-slate-50/80 rounded-xl p-2">
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-white transition-all"
-                    >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500">
-                        <LayoutDashboard className="h-4 w-4 text-white" />
-                      </div>
-                      My Family
-                    </Link>
-                    
                     {isAdmin && (
                       <Link
                         href="/dashboard/admin"
@@ -507,11 +506,6 @@ export function Header() {
                         Admin Panel
                       </Link>
                     )}
-                    
-                    <div className="my-2 mx-3 border-t border-slate-200/60" />
-                    <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                      Community Boards
-                    </p>
                     
                     {LOCATIONS.map((location, index) => {
                       const colors = [

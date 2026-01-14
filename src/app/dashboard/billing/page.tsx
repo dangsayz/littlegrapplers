@@ -1,40 +1,39 @@
-import { CreditCard, Receipt, FileCode, CheckCircle2, Clock, Circle, ArrowRight } from 'lucide-react';
+import { CreditCard, Receipt, ArrowRight, CheckCircle, Calendar, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-
-const seoWorkOrder: {
-  title: string;
-  description: string;
-  dateCreated: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  items: { task: string; status: string; priority: string }[];
-} = {
-  title: 'SEO Implementation',
-  description: 'World-class SEO techniques for organic ranking',
-  dateCreated: '2026-01-06',
-  status: 'completed',
-  items: [
-    { task: 'Create sitemap.ts - Auto-generated sitemap with all routes', status: 'completed', priority: 'critical' },
-    { task: 'Create robots.ts - Proper crawl directives', status: 'completed', priority: 'critical' },
-    { task: 'Add JSON-LD structured data (Organization, LocalBusiness, FAQPage)', status: 'completed', priority: 'high' },
-    { task: 'Fix SITE_CONFIG URL - Update to littlegrapplers.net', status: 'completed', priority: 'high' },
-    { task: 'Add page-specific metadata to key pages (About, FAQ)', status: 'completed', priority: 'medium' },
-    { task: 'Enhanced root layout with keywords, authors, canonical URLs', status: 'completed', priority: 'high' },
-    { task: 'Added Google verification support', status: 'completed', priority: 'medium' },
-  ],
-};
-
-const mockAddress = {
-  address: '123 Main Street',
-  city: 'Austin',
-  state: 'TX',
-  zip: '78701',
-};
+import { auth } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export default async function BillingPage() {
-  const address = mockAddress;
+  const { userId } = await auth();
+
+  // Fetch user's subscriptions
+  let subscriptions: Array<{
+    id: string;
+    status: string;
+    plan_id: string;
+    plan_name: string;
+    current_period_start: string | null;
+    current_period_end: string | null;
+    created_at: string;
+  }> = [];
+
+  if (userId) {
+    const { data } = await supabaseAdmin
+      .from('subscriptions')
+      .select('id, status, plan_id, plan_name, current_period_start, current_period_end, created_at')
+      .eq('clerk_user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      subscriptions = data;
+    }
+  }
+
+  const activeSubscription = subscriptions.find(s => s.status === 'active');
+  const hasActiveSubscription = !!activeSubscription;
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -79,32 +78,43 @@ export default async function BillingPage() {
         </CardContent>
       </Card>
 
-      {/* Billing Address */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Billing Address</CardTitle>
-          <Button variant="ghost" size="sm" asChild>
-            <a href="/dashboard/settings">Edit</a>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {address.address ? (
-            <div className="text-muted-foreground">
-              <p>{address.address}</p>
-              <p>
-                {address.city}, {address.state} {address.zip}
-              </p>
+      {/* Active Subscription */}
+      {hasActiveSubscription && activeSubscription && (
+        <Card className="border-green-200 bg-gradient-to-br from-green-50/50 to-white">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Active Subscription
+              </CardTitle>
+              <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50">
+                Active
+              </Badge>
             </div>
-          ) : (
-            <p className="text-muted-foreground">
-              No billing address on file.{' '}
-              <a href="/dashboard/settings" className="text-brand hover:underline">
-                Add one in settings
-              </a>
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-lg border bg-white">
+              <p className="font-semibold text-lg">{activeSubscription.plan_name}</p>
+              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>
+                  Started: {activeSubscription.current_period_start 
+                    ? new Date(activeSubscription.current_period_start).toLocaleDateString() 
+                    : 'N/A'}
+                </span>
+              </div>
+              {activeSubscription.current_period_end && (
+                <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    Renews/Ends: {new Date(activeSubscription.current_period_end).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Payment History */}
       <Card>
@@ -115,102 +125,59 @@ export default async function BillingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-6">
-            <Receipt className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              No payment history yet
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Development Work Order */}
-      <Card className="border-violet-200 bg-gradient-to-br from-violet-50/50 to-white">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <FileCode className="h-5 w-5 text-violet-600" />
-              Development Work Order
-            </CardTitle>
-            <Badge 
-              variant="outline" 
-              className={
-                seoWorkOrder.status === 'completed' 
-                  ? 'border-green-500 text-green-600 bg-green-50' 
-                  : 'border-amber-500 text-amber-600 bg-amber-50'
-              }
-            >
-              {seoWorkOrder.status === 'completed' ? 'Completed' : 'In Progress'}
-            </Badge>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {seoWorkOrder.description}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground border-b pb-2">
-              <span>Order: {seoWorkOrder.title}</span>
-              <span>Created: {new Date(seoWorkOrder.dateCreated).toLocaleDateString()}</span>
-            </div>
-            
-            <div className="space-y-2">
-              {seoWorkOrder.items.map((item, index) => (
+          {subscriptions.length > 0 ? (
+            <div className="space-y-3">
+              {subscriptions.map((sub) => (
                 <div 
-                  key={index} 
-                  className="flex items-start gap-3 p-3 rounded-lg bg-white border border-slate-100"
+                  key={sub.id}
+                  className="flex items-center justify-between p-4 rounded-lg border bg-white"
                 >
-                  {item.status === 'completed' ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  ) : item.status === 'in_progress' ? (
-                    <Clock className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-slate-300 mt-0.5 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${item.status === 'completed' ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                      {item.task}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${
+                      sub.status === 'active' ? 'bg-green-100' : 
+                      sub.status === 'canceled' ? 'bg-red-100' : 'bg-gray-100'
+                    }`}>
+                      {sub.status === 'active' ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-gray-500" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{sub.plan_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(sub.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
                   <Badge 
-                    variant="outline" 
-                    className={`text-xs flex-shrink-0 ${
-                      item.priority === 'critical' 
-                        ? 'border-red-300 text-red-600 bg-red-50' 
-                        : item.priority === 'high'
-                        ? 'border-orange-300 text-orange-600 bg-orange-50'
-                        : item.priority === 'medium'
-                        ? 'border-blue-300 text-blue-600 bg-blue-50'
-                        : 'border-slate-300 text-slate-600 bg-slate-50'
-                    }`}
+                    variant="outline"
+                    className={
+                      sub.status === 'active' 
+                        ? 'border-green-500 text-green-600' 
+                        : sub.status === 'canceled'
+                        ? 'border-red-500 text-red-600'
+                        : 'border-gray-500 text-gray-600'
+                    }
                   >
-                    {item.priority}
+                    {sub.status}
                   </Badge>
                 </div>
               ))}
             </div>
-
-            <div className="pt-3 border-t mt-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Progress: {seoWorkOrder.items.filter(i => i.status === 'completed').length} / {seoWorkOrder.items.length} tasks
-                </span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full transition-all"
-                      style={{ 
-                        width: `${(seoWorkOrder.items.filter(i => i.status === 'completed').length / seoWorkOrder.items.length) * 100}%` 
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-violet-600">
-                    {Math.round((seoWorkOrder.items.filter(i => i.status === 'completed').length / seoWorkOrder.items.length) * 100)}%
-                  </span>
-                </div>
-              </div>
+          ) : (
+            <div className="text-center py-6">
+              <Receipt className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                No payment history yet
+              </p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link href="/dashboard/checkout">
+                  Start your membership
+                </Link>
+              </Button>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

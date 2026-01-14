@@ -11,12 +11,15 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     
     -- Stripe data
     stripe_customer_id TEXT,
-    stripe_subscription_id TEXT,
+    stripe_subscription_id TEXT UNIQUE,
     stripe_price_id TEXT,
     
     -- Plan info
     plan_id TEXT NOT NULL, -- 'monthly' or 'threeMonth'
     plan_name TEXT NOT NULL,
+    
+    -- Location (which location this subscription is for)
+    location_id UUID REFERENCES locations(id),
     
     -- Status
     status TEXT NOT NULL DEFAULT 'pending', -- pending, active, canceled, past_due, expired
@@ -26,11 +29,29 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     current_period_end TIMESTAMPTZ,
     cancel_at TIMESTAMPTZ,
     canceled_at TIMESTAMPTZ,
+    cancel_at_period_end BOOLEAN DEFAULT FALSE,
     
     -- Metadata
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add location_id to subscriptions if missing (for existing tables)
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS location_id UUID REFERENCES locations(id);
+
+-- Add cancel_at_period_end column if missing (for existing tables)
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS cancel_at_period_end BOOLEAN DEFAULT FALSE;
+
+-- Add unique constraint on stripe_subscription_id if not exists (required for upsert)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'subscriptions_stripe_subscription_id_key'
+    ) THEN
+        ALTER TABLE subscriptions ADD CONSTRAINT subscriptions_stripe_subscription_id_key UNIQUE (stripe_subscription_id);
+    END IF;
+END $$;
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
@@ -41,6 +62,10 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
 
 -- Enable RLS
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for re-runnable migrations)
+DROP POLICY IF EXISTS "Users can view own subscriptions" ON subscriptions;
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON subscriptions;
 
 -- Policy: Users can view their own subscriptions
 CREATE POLICY "Users can view own subscriptions" ON subscriptions
