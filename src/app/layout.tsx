@@ -155,7 +155,7 @@ export default async function RootLayout({
         <head>
           <OrganizationJsonLd />
         </head>
-        <body className={`min-h-screen bg-background font-sans antialiased ${showPaymentBanner && !isFrozen ? 'pt-10' : ''}`}>
+        <body className="min-h-screen bg-background font-sans antialiased">
           {/* Payment Due Banner - fixed at top, shows only to Stephen */}
           {showPaymentBanner && !isFrozen && (
             <PaymentDueBanner 

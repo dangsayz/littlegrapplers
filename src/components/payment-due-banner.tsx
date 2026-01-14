@@ -37,7 +37,7 @@ export function PaymentDueBanner({ dueDate, overdueDays, isOverdue }: PaymentDue
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] overflow-hidden">
+    <div className="relative z-50 w-full overflow-hidden">
       {/* Glacier ice glass base */}
       <div className="relative bg-slate-900/95 backdrop-blur-xl">
         {/* Holographic ice gradient - animated */}

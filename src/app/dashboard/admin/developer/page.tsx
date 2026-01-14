@@ -73,20 +73,26 @@ const priorityStyles = {
   urgent: { color: 'text-red-500', label: 'Urgent' },
 };
 
-// Detailed breakdown data
+// Detailed breakdown data - plain English for Stephen
 const platformModules = [
-  { name: 'Marketing Website', detail: '9 pages, SEO, responsive', value: 9600 },
-  { name: 'Authentication System', detail: 'Clerk integration, sessions', value: 6200 },
-  { name: 'Parent Portal', detail: 'Dashboard, students, settings', value: 13500 },
-  { name: 'Admin Dashboard', detail: '16 modules, full CRUD', value: 22600 },
-  { name: 'Community Features', detail: 'Forums, discussions, replies', value: 7000 },
-  { name: 'Digital Waivers', detail: 'E-signatures, PDF generation', value: 6200 },
-  { name: 'API Layer', detail: '44 endpoints, validation', value: 8400 },
-  { name: 'Database Design', detail: '20 models, relationships', value: 7000 },
-  { name: 'Email System', detail: 'Transactional, notifications', value: 3700 },
-  { name: 'UI Components', detail: '30+ custom components', value: 9100 },
-  { name: 'Security & Compliance', detail: 'COPPA, RLS policies', value: 4000 },
-  { name: 'Infrastructure', detail: 'Vercel, Supabase, CI/CD', value: 2700 },
+  { name: 'Public Website', detail: 'Homepage, About, Programs, Locations, FAQ, Contact pages', value: 8700 },
+  { name: 'Online Enrollment', detail: 'Digital waivers with e-signatures parents can sign online', value: 7600 },
+  { name: 'Parent Accounts', detail: 'Parents can log in, see their kids, watch videos', value: 9300 },
+  { name: 'Admin Dashboard', detail: 'Where you manage students, parents, and everything', value: 17000 },
+  { name: 'Payment System', detail: 'Stripe payments - parents pay you directly, auto-receipts', value: 11300 },
+  { name: 'Student Tracking', detail: 'Belt ranks, stripes, attendance, progress tracking', value: 5000 },
+  { name: 'Video Library', detail: 'Upload curriculum videos for parents to watch at home', value: 4500 },
+  { name: 'Community Forums', detail: 'Discussion boards for each location with PIN access', value: 5500 },
+  { name: 'Announcements', detail: 'Post updates, student of the month, schedule changes', value: 3500 },
+  { name: 'Email Notifications', detail: 'Auto emails for signups, payments, reminders', value: 4900 },
+  { name: 'Revenue Dashboard', detail: 'See your monthly revenue, subscriptions, growth', value: 6000 },
+  { name: 'Multi-Location Support', detail: 'Manage all your daycare locations in one place', value: 4500 },
+  { name: 'Mobile Friendly', detail: 'Works great on phones, tablets, and computers', value: 5000 },
+  { name: 'Security', detail: 'Password protection, secure payments, data safety', value: 7600 },
+  { name: 'Site Controls', detail: 'Kill switch, payment reminders, maintenance mode', value: 5900 },
+  { name: 'Developer Tools', detail: 'This page - submit requests, pay invoices', value: 6400 },
+  { name: 'Hosting Setup', detail: 'Domain, SSL certificate, fast servers worldwide', value: 2400 },
+  { name: 'Google Search', detail: 'SEO so parents can find you on Google', value: 4300 },
 ];
 
 function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
@@ -147,7 +153,10 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
           </div>
 
           <div className="px-8 py-4 bg-[#F7F9F9] border-t border-[#1F2A44]/5 text-center">
-            <p className="text-[13px] text-[#1F2A44]/50">12 modules · ~$30/mo hosting</p>
+            <p className="text-[13px] text-[#1F2A44]/50">18 features · $30/mo hosting</p>
+            <p className="text-[11px] text-[#1F2A44]/30 mt-2">
+              Don&apos;t believe it? Google &quot;website development cost&quot; and see for yourself.
+            </p>
           </div>
         </>
       ) : (
@@ -156,13 +165,13 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
           <div className="pt-4 pb-2 px-8">
             <DialogHeader>
               <DialogTitle className="text-[18px] font-semibold text-[#1F2A44] tracking-tight">
-                Agency Pricing
+                What This Would Cost Elsewhere
               </DialogTitle>
             </DialogHeader>
-            <p className="text-[13px] text-[#1F2A44]/40">What this would cost elsewhere</p>
+            <p className="text-[13px] text-[#1F2A44]/40">Google any of these features to see real agency prices</p>
           </div>
           
-          <div className="px-8 py-3 max-h-[45vh] overflow-y-auto">
+          <div className="px-8 py-3 max-h-[40vh] overflow-y-auto">
             <div className="space-y-0">
               {platformModules.map((module, i) => (
                 <div key={i} className="flex items-center justify-between py-2.5 border-b border-[#1F2A44]/5 last:border-0">
@@ -177,10 +186,14 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
           </div>
 
           <div className="px-8 py-4 bg-[#F7F9F9] border-t border-[#1F2A44]/5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-[#1F2A44]">Total Value</span>
               <span className="text-[16px] font-semibold text-[#1F2A44]">${totalValue.toLocaleString()}</span>
             </div>
+            <p className="text-[11px] text-[#1F2A44]/40 text-center leading-relaxed">
+              These are real market rates. Search &quot;custom web app development cost&quot; or 
+              &quot;Stripe integration cost&quot; on Google to verify. You got this for free.
+            </p>
           </div>
         </>
       )}
@@ -258,7 +271,7 @@ function DeveloperBillingContent() {
     description: string;
     date: string;
   }>>([]);
-  const [historyTotals, setHistoryTotals] = useState({ all: 0, subscription: 0, oneTime: 0 });
+  const [historyTotals, setHistoryTotals] = useState({ all: 450, subscription: 0, oneTime: 450 });
 
   // Balance reminder state
   const [balanceReminderSettings, setBalanceReminderSettings] = useState<{
@@ -371,7 +384,13 @@ function DeveloperBillingContent() {
         if (historyRes.ok) {
           const historyData = await historyRes.json();
           setPaymentHistory(historyData.payments || []);
-          setHistoryTotals(historyData.totals || { all: 0, subscription: 0, oneTime: 0 });
+          // Add $450 baseline platform cost Stephen paid
+          const apiTotals = historyData.totals || { all: 0, subscription: 0, oneTime: 0 };
+          setHistoryTotals({
+            all: apiTotals.all + 450,
+            subscription: apiTotals.subscription,
+            oneTime: apiTotals.oneTime + 450,
+          });
         }
       } catch (error) {
         console.error('Error fetching billing data:', error);
@@ -962,6 +981,28 @@ function DeveloperBillingContent() {
         </div>
       )}
 
+      {/* Welcome Card - Client View */}
+      {!isDev && (
+        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Your Website is Live</h3>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50">
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-semibold text-emerald-600">ONLINE</span>
+            </div>
+          </div>
+          
+          <p className="text-gray-500 text-sm mb-4">
+            Everything is set up and running. Need changes or new features? Submit a request below.
+          </p>
+          
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-500">Monthly hosting fee</p>
+            <p className="text-lg font-bold text-gray-900">$30<span className="text-sm font-normal text-gray-500">/mo</span></p>
+          </div>
+        </div>
+      )}
+
       {/* Monthly Hosting Banner */}
       <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
         <div className="flex items-center justify-between">
@@ -971,7 +1012,7 @@ function DeveloperBillingContent() {
             </div>
             <div>
               <p className="font-semibold text-gray-900">Monthly Hosting</p>
-              <p className="text-sm text-gray-500">$30/mo · Due 1st of each month</p>
+              <p className="text-sm text-gray-500">$30/mo · Supabase + Vercel infrastructure</p>
             </div>
           </div>
           {subscription ? (
@@ -985,7 +1026,7 @@ function DeveloperBillingContent() {
               disabled={processingSubscription}
               className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
             >
-              {processingSubscription ? 'Processing...' : 'Pay Now'}
+              {processingSubscription ? 'Processing...' : 'Subscribe'}
             </button>
           )}
         </div>
