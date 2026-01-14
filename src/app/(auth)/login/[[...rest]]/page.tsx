@@ -50,6 +50,7 @@ export default function LoginPage() {
             routing="path"
             path="/login"
             signUpUrl="/signup"
+            forceRedirectUrl="/dashboard"
           />
         </div>
       </div>

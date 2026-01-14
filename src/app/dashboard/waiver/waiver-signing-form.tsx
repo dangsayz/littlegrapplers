@@ -52,7 +52,31 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName, locations 
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Load saved draft from localStorage on mount
+  // Fetch prefill data from database (parent profile, previous waivers)
+  useEffect(() => {
+    const fetchPrefillData = async () => {
+      try {
+        const res = await fetch('/api/onboarding/prefill');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.prefill) {
+            setFormData((prev) => ({
+              ...prev,
+              guardianPhone: data.prefill.phone || prev.guardianPhone || '',
+              emergencyContactName: data.prefill.emergencyContactName || prev.emergencyContactName || '',
+              emergencyContactPhone: data.prefill.emergencyContactPhone || prev.emergencyContactPhone || '',
+            }));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch prefill data:', e);
+      }
+    };
+
+    fetchPrefillData();
+  }, []);
+
+  // Load saved draft from localStorage on mount (after prefill)
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
