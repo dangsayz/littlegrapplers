@@ -366,19 +366,19 @@ export function RevenueIntelligence({ isConnected: initialConnected = false, met
         </div>
       </div>
 
-      {/* Zero State Message */}
-      {!isConnected && (
-        <div className="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+      {/* Status Message - Only show if there's an issue */}
+      {!isConnected && !isLoading && (
+        <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-100">
           <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-              <DollarSign className="h-4 w-4 text-gray-500" />
+            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <DollarSign className="h-4 w-4 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700">
-                Connect Stripe to unlock revenue intelligence
+              <p className="text-sm font-medium text-amber-800">
+                Unable to fetch Stripe data
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Real-time revenue metrics, subscription analytics, and financial projections will appear here once Stripe is integrated.
+              <p className="text-xs text-amber-600 mt-0.5">
+                Check that Stripe API keys are configured correctly in your environment variables.
               </p>
             </div>
           </div>

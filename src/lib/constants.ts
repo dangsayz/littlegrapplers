@@ -165,6 +165,15 @@ export const ADMIN_EMAILS = [
 export const DEVELOPER_EMAILS = ['dangzr1@gmail.com', 'walkawayy@icloud.com'];
 
 /**
+ * Client email (Stephen) - sees payment due banners
+ * Only this user will see payment reminders on the site
+ */
+export const CLIENT_OWNER_EMAILS = [
+  'info@littlegrapplers.net',
+  'littlegrapplersjitsu@gmail.com',
+];
+
+/**
  * Test/Admin emails to exclude from revenue metrics and user counts
  * These are internal accounts that should not be counted in business metrics
  */

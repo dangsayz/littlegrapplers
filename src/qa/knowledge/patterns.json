@@ -1,0 +1,122 @@
+{
+  "patterns": [
+    {
+      "id": "db-missing-table-platform-status",
+      "fingerprint": "42P01:platform_status:relation_does_not_exist",
+      "name": "Missing platform_status Table",
+      "description": "The platform_status table does not exist in Supabase. This table is required for the payment due banner and site freeze functionality.",
+      "category": "database",
+      "severity": "critical",
+      "errorSignature": {
+        "code": "42P01",
+        "message": "relation \"platform_status\" does not exist"
+      },
+      "matchConditions": [
+        { "field": "error.message", "operator": "contains", "value": "platform_status" },
+        { "field": "error.message", "operator": "contains", "value": "does not exist" }
+      ],
+      "resolution": {
+        "type": "manual",
+        "action": "Run the SQL migration in /supabase-platform-control.sql in Supabase SQL Editor",
+        "script": null,
+        "requiresApproval": true
+      },
+      "prevention": {
+        "rule": "ALWAYS verify database tables exist before referencing them in code",
+        "checkCommand": "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'platform_status')"
+      },
+      "occurrences": 1,
+      "lastOccurrence": "2026-01-13T18:31:00Z",
+      "confidence": 1.0,
+      "createdAt": "2026-01-13T18:31:00Z"
+    },
+    {
+      "id": "db-missing-table-generic",
+      "fingerprint": "42P01:*:relation_does_not_exist",
+      "name": "Missing Database Table (Generic)",
+      "description": "A referenced database table does not exist in Supabase.",
+      "category": "database",
+      "severity": "critical",
+      "errorSignature": {
+        "code": "42P01",
+        "message": "relation * does not exist"
+      },
+      "matchConditions": [
+        { "field": "error.code", "operator": "equals", "value": "42P01" },
+        { "field": "error.message", "operator": "contains", "value": "does not exist" }
+      ],
+      "resolution": {
+        "type": "manual",
+        "action": "Check /supabase/ directory for migration SQL files and run them in Supabase",
+        "script": null,
+        "requiresApproval": true
+      },
+      "prevention": {
+        "rule": "Before adding new features that require database tables, verify migrations have been run",
+        "checklist": [
+          "1. Check if migration SQL file exists",
+          "2. Verify table exists in Supabase dashboard",
+          "3. Test query in Supabase SQL Editor before deploying"
+        ]
+      },
+      "occurrences": 1,
+      "lastOccurrence": "2026-01-13T18:31:00Z",
+      "confidence": 0.9,
+      "createdAt": "2026-01-13T18:31:00Z"
+    }
+    ,
+    {
+      "id": "css-shorthand-conflict",
+      "fingerprint": "css:shorthand:backgroundSize:conflict",
+      "name": "CSS Shorthand Property Conflict",
+      "description": "Mixing CSS shorthand (background) with non-shorthand (backgroundSize) causes React/Next.js styling bugs during rerender.",
+      "category": "frontend",
+      "severity": "medium",
+      "errorSignature": {
+        "message": "Updating a style property during rerender (background) when a conflicting property is set (backgroundSize)"
+      },
+      "matchConditions": [
+        { "field": "error.message", "operator": "contains", "value": "conflicting property" },
+        { "field": "error.message", "operator": "contains", "value": "backgroundSize" }
+      ],
+      "resolution": {
+        "type": "automatic",
+        "action": "Replace 'background' with 'backgroundImage' when using backgroundSize in inline styles",
+        "script": "s/background:/backgroundImage:/g",
+        "requiresApproval": false
+      },
+      "prevention": {
+        "rule": "NEVER mix CSS shorthand and non-shorthand properties in React inline styles",
+        "examples": [
+          "BAD: { background: 'linear-gradient(...)', backgroundSize: '400%' }",
+          "GOOD: { backgroundImage: 'linear-gradient(...)', backgroundSize: '400%' }"
+        ]
+      },
+      "occurrences": 1,
+      "lastOccurrence": "2026-01-13T18:54:00Z",
+      "confidence": 1.0,
+      "createdAt": "2026-01-13T18:54:00Z"
+    }
+  ],
+  "preventionRules": [
+    {
+      "id": "rule-verify-db-tables",
+      "name": "Verify Database Tables Before Feature Deployment",
+      "description": "Always verify that required database tables exist before deploying features that depend on them",
+      "triggers": ["new_feature", "database_reference"],
+      "checks": [
+        "Check for migration files in /supabase/ or /supabase/migrations/",
+        "Verify table exists using Supabase dashboard or SQL query",
+        "Add graceful fallback if table doesn't exist"
+      ],
+      "createdFrom": "db-missing-table-platform-status",
+      "createdAt": "2026-01-13T18:31:00Z"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.1",
+    "lastUpdated": "2026-01-13T18:54:00Z",
+    "totalPatterns": 3,
+    "totalRules": 1
+  }
+}

@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Space_Grotesk, Playfair_Display } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
-import { SITE_CONFIG } from '@/lib/constants';
+import { SITE_CONFIG, CLIENT_OWNER_EMAILS } from '@/lib/constants';
+import { currentUser } from '@clerk/nextjs/server';
 import { SiteFrozenOverlay } from '@/components/site-frozen-overlay';
+import { PaymentDueBanner } from '@/components/payment-due-banner';
 import { OrganizationJsonLd } from '@/components/seo/json-ld';
 import { supabaseAdmin } from '@/lib/supabase';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -126,13 +128,42 @@ export default async function RootLayout({
     : process.env.SITE_FROZEN === 'true';
   const freezeMessage = platformStatus?.disabled_reason || process.env.SITE_FREEZE_MESSAGE;
 
+  // Check if payment is due or overdue
+  const paymentDueDate = platformStatus?.payment_due_date || null;
+  const paymentReceivedAt = platformStatus?.payment_received_at || null;
+  const overdueDays = platformStatus?.payment_overdue_days || 0;
+  
+  // Check if current user is the client owner (Stephen)
+  // Only Stephen sees the payment due banner - not regular visitors
+  const user = await currentUser();
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase();
+  const isClientOwner = userEmail && CLIENT_OWNER_EMAILS.map(e => e.toLowerCase()).includes(userEmail);
+  
+  // Show payment banner ONLY to Stephen if:
+  // 1. User is Stephen (client owner) AND
+  // 2. There's a due date set AND
+  // 3. Payment hasn't been received yet (or received before due date was set)
+  const showPaymentBanner = isClientOwner && paymentDueDate && (
+    !paymentReceivedAt || 
+    new Date(paymentReceivedAt) < new Date(paymentDueDate)
+  );
+  const isPaymentOverdue = overdueDays > 0;
+
   return (
     <ClerkProvider>
       <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${playfair.variable}`}>
         <head>
           <OrganizationJsonLd />
         </head>
-        <body className="min-h-screen bg-background font-sans antialiased">
+        <body className={`min-h-screen bg-background font-sans antialiased ${showPaymentBanner && !isFrozen ? 'pt-10' : ''}`}>
+          {/* Payment Due Banner - fixed at top, shows only to Stephen */}
+          {showPaymentBanner && !isFrozen && (
+            <PaymentDueBanner 
+              dueDate={paymentDueDate} 
+              overdueDays={overdueDays} 
+              isOverdue={isPaymentOverdue} 
+            />
+          )}
           {isFrozen && <SiteFrozenOverlay message={freezeMessage} initialStatus={platformStatus} />}
           {children}
         </body>

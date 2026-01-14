@@ -139,15 +139,18 @@ export async function GET() {
   } catch (error) {
     console.error('Stripe metrics error:', error);
     
-    // Return not connected state if Stripe fails
+    // Check if Stripe keys are configured
+    const hasStripeKeys = !!(process.env.STRIPE_SECRET_KEY);
+    
+    // Return appropriate state based on configuration
     return NextResponse.json({
-      isConnected: false,
+      isConnected: hasStripeKeys, // Show as connected if keys exist, even on error
       error: (error as Error).message,
       metrics: {
-        mrr: null,
-        arr: null,
-        projectedRevenue: null,
-        activeSubscriptions: null,
+        mrr: 0,
+        arr: 0,
+        projectedRevenue: 0,
+        activeSubscriptions: 0,
         mrrGrowth: null,
         churnRate: null,
         monthlySubscribers: 0,

@@ -485,7 +485,41 @@ grep -r "console.log" src/app/api/   # Check for debug logs in APIs
 
 ---
 
-## 12. Environment Variable Checklist
+## 12. Database Migration Checklist
+
+> **CRITICAL RULE:** Never deploy features that reference database tables without verifying the tables exist.
+
+### 12.1 Pre-Deployment Database Verification
+| Check | Command/Action | Status |
+|-------|----------------|--------|
+| Migration file exists | Check `/supabase/` or `/supabase/migrations/` | [ ] |
+| Table exists in Supabase | Verify in Supabase Dashboard → Table Editor | [ ] |
+| Test query works | Run `SELECT * FROM table_name LIMIT 1` in SQL Editor | [ ] |
+| RLS policies applied | Check policies in Authentication → Policies | [ ] |
+| Indexes created | Verify in table schema | [ ] |
+
+### 12.2 Required Tables Registry
+| Table | Purpose | Migration File | Status |
+|-------|---------|----------------|--------|
+| `platform_status` | Site freeze/payment due banner | `/supabase-platform-control.sql` | [ ] |
+| `platform_status_log` | Audit trail for platform changes | `/supabase-platform-control.sql` | [ ] |
+| `enrollments` | Waiver/enrollment data | Core schema | [ ] |
+| `subscriptions` | Stripe subscription sync | Core schema | [ ] |
+| `users` | User profiles | Core schema | [ ] |
+| `students` | Student records | Core schema | [ ] |
+| `locations` | Location data | Core schema | [ ] |
+
+### 12.3 Common Database Errors
+| Error Code | Meaning | Resolution |
+|------------|---------|------------|
+| `42P01` | Table does not exist | Run migration SQL |
+| `42703` | Column does not exist | Check schema, run ALTER |
+| `42501` | Permission denied | Check RLS policies |
+| `23505` | Unique constraint violation | Check for duplicates |
+
+---
+
+## 13. Environment Variable Checklist
 
 ### Production Required
 ```

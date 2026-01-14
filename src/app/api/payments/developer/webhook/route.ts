@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 
 const DEV_STRIPE_SECRET = process.env.DEV_STRIPE_SECRET_KEY;
 const DEV_STRIPE_WEBHOOK_SECRET = process.env.DEV_STRIPE_WEBHOOK_SECRET;
+
+// Supabase client for updating platform status
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
@@ -40,6 +47,10 @@ export async function POST(request: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
+    
+    // CRITICAL: Update platform status to mark payment as received
+    // This automatically removes the payment due banner from the site
+    await updatePlatformPaymentStatus(session);
     
     // Send professional receipt email to client
     if (session.customer_details?.email) {
@@ -182,6 +193,31 @@ async function sendReceiptEmail({
     console.log('Receipt email sent to:', clientEmail);
   } catch (error) {
     console.error('Failed to send receipt email:', error);
+  }
+}
+
+/**
+ * Updates platform_status to mark payment as received
+ * This automatically removes the payment due banner from the website
+ */
+async function updatePlatformPaymentStatus(session: Stripe.Checkout.Session) {
+  try {
+    const { error } = await supabase
+      .from('platform_status')
+      .update({
+        payment_received_at: new Date().toISOString(),
+        payment_overdue_days: 0,
+        last_checked_at: new Date().toISOString(),
+      })
+      .eq('id', (await supabase.from('platform_status').select('id').single()).data?.id);
+
+    if (error) {
+      console.error('Failed to update platform payment status:', error);
+    } else {
+      console.log('Platform payment status updated - banner will be removed');
+    }
+  } catch (error) {
+    console.error('Error updating platform payment status:', error);
   }
 }
 
