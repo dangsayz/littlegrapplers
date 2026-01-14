@@ -335,31 +335,153 @@ pnpm typecheck               # TypeScript passes
 
 ---
 
-## 11. Security Checks
+## 11. Security Checks (Enterprise-Grade)
 
-### 11.1 Authentication Security
-| Check | Status |
-|-------|--------|
-| HTTPS enforced | [ ] |
-| Secure cookies | [ ] |
-| Session timeout appropriate | [ ] |
-| Password requirements enforced | [ ] |
+> **Standard:** PCI DSS Level 4, OWASP Top 10, SOC 2 Type II aligned
+> These checks reflect world-class security practices used by Stripe, Square, and enterprise payment platforms.
 
-### 11.2 Authorization
-| Check | Status |
-|-------|--------|
-| Admin routes protected | [ ] |
-| Users can only access own data | [ ] |
-| API endpoints validate auth | [ ] |
-| Clerk middleware active | [ ] |
+---
 
-### 11.3 Data Protection
-| Check | Status |
-|-------|--------|
-| Sensitive data not in URL params | [ ] |
-| API keys not exposed client-side | [ ] |
-| Error messages don't leak info | [ ] |
-| CORS configured correctly | [ ] |
+### 11.1 Authentication Security (OWASP A07:2021)
+| Check | Status | Severity |
+|-------|--------|----------|
+| HTTPS enforced on all routes | [ ] | CRITICAL |
+| Secure cookies (HttpOnly, Secure, SameSite=Strict) | [ ] | CRITICAL |
+| Session timeout ≤ 30 mins inactive | [ ] | HIGH |
+| Password min 8 chars, 1 upper, 1 number, 1 special | [ ] | HIGH |
+| Brute force protection (Clerk rate limiting) | [ ] | CRITICAL |
+| Multi-factor authentication available | [ ] | MEDIUM |
+| Account lockout after 5 failed attempts | [ ] | HIGH |
+| Secure password reset flow (time-limited tokens) | [ ] | HIGH |
+| No credentials in URLs or logs | [ ] | CRITICAL |
+
+### 11.2 Authorization & Access Control (OWASP A01:2021)
+| Check | Status | Severity |
+|-------|--------|----------|
+| Admin routes return 403 for non-admins | [ ] | CRITICAL |
+| Users can only access own data (IDOR prevention) | [ ] | CRITICAL |
+| API endpoints validate auth on ALL routes | [ ] | CRITICAL |
+| Clerk middleware active on protected routes | [ ] | CRITICAL |
+| Role-based access control (RBAC) enforced | [ ] | HIGH |
+| Privilege escalation not possible | [ ] | CRITICAL |
+| JWT tokens validated on every request | [ ] | CRITICAL |
+| No hardcoded admin credentials | [ ] | CRITICAL |
+
+### 11.3 Input Validation & Injection Prevention (OWASP A03:2021)
+| Check | Status | Severity |
+|-------|--------|----------|
+| All inputs validated with Zod schemas | [ ] | CRITICAL |
+| XSS sanitization on all user inputs | [ ] | CRITICAL |
+| SQL injection prevented (parameterized queries) | [ ] | CRITICAL |
+| NoSQL injection prevented | [ ] | HIGH |
+| Command injection prevented | [ ] | CRITICAL |
+| Path traversal prevented | [ ] | HIGH |
+| Email validation strict (no header injection) | [ ] | HIGH |
+| File upload type/size validation | [ ] | HIGH |
+| Content-Type validation on API requests | [ ] | MEDIUM |
+
+### 11.4 Payment Security (PCI DSS Aligned)
+| Check | Status | Severity |
+|-------|--------|----------|
+| **Never store credit card numbers** | [ ] | CRITICAL |
+| **Never store CVV/CVC codes** | [ ] | CRITICAL |
+| All payments via Stripe Checkout (PCI compliant) | [ ] | CRITICAL |
+| Stripe webhook signature verification | [ ] | CRITICAL |
+| STRIPE_WEBHOOK_SECRET in env (not hardcoded) | [ ] | CRITICAL |
+| Payment amounts validated server-side | [ ] | CRITICAL |
+| Idempotency keys for payment operations | [ ] | HIGH |
+| No payment data in client-side storage | [ ] | CRITICAL |
+| Payment audit trail maintained | [ ] | HIGH |
+| Refund operations logged and verified | [ ] | HIGH |
+| Test mode keys not in production | [ ] | CRITICAL |
+| Price IDs validated against Stripe | [ ] | HIGH |
+
+### 11.5 API Security
+| Check | Status | Severity |
+|-------|--------|----------|
+| Rate limiting on all public endpoints | [ ] | HIGH |
+| Rate limiting on authentication endpoints | [ ] | CRITICAL |
+| CORS whitelist (no wildcard in production) | [ ] | HIGH |
+| API versioning strategy | [ ] | MEDIUM |
+| Request size limits enforced | [ ] | HIGH |
+| Webhook endpoints validate signatures | [ ] | CRITICAL |
+| No sensitive data in error responses | [ ] | HIGH |
+| API keys rotatable without downtime | [ ] | MEDIUM |
+
+### 11.6 Security Headers
+| Header | Value | Status |
+|--------|-------|--------|
+| Strict-Transport-Security | max-age=31536000; includeSubDomains | [ ] |
+| X-Content-Type-Options | nosniff | [ ] |
+| X-Frame-Options | DENY | [ ] |
+| X-XSS-Protection | 1; mode=block | [ ] |
+| Content-Security-Policy | Configured appropriately | [ ] |
+| Referrer-Policy | strict-origin-when-cross-origin | [ ] |
+| Permissions-Policy | Restrictive | [ ] |
+
+### 11.7 Data Protection & Privacy
+| Check | Status | Severity |
+|-------|--------|----------|
+| Sensitive data not in URL params | [ ] | CRITICAL |
+| API keys not exposed client-side | [ ] | CRITICAL |
+| Error messages don't leak stack traces | [ ] | HIGH |
+| PII encrypted at rest (Supabase) | [ ] | HIGH |
+| PII encrypted in transit (TLS 1.3) | [ ] | CRITICAL |
+| Data retention policy documented | [ ] | MEDIUM |
+| Right to deletion supported (GDPR) | [ ] | MEDIUM |
+| Audit logs for PII access | [ ] | HIGH |
+| Backup encryption enabled | [ ] | HIGH |
+
+### 11.8 Infrastructure Security
+| Check | Status | Severity |
+|-------|--------|----------|
+| Environment variables in Vercel secrets | [ ] | CRITICAL |
+| No secrets in source control | [ ] | CRITICAL |
+| Dependency vulnerability scan (npm audit) | [ ] | HIGH |
+| Docker images scanned (if applicable) | [ ] | MEDIUM |
+| Database connection via SSL | [ ] | CRITICAL |
+| Service accounts least privilege | [ ] | HIGH |
+| Vercel deployment protection | [ ] | MEDIUM |
+
+### 11.9 Monitoring & Incident Response
+| Check | Status | Severity |
+|-------|--------|----------|
+| Error monitoring active (e.g., Sentry) | [ ] | HIGH |
+| Security event logging | [ ] | HIGH |
+| Anomaly detection for payments | [ ] | HIGH |
+| Failed login attempt logging | [ ] | HIGH |
+| Webhook failure alerting | [ ] | HIGH |
+| Incident response plan documented | [ ] | MEDIUM |
+| Security contact email configured | [ ] | MEDIUM |
+
+### 11.10 Bot & Fraud Prevention
+| Check | Status | Severity |
+|-------|--------|----------|
+| Honeypot fields on forms | [ ] | MEDIUM |
+| Form submission timing check | [ ] | MEDIUM |
+| CAPTCHA on sensitive forms (if needed) | [ ] | LOW |
+| Duplicate submission prevention | [ ] | HIGH |
+| IP-based rate limiting | [ ] | HIGH |
+| Geographic velocity checks | [ ] | MEDIUM |
+
+---
+
+### Security Checklist Commands
+```bash
+# Run before every deployment
+npm audit --audit-level=high          # Check dependencies
+npx tsc --noEmit                      # Type safety
+grep -r "sk_live\|pk_live\|whsec_" src/  # Check for leaked keys (should return nothing)
+grep -r "console.log" src/app/api/   # Check for debug logs in APIs
+```
+
+### Security Incident Severity Levels
+| Level | Response Time | Examples |
+|-------|--------------|----------|
+| **P0 - Critical** | < 1 hour | Payment data breach, credential leak |
+| **P1 - High** | < 4 hours | Auth bypass, privilege escalation |
+| **P2 - Medium** | < 24 hours | XSS vulnerability, rate limit bypass |
+| **P3 - Low** | < 1 week | Minor info disclosure, missing headers |
 
 ---
 
