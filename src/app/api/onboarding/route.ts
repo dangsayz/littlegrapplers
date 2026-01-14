@@ -59,6 +59,21 @@ export async function POST(request: NextRequest) {
     const userEmail = user.emailAddresses[0]?.emailAddress;
     const clerkUserId = user.id;
 
+    // Validate locationId exists in locations table
+    const { data: location, error: locationCheckError } = await supabaseAdmin
+      .from('locations')
+      .select('id, name')
+      .eq('id', locationId)
+      .single();
+
+    if (locationCheckError || !location) {
+      console.error('Location validation error:', { locationId, error: locationCheckError });
+      return NextResponse.json(
+        { error: 'Invalid location selected. Please select a valid location.' },
+        { status: 400 }
+      );
+    }
+
     // Create or update user in our users table
     const { data: existingUser, error: userCheckError } = await supabaseAdmin
       .from('users')
@@ -82,7 +97,10 @@ export async function POST(request: NextRequest) {
         .select('id')
         .single();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('User update error:', updateError);
+        throw new Error(`Failed to update user: ${updateError.message}`);
+      }
       userId = updatedUser.id;
     } else {
       // Create new user
@@ -99,7 +117,10 @@ export async function POST(request: NextRequest) {
         .select('id')
         .single();
 
-      if (createError) throw createError;
+      if (createError) {
+        console.error('User create error:', createError);
+        throw new Error(`Failed to create user: ${createError.message}`);
+      }
       userId = newUser.id;
     }
 
@@ -125,7 +146,10 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
 
-    if (parentError) throw parentError;
+    if (parentError) {
+      console.error('Parent profile error:', parentError);
+      throw new Error(`Failed to create parent profile: ${parentError.message}`);
+    }
 
     // Create student record
     const { data: student, error: studentError } = await supabaseAdmin
@@ -141,7 +165,10 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
 
-    if (studentError) throw studentError;
+    if (studentError) {
+      console.error('Student create error:', studentError);
+      throw new Error(`Failed to create student: ${studentError.message}`);
+    }
 
     // Assign student to location
     const { error: studentLocationError } = await supabaseAdmin
