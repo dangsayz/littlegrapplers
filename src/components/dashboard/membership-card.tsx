@@ -102,7 +102,7 @@ export function MembershipCard({ membership }: MembershipCardProps) {
 }
 
 // Empty state when no memberships
-export function NoMembershipsCard() {
+export function NoMembershipsCard({ hasStudents = false }: { hasStudents?: boolean }) {
   return (
     <Card className="border-dashed">
       <CardContent className="p-8 text-center">
@@ -110,12 +110,25 @@ export function NoMembershipsCard() {
           <FileText className="h-6 w-6 text-muted-foreground" />
         </div>
         <h3 className="font-semibold mb-2">No memberships yet</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Once you add a student, you can enroll them in a program.
-        </p>
-        <Button asChild>
-          <Link href="/dashboard/students">Add a Student First</Link>
-        </Button>
+        {hasStudents ? (
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              Start a membership to enroll your student in classes.
+            </p>
+            <Button asChild>
+              <Link href="/dashboard/billing">Start Membership</Link>
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              Once you add a student, you can enroll them in a program.
+            </p>
+            <Button asChild>
+              <Link href="/dashboard/students">Add a Student First</Link>
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );

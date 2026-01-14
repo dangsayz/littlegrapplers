@@ -27,6 +27,8 @@ export default async function MembershipsPage() {
     reason: string;
   }> = [];
 
+  let hasStudents = false;
+
   if (userId) {
     const { data: subs } = await supabaseAdmin
       .from('subscriptions')
@@ -47,6 +49,30 @@ export default async function MembershipsPage() {
     
     if (requests) {
       pendingRequests = requests;
+    }
+
+    // Check if user has any students
+    const { data: dbUser } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single();
+
+    if (dbUser) {
+      const { data: parent } = await supabaseAdmin
+        .from('parents')
+        .select('id')
+        .eq('user_id', dbUser.id)
+        .single();
+
+      if (parent) {
+        const { count } = await supabaseAdmin
+          .from('students')
+          .select('id', { count: 'exact', head: true })
+          .eq('parent_id', parent.id);
+        
+        hasStudents = (count ?? 0) > 0;
+      }
     }
   }
 
@@ -113,7 +139,7 @@ export default async function MembershipsPage() {
           ))}
         </div>
       ) : (
-        <NoMembershipsCard />
+        <NoMembershipsCard hasStudents={hasStudents} />
       )}
 
       {/* Pending Requests */}
