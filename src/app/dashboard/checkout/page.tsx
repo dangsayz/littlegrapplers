@@ -50,7 +50,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cancelled) {
-      setError('Checkout was cancelled. Please try again when ready.');
+      setError('No worries! Your spot is saved. Complete your membership when you\'re ready.');
     }
   }, [cancelled]);
 
