@@ -1,14 +1,41 @@
-# Little Grapplers Platform
+# Little Grapplers - Full-Stack Academy Platform
 
-A custom membership-based platform for Little Grapplers, a youth Brazilian Jiu-Jitsu program operating across multiple daycare facilities.
+**Live Site:** [littlegrapplers.net](https://littlegrapplers.net)
 
-## Overview
+A complete business management platform for youth martial arts academies. Features online enrollment with digital waivers, parent portals, Stripe payment processing, and multi-location admin dashboard.
 
-This platform serves three distinct audiences:
+Built as a freelance project to replace a basic Squarespace site with a fully custom solution.
 
-1. **Public Marketing** — Educate parents and daycares about the Little Grapplers mission
-2. **Admin Dashboard** — Manage students, parents, locations, programs, content, and memberships
-3. **Parent Portal** — Gated access for registered parents to view videos, discussions, and announcements
+---
+
+## What I Built
+
+### Public Website
+- Modern marketing pages with program information and pricing
+- Location finder with interactive maps
+- **Online enrollment with legally-compliant digital waiver signing**
+- Mobile-first responsive design with premium UI/UX
+
+### Parent Portal (Authenticated)
+- View enrolled students with belt rank and progress tracking
+- Access curriculum video library organized by skill level
+- Community discussion forums with location-based PIN access
+- Payment history, receipts, and subscription management
+
+### Admin Dashboard
+- **Multi-location support** with role-based access (owner, location admin, instructor)
+- Student management with belt/stripe promotions and attendance
+- Revenue analytics with Stripe integration
+- Announcement system, Student of the Month features
+- Balance reminders and automated payment notifications
+- Platform controls: kill switch, maintenance mode, feature flags
+
+### Developer Portal
+- Work order system for client feature requests
+- Invoice generation and payment tracking
+- Platform value calculator showing ROI
+
+---
 
 ## Tech Stack
 
@@ -16,15 +43,15 @@ This platform serves three distinct audiences:
 |-------|------------|
 | Framework | Next.js 14 (App Router) |
 | Language | TypeScript |
+| Database | Supabase (PostgreSQL) |
+| Auth | Clerk |
+| Payments | Stripe (Subscriptions + One-time) |
 | Styling | Tailwind CSS |
 | Components | shadcn/ui |
 | Icons | Lucide React |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Auth | NextAuth.js v5 |
+| Deployment | Vercel |
 | Validation | Zod |
 | Forms | React Hook Form |
-| State | Zustand |
 
 ## Getting Started
 
@@ -100,75 +127,54 @@ littlegrapplers.net/
 
 ## Key Features
 
-### Marketing Site
-- Bold, Nike-inspired design aesthetic
-- Mobile-first responsive layout
-- Location and program discovery
-- Online registration flow
+| Feature | Description |
+|---------|-------------|
+| Digital Waivers | E-signatures with PDF generation and legal compliance |
+| Stripe Payments | Recurring subscriptions, one-time payments, automated receipts |
+| Multi-Location | Manage multiple facilities from one dashboard |
+| Role-Based Access | Owner, admin, instructor permission levels |
+| Video Library | Upload and organize curriculum videos by belt level |
+| Community Forums | Location-based discussion boards with PIN protection |
+| Progress Tracking | Belt ranks, stripes, attendance history |
+| Notifications | Email alerts for enrollments, payments, reminders |
+| Platform Controls | Kill switch, maintenance mode, feature toggles |
 
-### Parent Portal
-- Student progress tracking (belt rank, stripes)
-- Program-specific video library
-- Community discussion boards
-- Announcements and notifications
+## Screenshots
 
-### Admin Dashboard
-- Full CRUD for all entities
-- Belt and stripe promotion management
-- Membership status tracking
-- Content management (videos, announcements)
-- Activity logging
+> Add screenshots here: homepage, enrollment form, parent dashboard, admin panel
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `NEXTAUTH_URL` | Base URL for authentication |
-| `NEXTAUTH_SECRET` | Secret for session encryption |
-| `RESEND_API_KEY` | API key for email service |
-| `EMAIL_FROM` | From address for emails |
+See `.env.example` for required configuration:
+- Supabase credentials
+- Clerk authentication keys
+- Stripe API keys (test and live)
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run db:push` | Push schema to database |
-| `npm run db:migrate` | Create and run migrations |
-| `npm run db:studio` | Open Prisma Studio |
-| `npm run db:seed` | Seed database with sample data |
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+```
 
-## Design Principles
+## Architecture
 
-### Aesthetic Direction
-- **Nike** — Confidence, discipline, bold typography
-- **Patagonia** — Trust, mission-driven, longevity
-- **Notion/Linear** — Calm, functional dashboards
-
-High-contrast layouts (black/white) with intentional brand-color accents.
-
-### Engineering Standards
-- Mobile-first responsive design
-- Accessible (WCAG 2.1 AA)
-- Performance-optimized (Core Web Vitals)
-- Type-safe throughout
-- Production-ready error handling
-
-## Documentation
-
-See the `/docs` folder for detailed documentation:
-
-- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — System design, data models, phased build plan
-- **[USER-FLOWS.md](./docs/USER-FLOWS.md)** — Detailed user interaction flows
-
-## License
-
-Proprietary — All rights reserved.
+See `/docs` for detailed documentation:
+- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) — System design and data models
+- [USER-FLOWS.md](./docs/USER-FLOWS.md) — User interaction flows
 
 ---
 
-Built with ❤️ for young grapplers everywhere.
+## About This Project
+
+This was built as a complete business solution for a real client, replacing their Squarespace site with a custom platform that handles everything from marketing to payments to student management.
+
+**Project Value:** $100k+ in equivalent agency pricing  
+**Actual Cost:** $450  
+**Timeline:** Built and deployed in production
+
+---
+
+**Contact:** [Your email/portfolio link here]
