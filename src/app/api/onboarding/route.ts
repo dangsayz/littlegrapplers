@@ -75,25 +75,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Create or update user in our users table
-    const { data: existingUser, error: userCheckError } = await supabaseAdmin
+    // First check by clerk_user_id, then by email (user might exist from waiver signing)
+    let existingUser = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('clerk_user_id', clerkUserId)
-      .single();
+      .maybeSingle();
+
+    // If not found by clerk_user_id, check by email
+    if (!existingUser.data && userEmail) {
+      existingUser = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('email', userEmail)
+        .maybeSingle();
+    }
 
     let userId: string;
 
-    if (existingUser) {
-      // Update existing user
+    if (existingUser.data) {
+      // Update existing user - link clerk_user_id and update profile
       const { data: updatedUser, error: updateError } = await supabaseAdmin
         .from('users')
         .update({
+          clerk_user_id: clerkUserId, // Link clerk account to existing user
           first_name: firstName,
           last_name: lastName,
           phone,
           status: 'active',
         })
-        .eq('clerk_user_id', clerkUserId)
+        .eq('id', existingUser.data.id)
         .select('id')
         .single();
 
