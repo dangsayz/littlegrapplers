@@ -220,7 +220,7 @@ export const waiverFormSchema = z.object({
   childDateOfBirth: dateSchema.optional(),
   emergencyContactName: nameSchema.optional(),
   emergencyContactPhone: optionalPhoneSchema,
-  planType: z.enum(['month-to-month', '3-month', '6-month']).optional(),
+  planType: z.enum(['month-to-month', '3-month-paid-in-full']).optional(),
   digitalSignature: signatureSchema,
   photoMediaConsent: z.boolean(),
   agreedToTerms: z.literal(true, {

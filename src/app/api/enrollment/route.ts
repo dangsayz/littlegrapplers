@@ -20,7 +20,7 @@ const enrollmentSchema = z.object({
   childDateOfBirth: z.string().optional(),
   emergencyContactName: z.string().max(100).optional(),
   emergencyContactPhone: z.string().max(20).optional(),
-  planType: z.enum(['month-to-month', '3-month', '6-month']).default('month-to-month'),
+  planType: z.enum(['month-to-month', '3-month-paid-in-full']).default('month-to-month'),
   digitalSignature: z.string().min(1).max(150),
   photoMediaConsent: z.boolean().default(false),
   agreedToTerms: z.boolean().refine(val => val === true, 'You must agree to the terms'),
