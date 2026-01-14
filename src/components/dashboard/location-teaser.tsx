@@ -180,22 +180,21 @@ export function LocationTeaser({ locations, isAdmin = false }: LocationTeaserPro
                     <MapPin className="h-5 w-5 text-white" />
                   </div>
                   
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-slate-900 truncate group-hover:text-teal-600 transition-colors">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-slate-900 group-hover:text-teal-600 transition-colors leading-tight pr-1">
                         {location.name}
                       </h3>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {isAdmin && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
                                 onClick={(e) => handlePinClick(e, location)}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-mono transition-colors"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-mono transition-colors"
                               >
-                                <Lock className="h-3 w-3" />
+                                <Lock className="h-2.5 w-2.5" />
                                 {location.accessPin || '----'}
-                                <Settings className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                               </button>
                             </TooltipTrigger>
                             <TooltipContent side="top">
