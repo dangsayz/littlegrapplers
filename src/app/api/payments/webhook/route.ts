@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { stripe, constructWebhookEvent } from '@/lib/stripe';
+import { Resend } from 'resend';
 import Stripe from 'stripe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -109,6 +112,17 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         console.log(`One-time payment recorded for user ${clerkUserId}`);
       }
     }
+
+    // Send welcome/confirmation email
+    if (session.customer_details?.email) {
+      await sendWelcomeEmail(
+        session.customer_details.email,
+        session.customer_details.name || 'Parent',
+        planType,
+        amount
+      );
+    }
+
     // Subscription mode payments are handled by customer.subscription.created event
     return;
   }
@@ -297,5 +311,68 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
     console.error('Failed to update cancelled subscription:', error);
   } else {
     console.log(`Subscription cancelled: ${subscription.id}`);
+  }
+}
+
+async function sendWelcomeEmail(
+  email: string,
+  name: string,
+  planType: string,
+  amount: number
+) {
+  try {
+    const planName = planType === 'monthly' ? 'Monthly Agreement' : '3-Month Paid-In-Full';
+    
+    await resend.emails.send({
+      from: `${process.env.RESEND_FROM_NAME} <${process.env.RESEND_FROM_EMAIL}>`,
+      to: email,
+      subject: 'Welcome to Little Grapplers! Your Enrollment is Complete',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Welcome to the Family!</h1>
+          </div>
+          
+          <div style="padding: 30px; background: #f7f9f9;">
+            <p style="font-size: 16px; color: #1F2A44;">Hi ${name},</p>
+            
+            <p style="font-size: 16px; color: #1F2A44;">
+              Thank you for joining Little Grapplers! Your enrollment is now complete.
+            </p>
+            
+            <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #2EC4B6;">
+              <p style="margin: 0 0 10px 0;"><strong>Plan:</strong> ${planName}</p>
+              <p style="margin: 0;"><strong>Amount:</strong> $${amount.toFixed(2)}</p>
+            </div>
+            
+            <h3 style="color: #1F2A44;">What's Next?</h3>
+            <ul style="color: #1F2A44; line-height: 1.8;">
+              <li>Your child can attend their next scheduled class</li>
+              <li>Access the parent community to connect with other families</li>
+              <li>Track your child's progress in the dashboard</li>
+            </ul>
+            
+            <p style="font-size: 16px; color: #1F2A44;">
+              If you have any questions, just reply to this email or contact us at info@littlegrapplers.net
+            </p>
+            
+            <p style="font-size: 16px; color: #1F2A44;">
+              See you on the mats!<br/>
+              <strong>The Little Grapplers Team</strong>
+            </p>
+          </div>
+          
+          <div style="background: #1F2A44; padding: 20px; text-align: center;">
+            <p style="color: #8FE3CF; margin: 0; font-size: 14px;">
+              Little Grapplers - Building Confidence, Building Character
+            </p>
+          </div>
+        </div>
+      `,
+    });
+    
+    console.log(`Welcome email sent to ${email}`);
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
   }
 }

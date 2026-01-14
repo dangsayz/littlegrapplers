@@ -100,9 +100,11 @@ export default function CheckoutPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-            <p className="text-destructive">{error}</p>
+          <div className="mb-6 p-4 rounded-xl bg-brand/5 border border-brand/20 flex items-center gap-3">
+            <div className="flex-shrink-0 h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-brand" />
+            </div>
+            <p className="text-foreground/80 text-sm">{error}</p>
           </div>
         )}
 
