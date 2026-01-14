@@ -68,7 +68,7 @@ const LOCATIONS = [
   { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', shortName: 'Pinnacle', address: '2931 Parker Rd, Wylie, TX' },
 ] as const;
 
-// Location selector for logged-in users - shows 3 locations with active one highlighted
+// Location selector for logged-in users - shows 3 locations with active one highlighted (Desktop)
 function LocationSelector({ userLocationId }: { userLocationId: string | null }) {
   const router = useRouter();
   const [selectedLocationSlug, setSelectedLocationSlug] = useState<string | null>(null);
@@ -136,6 +136,160 @@ function LocationSelector({ userLocationId }: { userLocationId: string | null })
             </button>
           );
         })}
+      </div>
+
+      {selectedLocationSlug && (
+        <PinVerificationDialog
+          isOpen={pinDialogOpen}
+          onClose={() => {
+            setPinDialogOpen(false);
+            setSelectedLocationSlug(null);
+          }}
+          locationSlug={selectedLocationSlug}
+          locationName={LOCATIONS.find(l => l.slug === selectedLocationSlug)?.name || ''}
+        />
+      )}
+    </>
+  );
+}
+
+// Mobile Location Bar - Clean pill that expands to minimalistic dropdown
+function MobileLocationBar({ userLocationId }: { userLocationId: string | null }) {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedLocationSlug, setSelectedLocationSlug] = useState<string | null>(null);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLocationClick = async (location: typeof LOCATIONS[number], isActive: boolean) => {
+    if (!isActive) return;
+    setIsOpen(false);
+    
+    try {
+      const res = await fetch(`/api/locations/${location.slug}/verify-pin`);
+      const data = await res.json();
+      if (data.verified) {
+        router.push(`/community/${location.slug}`);
+        return;
+      }
+    } catch {
+      // Continue to PIN dialog
+    }
+
+    const rememberedPin = getRememberedPin(location.slug);
+    if (rememberedPin) {
+      try {
+        const res = await fetch(`/api/locations/${location.slug}/verify-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: rememberedPin }),
+        });
+        if (res.ok) {
+          router.push(`/community/${location.slug}`);
+          return;
+        }
+      } catch {
+        // Continue to PIN dialog
+      }
+    }
+
+    setSelectedLocationSlug(location.slug);
+    setPinDialogOpen(true);
+  };
+
+  const activeCount = LOCATIONS.filter(loc => 
+    userLocationId === 'all' || userLocationId === loc.id || userLocationId === loc.slug
+  ).length;
+
+  return (
+    <>
+      <div ref={dropdownRef} className="relative">
+        {/* Clean pill bar trigger */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 rounded-full',
+            'bg-slate-100/80 hover:bg-slate-200/80',
+            'border border-slate-200/60',
+            'transition-all duration-200',
+            isOpen && 'bg-slate-200/80'
+          )}
+        >
+          <MapPin className="h-4 w-4 text-[#2EC4B6]" />
+          <span className="text-sm font-medium text-slate-700">Locations</span>
+          <ChevronDown className={cn(
+            'h-3.5 w-3.5 text-slate-400 transition-transform duration-200',
+            isOpen && 'rotate-180'
+          )} />
+        </button>
+
+        {/* Minimalistic dropdown */}
+        <div
+          className={cn(
+            'absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64',
+            'bg-white rounded-2xl overflow-hidden',
+            'border border-slate-200/80',
+            'shadow-xl shadow-black/10',
+            'transition-all duration-200 origin-top',
+            isOpen 
+              ? 'opacity-100 scale-100 translate-y-0' 
+              : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
+          )}
+        >
+          <div className="p-2">
+            {LOCATIONS.map((location, index) => {
+              const isActive = userLocationId === 'all' || userLocationId === location.id || userLocationId === location.slug;
+              
+              return (
+                <button
+                  key={location.id}
+                  onClick={() => handleLocationClick(location, isActive)}
+                  disabled={!isActive}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all',
+                    isActive
+                      ? 'hover:bg-[#2EC4B6]/5 active:bg-[#2EC4B6]/10'
+                      : 'opacity-40 cursor-not-allowed',
+                    index !== LOCATIONS.length - 1 && 'border-b border-slate-100'
+                  )}
+                >
+                  <div className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-xl shrink-0',
+                    isActive 
+                      ? 'bg-gradient-to-br from-[#2EC4B6] to-[#1FA89C]' 
+                      : 'bg-slate-200'
+                  )}>
+                    <MapPin className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn(
+                      'text-sm font-semibold truncate',
+                      isActive ? 'text-slate-800' : 'text-slate-400'
+                    )}>
+                      {location.shortName}
+                    </p>
+                    <p className="text-[11px] text-slate-400 truncate">
+                      {location.address.split(',')[0]}
+                    </p>
+                  </div>
+                  {isActive && (
+                    <ArrowUpRight className="h-4 w-4 text-slate-300 shrink-0" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {selectedLocationSlug && (
@@ -441,10 +595,10 @@ export function Header() {
               </div>
             </div>
 
-            {/* Location Selector for logged-in users - Mobile */}
+            {/* Location Bar for logged-in users - Mobile */}
             {isSignedIn && (
               <div className="lg:hidden">
-                <LocationSelector userLocationId={isAdmin ? 'all' : userLocationId} />
+                <MobileLocationBar userLocationId={isAdmin ? 'all' : userLocationId} />
               </div>
             )}
 
@@ -535,7 +689,7 @@ export function Header() {
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
-        <div className="flex flex-col h-full pt-24 pb-40 px-6 overflow-y-auto">
+        <div className="flex flex-col h-full pt-24 pb-60 px-6 overflow-y-auto">
           {/* Nav Links */}
           <nav className="flex-1 space-y-1">
             {NAV_LINKS.map((link, i) => {
