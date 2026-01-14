@@ -1,12 +1,10 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Users, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Clock, ArrowRight, CreditCard } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const INQUIRY_EMAIL = 'info@littlegrapplers.net';
 
 const programs = [
   {
@@ -31,23 +29,6 @@ const programs = [
     schedule: '60 min classes',
   },
 ];
-
-function buildMailtoLink(programName: string, ageRange: string, studentName?: string) {
-  const subject = encodeURIComponent(`Inquiry about ${programName} Program`);
-  const body = encodeURIComponent(
-`Hi,
-
-I would like to inquire about the ${programName} program (${ageRange}) for my child${studentName ? `, ${studentName}` : ''}.
-
-Could you please provide more information about:
-- Class schedules and availability
-- Trial class options
-- Enrollment process
-
-Thank you!`
-  );
-  return `mailto:${INQUIRY_EMAIL}?subject=${subject}&body=${body}`;
-}
 
 export default async function NewMembershipPage() {
   const { userId } = await auth();
@@ -165,14 +146,11 @@ export default async function NewMembershipPage() {
                     <span>{program.schedule}</span>
                   </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  asChild
-                >
-                  <a href={buildMailtoLink(program.name, program.ageRange, students[0]?.firstName)}>
-                    Inquire
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </a>
+                <Button asChild>
+                  <Link href="/dashboard/checkout">
+                    <CreditCard className="h-4 w-4 mr-1" />
+                    Enroll Now
+                  </Link>
                 </Button>
               </div>
             </CardContent>

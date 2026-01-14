@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Format phone number as user types: 000-000-0000
@@ -139,6 +139,7 @@ const STORAGE_KEY = 'littlegrapplers_onboarding_draft';
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -411,11 +412,11 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand/5 via-background to-background py-12 px-4">
-      {/* Skip/Close Button */}
+      {/* Sign Out Button */}
       <button
-        onClick={() => router.push('/dashboard')}
+        onClick={() => signOut({ redirectUrl: '/' })}
         className="fixed top-4 right-4 z-50 p-2 rounded-full bg-white/80 backdrop-blur border border-gray-200 shadow-sm hover:bg-gray-100 transition-colors group"
-        title="Skip onboarding"
+        title="Sign out"
       >
         <X className="h-5 w-5 text-gray-500 group-hover:text-gray-700" />
       </button>

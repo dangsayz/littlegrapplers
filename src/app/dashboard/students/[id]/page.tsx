@@ -85,6 +85,34 @@ export default async function StudentPage({ params }: StudentPageProps) {
         .single();
 
       if (studentRecord) {
+        // Fetch student's location from student_locations
+        const { data: studentLocation } = await supabaseAdmin
+          .from('student_locations')
+          .select('location_id, locations(id, name)')
+          .eq('student_id', studentRecord.id)
+          .single();
+
+        // Fetch active subscription for this user
+        const { data: subscription } = await supabaseAdmin
+          .from('subscriptions')
+          .select('id, status, plan_name')
+          .eq('clerk_user_id', userId)
+          .eq('status', 'active')
+          .single();
+
+        const memberships: Student['memberships'] = [];
+        if (subscription && studentLocation?.locations) {
+          const loc = studentLocation.locations as { id: string; name: string };
+          memberships.push({
+            id: subscription.id,
+            status: subscription.status,
+            program: {
+              name: subscription.plan_name,
+              location: { name: loc.name },
+            },
+          });
+        }
+
         student = {
           id: studentRecord.id,
           firstName: studentRecord.first_name || '',
@@ -93,7 +121,7 @@ export default async function StudentPage({ params }: StudentPageProps) {
           beltRank: studentRecord.belt_rank || 'white',
           stripes: studentRecord.stripes || 0,
           avatarUrl: studentRecord.avatar_url || null,
-          memberships: [],
+          memberships,
         };
       }
     }
@@ -111,6 +139,35 @@ export default async function StudentPage({ params }: StudentPageProps) {
 
     if (waiver) {
       const nameParts = (waiver.child_full_name ?? '').trim().split(' ').filter(Boolean);
+      
+      // Fetch location from waiver if available
+      const { data: waiverWithLocation } = await supabaseAdmin
+        .from('signed_waivers')
+        .select('location_id, locations(id, name)')
+        .eq('id', id)
+        .single();
+
+      // Fetch active subscription for this user
+      const { data: subscription } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id, status, plan_name')
+        .eq('clerk_user_id', userId)
+        .eq('status', 'active')
+        .single();
+
+      const memberships: Student['memberships'] = [];
+      if (subscription && waiverWithLocation?.locations) {
+        const loc = waiverWithLocation.locations as { id: string; name: string };
+        memberships.push({
+          id: subscription.id,
+          status: subscription.status,
+          program: {
+            name: subscription.plan_name,
+            location: { name: loc.name },
+          },
+        });
+      }
+
       student = {
         id: waiver.id,
         firstName: nameParts[0] || '',
@@ -119,7 +176,7 @@ export default async function StudentPage({ params }: StudentPageProps) {
         beltRank: 'white',
         stripes: 0,
         avatarUrl: null,
-        memberships: [],
+        memberships,
       };
     }
   }
@@ -135,6 +192,34 @@ export default async function StudentPage({ params }: StudentPageProps) {
       .single();
 
     if (enrollment) {
+      // Fetch location from enrollment
+      const { data: enrollmentWithLocation } = await supabaseAdmin
+        .from('enrollments')
+        .select('location_id, locations(id, name)')
+        .eq('id', id)
+        .single();
+
+      // Fetch active subscription for this user
+      const { data: subscription } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id, status, plan_name')
+        .eq('clerk_user_id', userId)
+        .eq('status', 'active')
+        .single();
+
+      const memberships: Student['memberships'] = [];
+      if (subscription && enrollmentWithLocation?.locations) {
+        const loc = enrollmentWithLocation.locations as { id: string; name: string };
+        memberships.push({
+          id: subscription.id,
+          status: subscription.status,
+          program: {
+            name: subscription.plan_name,
+            location: { name: loc.name },
+          },
+        });
+      }
+
       student = {
         id: enrollment.id,
         firstName: enrollment.child_first_name || '',
@@ -143,7 +228,7 @@ export default async function StudentPage({ params }: StudentPageProps) {
         beltRank: 'white',
         stripes: 0,
         avatarUrl: null,
-        memberships: [],
+        memberships,
       };
     }
   }
