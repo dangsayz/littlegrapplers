@@ -9,7 +9,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy-initialize Resend to avoid build errors when API key is not available
+let _resend: Resend | null = null;
+function getResend(): Resend | null {
+  if (!_resend && process.env.RESEND_API_KEY) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -354,6 +361,12 @@ async function sendWelcomeEmail(
   amount: number
 ) {
   try {
+    const resend = getResend();
+    if (!resend) {
+      console.warn('Resend API key not configured, skipping welcome email');
+      return;
+    }
+
     const planName = planType === 'monthly' ? 'Monthly Agreement' : '3-Month Paid-In-Full';
     
     await resend.emails.send({
