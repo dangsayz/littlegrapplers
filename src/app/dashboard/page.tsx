@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
 import { LocationTeaser } from '@/components/dashboard';
+import { StudentLocationLink } from '@/components/dashboard/student-location-link';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
 interface StudentDisplay {
@@ -13,6 +14,9 @@ interface StudentDisplay {
   lastName: string;
   beltRank: string;
   stripes: number;
+  locationName?: string;
+  locationSlug?: string;
+  locationPin?: string;
 }
 
 interface LocationActivity {
@@ -86,7 +90,7 @@ export default async function DashboardPage() {
     // Also check signed_waivers
     const { data: waivers } = await supabaseAdmin
       .from('signed_waivers')
-      .select('id, child_full_name, is_active')
+      .select('id, child_full_name, is_active, location_id')
       .eq('clerk_user_id', userId)
       .neq('is_active', false);
 
@@ -98,12 +102,29 @@ export default async function DashboardPage() {
         const key = `${fName.toLowerCase()}-${lName.toLowerCase()}`;
         if (!seenNames.has(key)) {
           seenNames.add(key);
+          // Get location details if location_id exists
+          let locationName: string | undefined;
+          let locationSlug: string | undefined;
+          let locationPin: string | undefined;
+          if (w.location_id) {
+            const { data: loc } = await supabaseAdmin
+              .from('locations')
+              .select('name, slug, access_pin')
+              .eq('id', w.location_id)
+              .single();
+            locationName = loc?.name;
+            locationSlug = loc?.slug;
+            locationPin = loc?.access_pin;
+          }
           students.push({
             id: w.id,
             firstName: fName,
             lastName: lName,
             beltRank: 'white',
             stripes: 0,
+            locationName,
+            locationSlug,
+            locationPin,
           });
         }
       }
@@ -112,7 +133,7 @@ export default async function DashboardPage() {
     // Also check enrollments table (new enrollment system)
     const { data: enrollments } = await supabaseAdmin
       .from('enrollments')
-      .select('id, child_first_name, child_last_name, status')
+      .select('id, child_first_name, child_last_name, status, location_id')
       .eq('clerk_user_id', userId)
       .in('status', ['active', 'approved', 'pending']);
 
@@ -121,12 +142,29 @@ export default async function DashboardPage() {
         const key = `${(e.child_first_name || '').toLowerCase()}-${(e.child_last_name || '').toLowerCase()}`;
         if (!seenNames.has(key)) {
           seenNames.add(key);
+          // Get location details if location_id exists
+          let locationName: string | undefined;
+          let locationSlug: string | undefined;
+          let locationPin: string | undefined;
+          if (e.location_id) {
+            const { data: loc } = await supabaseAdmin
+              .from('locations')
+              .select('name, slug, access_pin')
+              .eq('id', e.location_id)
+              .single();
+            locationName = loc?.name;
+            locationSlug = loc?.slug;
+            locationPin = loc?.access_pin;
+          }
           students.push({
             id: e.id,
             firstName: e.child_first_name || '',
             lastName: e.child_last_name || '',
             beltRank: 'white',
             stripes: 0,
+            locationName,
+            locationSlug,
+            locationPin,
           });
         }
       }
@@ -222,6 +260,13 @@ export default async function DashboardPage() {
                             {student.beltRank.replace('_', ' ')} Belt
                             {student.stripes > 0 && ` · ${student.stripes} stripe${student.stripes > 1 ? 's' : ''}`}
                           </p>
+                          {student.locationName && student.locationSlug && (
+                            <StudentLocationLink
+                              locationName={student.locationName}
+                              locationSlug={student.locationSlug}
+                              locationPin={student.locationPin}
+                            />
+                          )}
                         </div>
                         <ArrowRight className="h-5 w-5 text-slate-400" />
                       </div>
