@@ -369,12 +369,13 @@ export async function DELETE(
         .single();
 
       if (parent) {
+        // Use OR to handle NULL is_active values (NULL or true = active)
         const { data: studentRecord } = await supabaseAdmin
           .from('students')
           .select('id, first_name, last_name, is_active')
           .eq('id', id)
           .eq('parent_id', parent.id)
-          .neq('is_active', false)
+          .or('is_active.is.null,is_active.eq.true')
           .single();
 
         if (studentRecord) {
@@ -400,13 +401,13 @@ export async function DELETE(
       }
     }
 
-    // Check signed_waivers table
+    // Check signed_waivers table (handle NULL is_active as active)
     const { data: existing } = await supabaseAdmin
       .from('signed_waivers')
       .select('id, child_full_name, clerk_user_id, guardian_full_name, guardian_email')
       .eq('id', id)
       .eq('clerk_user_id', userId)
-      .neq('is_active', false)
+      .or('is_active.is.null,is_active.eq.true')
       .single();
 
     if (existing) {
@@ -476,6 +477,52 @@ export async function DELETE(
           success: syncResult.success,
           syncedTables: syncResult.syncedTables,
         },
+      });
+    }
+
+    // Check enrollments table (student detail page also checks this)
+    const { data: enrollment } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, child_first_name, child_last_name, parent_email, status')
+      .eq('id', id)
+      .eq('clerk_user_id', userId)
+      .in('status', ['active', 'approved', 'pending'])
+      .single();
+
+    if (enrollment) {
+      // Soft delete - update status to cancelled
+      const { error: updateError } = await supabaseAdmin
+        .from('enrollments')
+        .update({
+          status: 'cancelled',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .eq('clerk_user_id', userId);
+
+      if (updateError) {
+        console.error('Soft delete enrollment error:', updateError);
+        return NextResponse.json({ error: 'Failed to remove student' }, { status: 500 });
+      }
+
+      // Create admin notification
+      await createAdminNotification({
+        notification_type: 'student_removal_request',
+        user_id: dbUser?.id,
+        title: 'Student Removed by Parent',
+        message: `Parent removed ${enrollment.child_first_name} ${enrollment.child_last_name} from their account. Reason: ${reason}`,
+        metadata: {
+          enrollment_id: id,
+          student_name: `${enrollment.child_first_name} ${enrollment.child_last_name}`,
+          parent_email: enrollment.parent_email,
+          reason: reason,
+        },
+        priority: 'normal',
+      });
+
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Student removed successfully',
       });
     }
 

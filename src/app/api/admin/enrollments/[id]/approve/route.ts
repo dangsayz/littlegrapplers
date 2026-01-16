@@ -119,7 +119,16 @@ export async function POST(
       }
     }
 
-    // 3. Create student record
+    // 3. Validate required fields for student record
+    if (!enrollment.child_date_of_birth) {
+      console.error('Missing date_of_birth for enrollment:', id);
+      return NextResponse.json({ 
+        error: 'Missing date of birth - please update the enrollment before approving',
+        field: 'child_date_of_birth'
+      }, { status: 400 });
+    }
+
+    // 4. Create student record
     const { data: student, error: studentError } = await supabaseAdmin
       .from('students')
       .insert({
@@ -138,7 +147,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to create student record' }, { status: 500 });
     }
 
-    // 4. Assign student to location
+    // 5. Assign student to location
     if (enrollment.location_id) {
       await supabaseAdmin
         .from('student_locations')
@@ -160,7 +169,7 @@ export async function POST(
       }
     }
 
-    // 5. Update enrollment status
+    // 6. Update enrollment status
     const { error: updateError } = await supabaseAdmin
       .from('enrollments')
       .update({
@@ -177,7 +186,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to update enrollment status' }, { status: 500 });
     }
 
-    // 6. Log activity
+    // 7. Log activity
     await supabaseAdmin.from('activity_logs').insert({
       admin_id: adminUser?.id,
       admin_email: userEmail,

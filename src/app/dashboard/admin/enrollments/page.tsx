@@ -26,19 +26,20 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Pagination } from '@/components/ui/pagination';
 import { EnrollmentActions } from './enrollment-actions';
+import { ClickStopWrapper } from './click-stop-wrapper';
 
 const ITEMS_PER_PAGE = 10;
 
 const STATUS_CONFIG = {
   pending: { 
-    label: 'Pending', 
+    label: 'Awaiting Payment', 
     color: 'bg-amber-100 text-amber-800 border-amber-200',
     icon: Clock,
   },
   approved: { 
-    label: 'Approved', 
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
-    icon: CheckCircle,
+    label: 'Awaiting Payment', 
+    color: 'bg-amber-100 text-amber-800 border-amber-200',
+    icon: Clock,
   },
   active: { 
     label: 'Active', 
@@ -425,15 +426,6 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
                       <Badge className={`${status.color} border text-xs font-medium`}>
                         {status.label}
                       </Badge>
-                      {enrollment.status === 'pending' && (
-                        <div onClick={(e) => e.preventDefault()}>
-                          <EnrollmentActions 
-                            enrollmentId={enrollment.id} 
-                            currentStatus={enrollment.status}
-                            childName={`${enrollment.child_first_name} ${enrollment.child_last_name}`}
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

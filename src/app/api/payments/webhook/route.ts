@@ -93,6 +93,11 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   // Handle subscription checkout (new enrollment flow)
   if (clerkUserId && planType) {
     const locationId = session.metadata?.location_id || null;
+    const customerEmail = session.customer_details?.email;
+    const customerName = session.customer_details?.name || '';
+    
+    // AUTO-ACTIVATION: Create user/parent records so they can access dashboard
+    await autoActivateUserOnPayment(clerkUserId, customerEmail, customerName, locationId);
     
     // For one-time payments (3-month), create a subscription record
     if (session.mode === 'payment') {
@@ -118,10 +123,10 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     }
 
     // Send welcome/confirmation email
-    if (session.customer_details?.email) {
+    if (customerEmail) {
       await sendWelcomeEmail(
-        session.customer_details.email,
-        session.customer_details.name || 'Parent',
+        customerEmail,
+        customerName || 'Parent',
         planType,
         amount
       );
@@ -303,6 +308,27 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   } else {
     console.log(`Subscription ${status} for user ${clerkUserId}`);
   }
+
+  // AUTO-ACTIVATION: When subscription becomes active, create user/parent records
+  if (status === 'active') {
+    // Get customer email from Stripe if available
+    let customerEmail: string | null = null;
+    let customerName = '';
+    
+    if (subscription.customer && typeof subscription.customer === 'string') {
+      try {
+        const customer = await stripe.customers.retrieve(subscription.customer);
+        if (customer && !customer.deleted) {
+          customerEmail = customer.email;
+          customerName = customer.name || '';
+        }
+      } catch (e) {
+        console.error('Failed to fetch customer details:', e);
+      }
+    }
+
+    await autoActivateUserOnPayment(clerkUserId, customerEmail, customerName, locationId);
+  }
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
@@ -381,5 +407,177 @@ async function sendWelcomeEmail(
     console.log(`Welcome email sent to ${email}`);
   } catch (error) {
     console.error('Failed to send welcome email:', error);
+  }
+}
+
+async function autoActivateUserOnPayment(
+  clerkUserId: string,
+  customerEmail: string | null | undefined,
+  customerName: string,
+  locationId: string | null
+) {
+  try {
+    // Split name into first/last
+    const nameParts = (customerName || '').trim().split(' ');
+    const firstName = nameParts[0] || 'Parent';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Step 1: Check if user exists, create if not
+    let { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('clerk_user_id', clerkUserId)
+      .single();
+
+    let userId = existingUser?.id;
+
+    if (!userId) {
+      // Create user record
+      const { data: newUser, error: userError } = await supabase
+        .from('users')
+        .insert({
+          clerk_user_id: clerkUserId,
+          email: customerEmail || '',
+          first_name: firstName,
+          last_name: lastName,
+          role: 'parent',
+        })
+        .select('id')
+        .single();
+
+      if (userError) {
+        console.error('Failed to create user record:', userError);
+        return;
+      }
+      userId = newUser.id;
+      console.log(`Created user record for ${clerkUserId}`);
+    }
+
+    // Step 2: Check if parent exists, create if not
+    let { data: existingParent } = await supabase
+      .from('parents')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+
+    let parentId = existingParent?.id;
+
+    if (!parentId) {
+      // Try to get more info from enrollment
+      const { data: enrollment } = await supabase
+        .from('enrollments')
+        .select('guardian_first_name, guardian_last_name, guardian_phone, emergency_contact_name, emergency_contact_phone')
+        .eq('clerk_user_id', clerkUserId)
+        .order('submitted_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      // Create parent record with onboarding_completed = true
+      const { data: newParent, error: parentError } = await supabase
+        .from('parents')
+        .insert({
+          user_id: userId,
+          first_name: enrollment?.guardian_first_name || firstName,
+          last_name: enrollment?.guardian_last_name || lastName,
+          phone: enrollment?.guardian_phone || '',
+          emergency_contact_name: enrollment?.emergency_contact_name || '',
+          emergency_contact_phone: enrollment?.emergency_contact_phone || '',
+          onboarding_completed: true,
+        })
+        .select('id')
+        .single();
+
+      if (parentError) {
+        console.error('Failed to create parent record:', parentError);
+        return;
+      }
+      parentId = newParent.id;
+      console.log(`Created parent record for user ${userId}`);
+    } else {
+      // Update existing parent to mark onboarding complete
+      await supabase
+        .from('parents')
+        .update({ onboarding_completed: true })
+        .eq('id', parentId);
+    }
+
+    // Step 3: Update enrollment status to 'active'
+    const { error: enrollmentError } = await supabase
+      .from('enrollments')
+      .update({
+        status: 'active',
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('clerk_user_id', clerkUserId)
+      .in('status', ['pending', 'approved']);
+
+    if (enrollmentError) {
+      console.error('Failed to update enrollment status:', enrollmentError);
+    } else {
+      console.log(`Enrollment activated for user ${clerkUserId}`);
+    }
+
+    // Step 4: Create student record if one doesn't exist
+    const { data: enrollments } = await supabase
+      .from('enrollments')
+      .select('id, child_first_name, child_last_name, child_date_of_birth, location_id')
+      .eq('clerk_user_id', clerkUserId)
+      .eq('status', 'active');
+
+    if (enrollments && enrollments.length > 0) {
+      for (const enrollment of enrollments) {
+        // Check if student already exists
+        const { data: existingStudent } = await supabase
+          .from('students')
+          .select('id')
+          .eq('parent_id', parentId)
+          .ilike('first_name', enrollment.child_first_name || '')
+          .ilike('last_name', enrollment.child_last_name || '')
+          .single();
+
+        if (!existingStudent) {
+          // Create student record
+          const { data: newStudent, error: studentError } = await supabase
+            .from('students')
+            .insert({
+              parent_id: parentId,
+              first_name: enrollment.child_first_name,
+              last_name: enrollment.child_last_name,
+              date_of_birth: enrollment.child_date_of_birth,
+              belt_rank: 'white',
+              stripes: 0,
+              is_active: true,
+            })
+            .select('id')
+            .single();
+
+          if (studentError) {
+            console.error('Failed to create student record:', studentError);
+          } else {
+            // Update enrollment with student_id
+            await supabase
+              .from('enrollments')
+              .update({ student_id: newStudent.id })
+              .eq('id', enrollment.id);
+
+            // Create student_locations record
+            if (enrollment.location_id) {
+              await supabase
+                .from('student_locations')
+                .upsert({
+                  student_id: newStudent.id,
+                  location_id: enrollment.location_id,
+                }, { onConflict: 'student_id,location_id' });
+            }
+
+            console.log(`Created student record: ${enrollment.child_first_name} ${enrollment.child_last_name}`);
+          }
+        }
+      }
+    }
+
+    console.log(`Auto-activation complete for user ${clerkUserId}`);
+  } catch (error) {
+    console.error('Auto-activation error:', error);
   }
 }

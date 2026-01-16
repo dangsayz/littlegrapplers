@@ -97,6 +97,16 @@ export default async function AdminPage() {
   // Essential admin sections
   const adminSections = [
     {
+      title: 'All Signups',
+      description: 'Unified view - waivers, accounts, payments',
+      icon: UserPlus,
+      href: '/dashboard/admin/signups',
+      color: accentColors.green,
+      stat: stats.students,
+      statLabel: 'total',
+      highlight: true,
+    },
+    {
       title: 'Enrollments',
       description: 'Review and approve new applications',
       icon: UserPlus,
