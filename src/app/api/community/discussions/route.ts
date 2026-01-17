@@ -208,6 +208,15 @@ export async function POST(request: NextRequest) {
 
       if (createError) throw createError;
       dbUser = newUser;
+    } else {
+      // Sync Clerk name to database on each post
+      await supabaseAdmin
+        .from('users')
+        .update({
+          first_name: user.firstName || 'Unknown',
+          last_name: user.lastName || 'User',
+        })
+        .eq('clerk_user_id', clerkUserId);
     }
 
     // Create thread

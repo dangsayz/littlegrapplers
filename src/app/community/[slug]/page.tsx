@@ -1399,15 +1399,26 @@ export default function CommunityPage() {
                   threads.map((thread) => {
                     const canEdit = isThreadAuthor(thread.author.email) || isAdmin;
                     const isEditing = editingThreadId === thread.id;
+                    const isThreadByAdmin = ADMIN_EMAILS.includes(thread.author.email);
                     
                     return (
                       <div key={thread.id} className="relative">
-                        <div className="group p-4 sm:p-5 hover:bg-gray-50/80 transition-colors border-b border-gray-100 last:border-b-0">
+                        <div className={`group p-4 sm:p-5 transition-colors border-b last:border-b-0 ${
+                          isThreadByAdmin 
+                            ? 'bg-gradient-to-r from-slate-50/80 to-white border-l-2 border-l-[#1F2A44] border-b-gray-100 shadow-[inset_0_0_0_1px_rgba(31,42,68,0.08)]' 
+                            : 'hover:bg-gray-50/80 border-gray-100'
+                        }`}>
                           <div className="flex gap-3">
                             {/* Avatar */}
                             <div className="flex-shrink-0">
-                              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                <span className="text-sm sm:text-base font-semibold text-gray-600">
+                              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center ${
+                                isThreadByAdmin 
+                                  ? 'bg-gradient-to-br from-[#1F2A44] to-[#2a3a5c] ring-2 ring-[#1F2A44]/20' 
+                                  : 'bg-gradient-to-br from-gray-100 to-gray-200'
+                              }`}>
+                                <span className={`text-sm sm:text-base font-semibold ${
+                                  isThreadByAdmin ? 'text-white' : 'text-gray-600'
+                                }`}>
                                   {thread.author.firstName?.[0] || thread.author.email[0].toUpperCase()}
                                 </span>
                               </div>
@@ -1418,9 +1429,16 @@ export default function CommunityPage() {
                               {/* Header: Name + Time + Menu */}
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[15px] sm:text-base font-semibold text-gray-900">
+                                  <span className={`text-[15px] sm:text-base font-semibold ${
+                                    isThreadByAdmin ? 'text-[#1F2A44]' : 'text-gray-900'
+                                  }`}>
                                     {thread.author.firstName || thread.author.email.split('@')[0]}
                                   </span>
+                                  {isThreadByAdmin && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F2A44] text-white uppercase tracking-wide">
+                                      Tech
+                                    </span>
+                                  )}
                                   <span className="text-[13px] sm:text-sm text-gray-400">·</span>
                                   <span className="text-[13px] sm:text-sm text-gray-400">
                                     {formatRelativeTime(thread.createdAt)}
