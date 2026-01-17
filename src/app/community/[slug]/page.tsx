@@ -1698,21 +1698,22 @@ export default function CommunityPage() {
                                       {threadReplies[thread.id]?.length > 0 ? (
                                         <div className="space-y-3">
                                           {threadReplies[thread.id].map((reply) => {
-                                            const canEditReply = (reply.author_email === userEmail) || isAdmin;
+                                            const replyEmail = (reply as any).authorEmail || reply.author_email;
+                                            const canEditReply = (replyEmail === userEmail) || isAdmin;
                                             const isEditingThisReply = editingReplyId === reply.id;
                                             
                                             return (
                                               <div key={reply.id} className="group/reply flex gap-3 pl-2 border-l-2 border-[#2EC4B6]/30">
                                                 <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
                                                   <span className="text-xs font-medium text-gray-600">
-                                                    {reply.author?.firstName?.[0] || reply.author_email?.[0]?.toUpperCase() || '?'}
+                                                    {reply.author?.firstName?.[0] || replyEmail?.[0]?.toUpperCase() || '?'}
                                                   </span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                   <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
                                                       <span className="text-sm font-medium text-gray-900">
-                                                        {reply.author?.firstName || reply.author_email?.split('@')[0] || 'Anonymous'}
+                                                        {reply.author?.firstName || replyEmail?.split('@')[0] || 'Anonymous'}
                                                       </span>
                                                       <span className="text-xs text-gray-400">·</span>
                                                       <span className="text-xs text-gray-400">
