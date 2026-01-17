@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { FileText, User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
@@ -69,12 +70,14 @@ const initialFormData: FormData = {
 };
 
 export function WaiverForm({ locations }: WaiverFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [formLoadTime] = useState(Date.now());
   const [hasDraft, setHasDraft] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(3);
 
   // Load saved draft from localStorage on mount
   useEffect(() => {
@@ -120,6 +123,23 @@ export function WaiverForm({ locations }: WaiverFormProps) {
       console.error('Failed to clear draft:', e);
     }
   }, []);
+
+  // Auto-redirect to enroll page after successful submission
+  useEffect(() => {
+    if (submitStatus === 'success') {
+      const timer = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.push('/enroll');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [submitStatus, router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -199,68 +219,40 @@ export function WaiverForm({ locations }: WaiverFormProps) {
 
   if (submitStatus === 'success') {
     return (
-      <div className="space-y-6">
-        {/* Success Message */}
-        <div className="rounded-2xl border border-brand/20 bg-brand/5 p-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
-            <Check className="h-8 w-8 text-brand" />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-brand/10">
+            <Check className="h-10 w-10 text-brand" />
           </div>
-          <h3 className="text-2xl font-display font-bold text-foreground">
-            Waiver Submitted Successfully
+          <h3 className="text-3xl font-display font-bold text-foreground">
+            Enrollment Submitted!
           </h3>
-          <p className="mt-2 text-muted-foreground">
-            You&apos;re one step closer to starting your child&apos;s journey.
+          <p className="mt-4 text-lg text-muted-foreground">
+            Great! The waiver for{' '}
+            <span className="font-medium text-foreground">
+              {formData.childFirstName} {formData.childLastName}
+            </span>{' '}
+            has been received.
           </p>
-        </div>
-
-        {/* Next Steps */}
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h4 className="text-lg font-display font-bold text-foreground mb-4">
-            Complete Your Enrollment
-          </h4>
-          <div className="space-y-3">
+          <p className="mt-2 text-muted-foreground">
+            Next step: Complete enrollment and payment.
+          </p>
+          <div className="mt-8 rounded-xl border border-brand/20 bg-brand/5 p-4">
+            <div className="flex items-center justify-center gap-2 text-brand">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <p className="text-sm font-medium">
+                Redirecting to enrollment in {redirectCountdown}...
+              </p>
+            </div>
+          </div>
+          <div className="mt-6">
             <Link
-              href="/sign-up"
-              className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-brand/50 hover:bg-brand/5 transition-all group"
+              href="/enroll"
+              className="inline-flex items-center gap-2 text-brand hover:underline font-medium"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
-                  <UserPlus className="h-5 w-5 text-brand" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Create Your Account</p>
-                  <p className="text-sm text-muted-foreground">Manage enrollments & track progress</p>
-                </div>
-              </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-brand transition-colors" />
-            </Link>
-
-            <Link
-              href="/locations"
-              className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-brand/50 hover:bg-brand/5 transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                  <Calendar className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">View Class Schedules</p>
-                  <p className="text-sm text-muted-foreground">Find a location & time that works</p>
-                </div>
-              </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-brand transition-colors" />
+              Continue now <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-
-        {/* Secondary Action */}
-        <div className="text-center">
-          <button
-            onClick={() => setSubmitStatus('idle')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Need to submit another waiver?
-          </button>
         </div>
       </div>
     );

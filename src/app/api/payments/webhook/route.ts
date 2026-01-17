@@ -93,11 +93,72 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   const parentId = session.metadata?.parent_id;
   const clerkUserId = session.metadata?.clerk_user_id;
+  const enrollmentId = session.metadata?.enrollment_id;
   const invoiceId = session.metadata?.invoice_id;
   const planType = session.metadata?.plan_type;
   const amount = (session.amount_total || 0) / 100;
 
-  // Handle subscription checkout (new enrollment flow)
+  // Handle NEW unified enrollment flow (no account required)
+  if (enrollmentId && planType) {
+    const locationId = session.metadata?.location_id || null;
+    const customerEmail = session.customer_details?.email || session.metadata?.guardian_email;
+    const customerName = session.customer_details?.name || '';
+    const childName = session.metadata?.child_name || '';
+
+    // Update enrollment status to active
+    const { error: enrollmentError } = await supabase
+      .from('enrollments')
+      .update({
+        status: 'active',
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', enrollmentId);
+
+    if (enrollmentError) {
+      console.error('Failed to activate enrollment:', enrollmentError);
+    } else {
+      console.log(`Enrollment ${enrollmentId} activated via payment`);
+    }
+
+    // Create subscription record for tracking
+    if (session.mode === 'payment') {
+      await supabase.from('subscriptions').insert({
+        stripe_subscription_id: `one_time_${session.id}`,
+        status: 'active',
+        plan_id: 'threeMonth',
+        plan_name: '3-Month Paid-In-Full',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        cancel_at_period_end: true,
+        location_id: locationId || null,
+        enrollment_id: enrollmentId,
+      });
+    }
+
+    // Send welcome email
+    if (customerEmail) {
+      await sendWelcomeEmail(customerEmail, customerName || 'Parent', planType, amount);
+    }
+
+    // Log activity
+    await supabase.from('activity_logs').insert({
+      admin_email: customerEmail || 'system',
+      action: 'enrollment.payment_completed',
+      entity_type: 'enrollment',
+      entity_id: enrollmentId,
+      details: {
+        child_name: childName,
+        plan_type: planType,
+        amount: amount,
+        location_id: locationId,
+      },
+    });
+
+    console.log(`Unified enrollment payment complete: ${enrollmentId}, child: ${childName}`);
+    return;
+  }
+
+  // Handle subscription checkout (existing account flow)
   if (clerkUserId && planType) {
     const locationId = session.metadata?.location_id || null;
     const customerEmail = session.customer_details?.email;
