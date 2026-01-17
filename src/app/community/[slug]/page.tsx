@@ -7,7 +7,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video } from 'lucide-react';
 import { LocationOfflineOverlay } from '@/components/community/location-offline-overlay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -615,6 +615,8 @@ export default function CommunityPage() {
   const [editReplyContent, setEditReplyContent] = useState('');
   const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
   const [replyMenuOpen, setReplyMenuOpen] = useState<string | null>(null);
+  const [membersPage, setMembersPage] = useState(0);
+  const MEMBERS_PER_PAGE = 20;
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
   const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
@@ -1452,6 +1454,7 @@ export default function CommunityPage() {
                     const canEdit = isThreadAuthor(thread.author.email) || isAdmin;
                     const isEditing = editingThreadId === thread.id;
                     const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(thread.author.email);
+                    const isFounder = ['info@littlegrapplers.net', 'littlegrapplersjitsu@gmail.com'].includes(thread.author.email);
                     
                     return (
                       <div key={thread.id} className="relative">
@@ -1489,6 +1492,11 @@ export default function CommunityPage() {
                                   {isSuperAdmin && (
                                     <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F2A44] text-white uppercase tracking-wide">
                                       Tech
+                                    </span>
+                                  )}
+                                  {isFounder && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-gradient-to-r from-[#2EC4B6] to-[#1F2A44] text-white uppercase tracking-wide">
+                                      Coach / Founder
                                     </span>
                                   )}
                                   <span className="text-[13px] sm:text-sm text-gray-400">·</span>
@@ -1851,34 +1859,60 @@ export default function CommunityPage() {
             </div>
 
             {/* Members */}
-            {members.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-4">
-                <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Members</p>
-                <div className="space-y-2">
-                  {members.slice(0, 6).map((member) => {
-                    const memberSince = member.joinedAt 
-                      ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                      : null;
-                    return (
-                      <div key={member.id} className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium text-gray-600">{member.initials}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 truncate">{member.name}</p>
-                          {memberSince && (
-                            <p className="text-[10px] text-gray-400">Since {memberSince}</p>
-                          )}
-                        </div>
+            {members.length > 0 && (() => {
+              const totalPages = Math.ceil(members.length / MEMBERS_PER_PAGE);
+              const startIdx = membersPage * MEMBERS_PER_PAGE;
+              const paginatedMembers = members.slice(startIdx, startIdx + MEMBERS_PER_PAGE);
+              
+              return (
+                <div className="bg-white rounded-2xl border border-gray-100 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs text-gray-400 uppercase tracking-wide">Members ({members.length})</p>
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setMembersPage(p => Math.max(0, p - 1))}
+                          disabled={membersPage === 0}
+                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
+                        </button>
+                        <span className="text-[10px] text-gray-400 min-w-[40px] text-center">
+                          {membersPage + 1}/{totalPages}
+                        </span>
+                        <button
+                          onClick={() => setMembersPage(p => Math.min(totalPages - 1, p + 1))}
+                          disabled={membersPage >= totalPages - 1}
+                          className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
+                        </button>
                       </div>
-                    );
-                  })}
-                  {members.length > 6 && (
-                    <p className="text-xs text-gray-400 pt-1">+{members.length - 6} more</p>
-                  )}
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {paginatedMembers.map((member) => {
+                      const memberSince = member.joinedAt 
+                        ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                        : null;
+                      return (
+                        <div key={member.id} className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-medium text-gray-600">{member.initials}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-900 truncate">{member.name}</p>
+                            {memberSince && (
+                              <p className="text-[10px] text-gray-400">Since {memberSince}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Student of the Month - Apple/Google inspired */}
             <div className="bg-white rounded-[20px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] relative">
