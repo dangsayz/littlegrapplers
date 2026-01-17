@@ -1495,9 +1495,14 @@ export default function CommunityPage() {
                                     </span>
                                   )}
                                   {isFounder && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-gradient-to-r from-[#2EC4B6] to-[#1F2A44] text-white uppercase tracking-wide">
-                                      Coach / Founder
-                                    </span>
+                                    <>
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F7931E] text-white uppercase tracking-wide">
+                                        Coach / Founder
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#FFC857]/20 text-[#F7931E] uppercase tracking-wide border border-[#FFC857]/40 backdrop-blur-sm">
+                                        Admin
+                                      </span>
+                                    </>
                                   )}
                                   <span className="text-[13px] sm:text-sm text-gray-400">·</span>
                                   <span className="text-[13px] sm:text-sm text-gray-400">
