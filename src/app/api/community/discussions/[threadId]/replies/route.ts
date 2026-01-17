@@ -17,20 +17,10 @@ export async function GET(
 
     const { threadId } = await params;
 
-    // Fetch replies with author info
+    // Fetch replies
     const { data: replies, error } = await supabaseAdmin
       .from('discussion_replies')
-      .select(`
-        id,
-        content,
-        created_at,
-        author_email,
-        author:users!discussion_replies_author_id_fkey (
-          first_name,
-          last_name,
-          email
-        )
-      `)
+      .select('id, content, created_at, author_id, author_email')
       .eq('thread_id', threadId)
       .order('created_at', { ascending: true });
 
@@ -39,17 +29,33 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch replies' }, { status: 500 });
     }
 
-    const formattedReplies = (replies || []).map(reply => ({
-      id: reply.id,
-      content: reply.content,
-      createdAt: reply.created_at,
-      authorEmail: reply.author_email,
-      author: {
-        email: reply.author_email,
-        firstName: (reply.author as any)?.first_name || null,
-        lastName: (reply.author as any)?.last_name || null,
-      },
-    }));
+    // Fetch author info separately
+    const authorIds = [...new Set((replies || []).map(r => r.author_id).filter(Boolean))];
+    let authorMap = new Map();
+    
+    if (authorIds.length > 0) {
+      const { data: authors } = await supabaseAdmin
+        .from('users')
+        .select('id, first_name, last_name, email')
+        .in('id', authorIds);
+      
+      authorMap = new Map((authors || []).map(a => [a.id, a]));
+    }
+
+    const formattedReplies = (replies || []).map(reply => {
+      const author = authorMap.get(reply.author_id);
+      return {
+        id: reply.id,
+        content: reply.content,
+        createdAt: reply.created_at,
+        authorEmail: reply.author_email,
+        author: {
+          email: author?.email || reply.author_email,
+          firstName: author?.first_name || null,
+          lastName: author?.last_name || null,
+        },
+      };
+    });
 
     return NextResponse.json({ replies: formattedReplies });
   } catch (error) {
