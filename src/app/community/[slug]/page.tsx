@@ -611,6 +611,10 @@ export default function CommunityPage() {
   const [threadReplyContent, setThreadReplyContent] = useState('');
   const [isSubmittingThreadReply, setIsSubmittingThreadReply] = useState(false);
   const [loadingReplies, setLoadingReplies] = useState<string | null>(null);
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editReplyContent, setEditReplyContent] = useState('');
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
+  const [replyMenuOpen, setReplyMenuOpen] = useState<string | null>(null);
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
   const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
@@ -909,6 +913,56 @@ export default function CommunityPage() {
       console.error('Error submitting reply:', err);
     } finally {
       setIsSubmittingThreadReply(false);
+    }
+  };
+
+  // Edit a reply
+  const handleEditReply = async (threadId: string, replyId: string) => {
+    if (!editReplyContent.trim()) return;
+    
+    try {
+      const res = await fetch(`/api/community/discussions/${threadId}/replies`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyId, content: editReplyContent.trim() }),
+      });
+      
+      if (res.ok) {
+        setThreadReplies(prev => ({
+          ...prev,
+          [threadId]: (prev[threadId] || []).map(r => 
+            r.id === replyId ? { ...r, content: editReplyContent.trim() } : r
+          ),
+        }));
+        setEditingReplyId(null);
+        setEditReplyContent('');
+      }
+    } catch (err) {
+      console.error('Error editing reply:', err);
+    }
+  };
+
+  // Delete a reply
+  const handleDeleteReply = async (threadId: string, replyId: string) => {
+    try {
+      const res = await fetch(`/api/community/discussions/${threadId}/replies`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyId }),
+      });
+      
+      if (res.ok) {
+        setThreadReplies(prev => ({
+          ...prev,
+          [threadId]: (prev[threadId] || []).filter(r => r.id !== replyId),
+        }));
+        setThreads(prev => prev.map(t => 
+          t.id === threadId ? { ...t, replyCount: Math.max((t.replyCount || 1) - 1, 0) } : t
+        ));
+        setDeletingReplyId(null);
+      }
+    } catch (err) {
+      console.error('Error deleting reply:', err);
     }
   };
 
@@ -1643,27 +1697,82 @@ export default function CommunityPage() {
                                       {/* Replies List */}
                                       {threadReplies[thread.id]?.length > 0 ? (
                                         <div className="space-y-3">
-                                          {threadReplies[thread.id].map((reply) => (
-                                            <div key={reply.id} className="flex gap-3 pl-2 border-l-2 border-[#2EC4B6]/30">
-                                              <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                <span className="text-xs font-medium text-gray-600">
-                                                  {reply.author?.firstName?.[0] || reply.author_email?.[0]?.toUpperCase() || '?'}
-                                                </span>
-                                              </div>
-                                              <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                  <span className="text-sm font-medium text-gray-900">
-                                                    {reply.author?.firstName || reply.author_email?.split('@')[0] || 'Anonymous'}
-                                                  </span>
-                                                  <span className="text-xs text-gray-400">·</span>
-                                                  <span className="text-xs text-gray-400">
-                                                    {formatRelativeTime(reply.created_at)}
+                                          {threadReplies[thread.id].map((reply) => {
+                                            const canEditReply = (reply.author_email === userEmail) || isAdmin;
+                                            const isEditingThisReply = editingReplyId === reply.id;
+                                            
+                                            return (
+                                              <div key={reply.id} className="group/reply flex gap-3 pl-2 border-l-2 border-[#2EC4B6]/30">
+                                                <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                  <span className="text-xs font-medium text-gray-600">
+                                                    {reply.author?.firstName?.[0] || reply.author_email?.[0]?.toUpperCase() || '?'}
                                                   </span>
                                                 </div>
-                                                <p className="text-sm text-gray-700 mt-0.5">{reply.content}</p>
+                                                <div className="flex-1 min-w-0">
+                                                  <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                      <span className="text-sm font-medium text-gray-900">
+                                                        {reply.author?.firstName || reply.author_email?.split('@')[0] || 'Anonymous'}
+                                                      </span>
+                                                      <span className="text-xs text-gray-400">·</span>
+                                                      <span className="text-xs text-gray-400">
+                                                        {formatRelativeTime(reply.created_at)}
+                                                      </span>
+                                                    </div>
+                                                    {canEditReply && !isEditingThisReply && (
+                                                      <div className="flex items-center gap-1 opacity-0 group-hover/reply:opacity-100 transition-opacity">
+                                                        <button
+                                                          onClick={() => {
+                                                            setEditingReplyId(reply.id);
+                                                            setEditReplyContent(reply.content);
+                                                          }}
+                                                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                                                          title="Edit"
+                                                        >
+                                                          <Pencil className="h-3 w-3" />
+                                                        </button>
+                                                        <button
+                                                          onClick={() => handleDeleteReply(thread.id, reply.id)}
+                                                          className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                                          title="Delete"
+                                                        >
+                                                          <Trash2 className="h-3 w-3" />
+                                                        </button>
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                  {isEditingThisReply ? (
+                                                    <div className="mt-1 space-y-2">
+                                                      <textarea
+                                                        value={editReplyContent}
+                                                        onChange={(e) => setEditReplyContent(e.target.value)}
+                                                        rows={2}
+                                                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#2EC4B6] resize-none"
+                                                        autoFocus
+                                                      />
+                                                      <div className="flex items-center gap-2">
+                                                        <button
+                                                          onClick={() => handleEditReply(thread.id, reply.id)}
+                                                          disabled={!editReplyContent.trim()}
+                                                          className="px-2 py-1 bg-[#2EC4B6] text-white text-xs font-medium rounded-lg hover:bg-[#2EC4B6]/90 disabled:opacity-50"
+                                                        >
+                                                          Save
+                                                        </button>
+                                                        <button
+                                                          onClick={() => { setEditingReplyId(null); setEditReplyContent(''); }}
+                                                          className="px-2 py-1 text-gray-500 text-xs font-medium hover:text-gray-700"
+                                                        >
+                                                          Cancel
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  ) : (
+                                                    <p className="text-sm text-gray-700 mt-0.5">{reply.content}</p>
+                                                  )}
+                                                </div>
                                               </div>
-                                            </div>
-                                          ))}
+                                            );
+                                          })}
                                         </div>
                                       ) : !loadingReplies && (
                                         <div className="text-center py-4">
