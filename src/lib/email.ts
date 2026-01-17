@@ -523,3 +523,135 @@ export function createEnrollmentNotificationEmail(data: {
     `,
   };
 }
+
+// Send notification to all location members when a new community post is created
+export async function sendCommunityPostNotification(data: {
+  threadId: string;
+  threadTitle: string;
+  authorName: string;
+  authorEmail: string;
+  locationId: string;
+  locationSlug: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.log('[Email] No RESEND_API_KEY configured. Community notification skipped.');
+    return { success: false, reason: 'no_api_key' };
+  }
+
+  // Import supabaseAdmin dynamically to avoid circular dependency
+  const { supabaseAdmin } = await import('@/lib/supabase');
+
+  // Get location name
+  const { data: location } = await supabaseAdmin
+    .from('locations')
+    .select('name')
+    .eq('id', data.locationId)
+    .single();
+
+  const locationName = location?.name || 'your location';
+
+  // Get all members at this location
+  const { data: members } = await supabaseAdmin
+    .from('location_members')
+    .select('user_id')
+    .eq('location_id', data.locationId);
+
+  if (!members || members.length === 0) {
+    console.log('[Email] No members found for location, skipping notification');
+    return { success: true, reason: 'no_members' };
+  }
+
+  // Get user emails for all members (excluding the author)
+  const userIds = members.map(m => m.user_id);
+  const { data: users } = await supabaseAdmin
+    .from('users')
+    .select('email')
+    .in('id', userIds)
+    .neq('email', data.authorEmail);
+
+  if (!users || users.length === 0) {
+    console.log('[Email] No member emails found, skipping notification');
+    return { success: true, reason: 'no_emails' };
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const threadUrl = `${baseUrl}/community/${data.locationSlug}/thread/${data.threadId}`;
+
+  // Send to all members
+  const results = await Promise.all(
+    users.map(async (user) => {
+      try {
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            from: FROM_EMAIL,
+            to: user.email,
+            subject: `New Post in ${locationName}: ${data.threadTitle}`,
+            html: `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
+                    .header h1 { color: white; margin: 0; font-size: 24px; }
+                    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
+                    .thread-box { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #2EC4B6; margin: 20px 0; }
+                    .button { display: inline-block; background: #2EC4B6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                    .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <h1>New Community Post</h1>
+                    </div>
+                    <div class="content">
+                      <p>Hi there!</p>
+                      <p><strong>${data.authorName}</strong> just posted in the <strong>${locationName}</strong> community:</p>
+                      <div class="thread-box">
+                        <h3 style="margin: 0 0 10px 0; color: #1F2A44;">${data.threadTitle}</h3>
+                      </div>
+                      <p style="margin-top: 20px;">
+                        <a href="${threadUrl}" class="button">
+                          View Post
+                        </a>
+                      </p>
+                    </div>
+                    <div class="footer">
+                      Little Grapplers - Youth BJJ Program
+                    </div>
+                  </div>
+                </body>
+              </html>
+            `,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(`[Email] Failed to send to ${user.email}:`, errorData);
+          return { success: false, email: user.email, error: errorData };
+        }
+
+        const result = await response.json();
+        console.log(`[Email] Community notification sent to ${user.email}:`, result.id);
+        return { success: true, email: user.email, id: result.id };
+      } catch (err) {
+        console.error(`[Email] Error sending to ${user.email}:`, err);
+        return { success: false, email: user.email, error: err };
+      }
+    })
+  );
+
+  const successCount = results.filter(r => r.success).length;
+  console.log(`[Email] Community notification sent to ${successCount}/${users.length} members`);
+  return { success: successCount > 0, results };
+}

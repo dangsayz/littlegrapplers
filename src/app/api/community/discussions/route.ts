@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { sanitizeString } from '@/lib/validation';
+import { sendCommunityPostNotification } from '@/lib/email';
 
 // Rate limiting: Track posts per user (in-memory, resets on server restart)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -224,6 +225,16 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (threadError) throw threadError;
+
+    // Send email notifications to location members (async, don't block response)
+    sendCommunityPostNotification({
+      threadId: thread.id,
+      threadTitle: thread.title,
+      authorName: `${user.firstName || 'A'} ${user.lastName || 'member'}`,
+      authorEmail: userEmail || '',
+      locationId: location.id,
+      locationSlug: locationSlug,
+    }).catch((err: unknown) => console.error('Failed to send community notifications:', err));
 
     return NextResponse.json({ 
       id: thread.id,
