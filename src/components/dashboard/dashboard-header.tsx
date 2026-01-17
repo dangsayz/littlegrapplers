@@ -176,10 +176,10 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                     <Link
                       href="/dashboard"
                       onClick={() => setLocationsOpen(false)}
-                      className="group flex items-center gap-4 px-3 py-3 rounded-xl text-[15px] font-medium text-gray-900 hover:bg-gray-100/80 transition-all"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 shadow-sm">
-                        <LayoutDashboard className="h-5 w-5 text-white" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-600">
+                        <LayoutDashboard className="h-4 w-4 text-white" />
                       </div>
                       <span>My Family</span>
                     </Link>
@@ -187,10 +187,10 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                       <Link
                         href="/dashboard/admin"
                         onClick={() => setLocationsOpen(false)}
-                        className="group flex items-center gap-4 px-3 py-3 rounded-xl text-[15px] font-medium text-gray-900 hover:bg-gray-100/80 transition-all"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm">
-                          <Shield className="h-5 w-5 text-white" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
+                          <Shield className="h-4 w-4 text-white" />
                         </div>
                         <span>Admin Panel</span>
                       </Link>
@@ -211,19 +211,19 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                         <button
                           key={location.id}
                           onClick={(e) => handleLocationClick(e, location)}
-                          className="group flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-gray-100/80 transition-all w-full text-left"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors w-full text-left"
                         >
-                          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${location.color} shadow-sm`}>
-                            <IconComponent className="h-5 w-5 text-white" />
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${location.color} flex-shrink-0`}>
+                            <IconComponent className="h-4 w-4 text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[15px] font-medium text-gray-900 truncate">{location.name}</p>
-                            <p className="text-[12px] text-gray-400 truncate">{location.address}</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{location.name}</p>
+                            <p className="text-xs text-gray-400 truncate">{location.address}</p>
                           </div>
                           {isAdmin && locationPins[location.slug] && (
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 border border-gray-200/60">
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 flex-shrink-0">
                               <Key className="h-3 w-3 text-gray-400" />
-                              <span className="text-[11px] font-mono font-medium text-gray-500 tracking-wide">
+                              <span className="text-xs font-mono text-gray-500">
                                 {locationPins[location.slug]}
                               </span>
                             </div>
