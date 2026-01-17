@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, FlaskConical } from 'lucide-react';
+import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, Edit3 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,8 +29,9 @@ export default function AdminSubscriptionsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState<string | null>(null);
-  const [testMode, setTestMode] = useState(true); // Start in test mode for safety
-  const [testResult, setTestResult] = useState<{ action: string; description: string; customerEmail: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editingBillingDate, setEditingBillingDate] = useState<string | null>(null);
+  const [newBillingDate, setNewBillingDate] = useState('');
 
   const fetchSubscriptions = async () => {
     setLoading(true);
@@ -54,12 +55,12 @@ export default function AdminSubscriptionsPage() {
 
   const performAction = async (action: string, subscriptionId: string, params?: Record<string, unknown>) => {
     setActionLoading(subscriptionId);
-    setTestResult(null);
+    setSuccessMessage(null);
     try {
       const res = await fetch('/api/admin/subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, subscriptionId, dryRun: testMode, ...params }),
+        body: JSON.stringify({ action, subscriptionId, ...params }),
       });
       
       const data = await res.json();
@@ -68,15 +69,16 @@ export default function AdminSubscriptionsPage() {
         throw new Error(data.error || 'Action failed');
       }
       
-      // If dry run, show what would happen
-      if (data.dryRun) {
-        setTestResult({
-          action: data.action,
-          description: data.description,
-          customerEmail: data.customerEmail,
-        });
-        return;
-      }
+      // Show success message
+      const actionLabels: Record<string, string> = {
+        'cancel': 'Subscription will cancel at period end',
+        'cancel_immediately': 'Subscription canceled immediately',
+        'resume': 'Cancellation removed - subscription continues',
+        'pause': 'Billing paused',
+        'unpause': 'Billing resumed',
+        'charge_now': 'Invoice created and charged',
+      };
+      setSuccessMessage(actionLabels[action] || 'Action completed');
       
       // Refresh subscriptions
       await fetchSubscriptions();
@@ -85,6 +87,13 @@ export default function AdminSubscriptionsPage() {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleUpdateBillingDate = async (subscriptionId: string) => {
+    if (!newBillingDate) return;
+    await performAction('update_billing_anchor', subscriptionId, { billingCycleAnchor: newBillingDate });
+    setEditingBillingDate(null);
+    setNewBillingDate('');
   };
 
   const formatDate = (dateString: string | null) => {
@@ -146,54 +155,21 @@ export default function AdminSubscriptionsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Subscription Management</h1>
           <p className="text-gray-500 mt-1">Manage customer subscriptions, billing dates, and payments</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setTestMode(!testMode)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-              testMode 
-                ? 'bg-amber-100 text-amber-700 border-2 border-amber-300' 
-                : 'bg-red-100 text-red-700 border-2 border-red-300'
-            }`}
-          >
-            <FlaskConical className="h-4 w-4" />
-            {testMode ? 'Test Mode ON' : 'LIVE MODE'}
-          </button>
-          <Button onClick={fetchSubscriptions} variant="outline" className="gap-2">
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
+        <Button onClick={fetchSubscriptions} variant="outline" className="gap-2">
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
-      {/* Test Mode Banner */}
-      {testMode && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <FlaskConical className="h-5 w-5 text-amber-600 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-800">Test Mode Active</p>
-              <p className="text-sm text-amber-600 mt-1">
-                Buttons will show what WOULD happen without actually executing. 
-                Turn off Test Mode to perform real actions.
-              </p>
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <p className="font-medium text-emerald-800">{successMessage}</p>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Test Result */}
-      {testResult && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div>
-                <p className="font-medium text-blue-800">Test Result: {testResult.action}</p>
-                <p className="text-sm text-blue-600 mt-1">{testResult.description}</p>
-                <p className="text-xs text-blue-500 mt-1">Customer: {testResult.customerEmail}</p>
-              </div>
-            </div>
-            <button onClick={() => setTestResult(null)} className="text-blue-400 hover:text-blue-600">
+            <button onClick={() => setSuccessMessage(null)} className="text-emerald-400 hover:text-emerald-600">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -297,10 +273,45 @@ export default function AdminSubscriptionsPage() {
                           <DollarSign className="h-3.5 w-3.5" />
                           {formatCurrency(sub.amount)}/{sub.interval}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
-                          Next: {formatDate(sub.currentPeriodEnd)}
-                        </span>
+                        {editingBillingDate === sub.id ? (
+                          <span className="flex items-center gap-2">
+                            <Calendar className="h-3.5 w-3.5" />
+                            <input
+                              type="date"
+                              value={newBillingDate}
+                              onChange={(e) => setNewBillingDate(e.target.value)}
+                              className="border rounded px-2 py-0.5 text-xs"
+                            />
+                            <button
+                              onClick={() => handleUpdateBillingDate(sub.id)}
+                              disabled={actionLoading === sub.id}
+                              className="text-emerald-600 hover:text-emerald-700 font-medium text-xs"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingBillingDate(null); setNewBillingDate(''); }}
+                              className="text-gray-400 hover:text-gray-600 text-xs"
+                            >
+                              Cancel
+                            </button>
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 group">
+                            <Calendar className="h-3.5 w-3.5" />
+                            Next: {formatDate(sub.currentPeriodEnd)}
+                            <button
+                              onClick={() => {
+                                setEditingBillingDate(sub.id);
+                                setNewBillingDate(sub.currentPeriodEnd ? sub.currentPeriodEnd.split('T')[0] : '');
+                              }}
+                              className="opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-600 ml-1"
+                              title="Edit billing date"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </button>
+                          </span>
+                        )}
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
                           Since {formatDate(sub.created)}
