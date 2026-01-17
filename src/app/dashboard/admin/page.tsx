@@ -18,8 +18,8 @@ import {
   UserPlus,
   Code2,
   HelpCircle,
-  FileText,
   CreditCard,
+  FileText,
   Power,
   Settings,
 } from 'lucide-react';
@@ -143,6 +143,16 @@ export default async function AdminPage() {
       color: accentColors.purple,
       stat: stats.students,
       statLabel: 'signed',
+    },
+    {
+      title: 'Subscriptions',
+      description: 'Manage billing, cancel, pause, charge',
+      icon: CreditCard,
+      href: '/dashboard/admin/subscriptions',
+      color: accentColors.green,
+      stat: null,
+      statLabel: '',
+      highlight: true,
     },
     {
       title: 'Locations',
