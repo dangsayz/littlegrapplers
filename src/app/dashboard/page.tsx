@@ -87,11 +87,11 @@ export default async function DashboardPage() {
       }
     }
 
-    // Also check signed_waivers
+    // Also check signed_waivers - search by clerk_user_id OR guardian_email
     const { data: waivers } = await supabaseAdmin
       .from('signed_waivers')
-      .select('id, child_full_name, is_active, location_id')
-      .eq('clerk_user_id', userId)
+      .select('id, child_full_name, is_active, location_id, clerk_user_id')
+      .or(`clerk_user_id.eq.${userId},guardian_email.eq.${userEmail}`)
       .neq('is_active', false);
 
     if (waivers) {
@@ -130,12 +130,12 @@ export default async function DashboardPage() {
       }
     }
 
-    // Also check enrollments table (new enrollment system)
+    // Also check enrollments table (new enrollment system) - search by clerk_user_id OR guardian_email
     const { data: enrollments } = await supabaseAdmin
       .from('enrollments')
-      .select('id, child_first_name, child_last_name, status, location_id')
-      .eq('clerk_user_id', userId)
-      .in('status', ['active', 'approved', 'pending']);
+      .select('id, child_first_name, child_last_name, status, location_id, clerk_user_id, guardian_email')
+      .or(`clerk_user_id.eq.${userId},guardian_email.eq.${userEmail}`)
+      .in('status', ['active', 'approved', 'pending', 'pending_payment']);
 
     if (enrollments) {
       for (const e of enrollments) {
