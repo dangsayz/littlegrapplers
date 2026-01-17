@@ -70,10 +70,36 @@ export async function POST(request: NextRequest) {
 
     const stripe = getStripe();
     const body = await request.json();
-    const { action, subscriptionId, ...params } = body;
+    const { action, subscriptionId, dryRun, ...params } = body;
 
     if (!subscriptionId) {
       return NextResponse.json({ error: 'Subscription ID required' }, { status: 400 });
+    }
+
+    // DRY RUN MODE - Validate without executing
+    if (dryRun) {
+      // Verify the subscription exists first
+      const sub = await stripe.subscriptions.retrieve(subscriptionId);
+      
+      const actionDescriptions: Record<string, string> = {
+        'cancel': `Will mark subscription to cancel at end of billing period (${new Date((sub as unknown as Record<string, number>).current_period_end * 1000).toLocaleDateString()})`,
+        'cancel_immediately': 'Will cancel subscription IMMEDIATELY - customer loses access now',
+        'resume': 'Will remove the scheduled cancellation - subscription continues normally',
+        'pause': 'Will pause billing collection - subscription stays active but no charges',
+        'unpause': 'Will resume billing collection',
+        'charge_now': 'Will create and charge an invoice immediately',
+      };
+      
+      return NextResponse.json({
+        success: true,
+        dryRun: true,
+        action,
+        subscriptionId,
+        customerEmail: (sub.customer as { email?: string })?.email || 'Unknown',
+        currentStatus: sub.status,
+        description: actionDescriptions[action] || 'Unknown action',
+        wouldExecute: `stripe.subscriptions.${action === 'cancel_immediately' ? 'cancel' : 'update'}(${subscriptionId}, ...)`,
+      });
     }
 
     let result;

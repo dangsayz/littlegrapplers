@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban } from 'lucide-react';
+import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, FlaskConical } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,8 @@ export default function AdminSubscriptionsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState<string | null>(null);
+  const [testMode, setTestMode] = useState(true); // Start in test mode for safety
+  const [testResult, setTestResult] = useState<{ action: string; description: string; customerEmail: string } | null>(null);
 
   const fetchSubscriptions = async () => {
     setLoading(true);
@@ -52,16 +54,28 @@ export default function AdminSubscriptionsPage() {
 
   const performAction = async (action: string, subscriptionId: string, params?: Record<string, unknown>) => {
     setActionLoading(subscriptionId);
+    setTestResult(null);
     try {
       const res = await fetch('/api/admin/subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, subscriptionId, ...params }),
+        body: JSON.stringify({ action, subscriptionId, dryRun: testMode, ...params }),
       });
       
+      const data = await res.json();
+      
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Action failed');
+      }
+      
+      // If dry run, show what would happen
+      if (data.dryRun) {
+        setTestResult({
+          action: data.action,
+          description: data.description,
+          customerEmail: data.customerEmail,
+        });
+        return;
       }
       
       // Refresh subscriptions
@@ -132,11 +146,59 @@ export default function AdminSubscriptionsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Subscription Management</h1>
           <p className="text-gray-500 mt-1">Manage customer subscriptions, billing dates, and payments</p>
         </div>
-        <Button onClick={fetchSubscriptions} variant="outline" className="gap-2">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setTestMode(!testMode)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              testMode 
+                ? 'bg-amber-100 text-amber-700 border-2 border-amber-300' 
+                : 'bg-red-100 text-red-700 border-2 border-red-300'
+            }`}
+          >
+            <FlaskConical className="h-4 w-4" />
+            {testMode ? 'Test Mode ON' : 'LIVE MODE'}
+          </button>
+          <Button onClick={fetchSubscriptions} variant="outline" className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {/* Test Mode Banner */}
+      {testMode && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <FlaskConical className="h-5 w-5 text-amber-600 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800">Test Mode Active</p>
+              <p className="text-sm text-amber-600 mt-1">
+                Buttons will show what WOULD happen without actually executing. 
+                Turn off Test Mode to perform real actions.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test Result */}
+      {testResult && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <p className="font-medium text-blue-800">Test Result: {testResult.action}</p>
+                <p className="text-sm text-blue-600 mt-1">{testResult.description}</p>
+                <p className="text-xs text-blue-500 mt-1">Customer: {testResult.customerEmail}</p>
+              </div>
+            </div>
+            <button onClick={() => setTestResult(null)} className="text-blue-400 hover:text-blue-600">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
