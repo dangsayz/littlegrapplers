@@ -945,10 +945,8 @@ export default function CommunityPage() {
   // Delete a reply
   const handleDeleteReply = async (threadId: string, replyId: string) => {
     try {
-      const res = await fetch(`/api/community/discussions/${threadId}/replies`, {
+      const res = await fetch(`/api/community/discussions/${threadId}/replies?replyId=${replyId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ replyId }),
       });
       
       if (res.ok) {
