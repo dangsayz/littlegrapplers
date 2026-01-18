@@ -132,6 +132,21 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
 
   const { data: enrollments, error } = await query;
 
+  // Fetch subscriptions to verify payment status for active enrollments
+  const enrollmentIds = enrollments?.map(e => e.id) || [];
+  const { data: subscriptions } = await supabaseAdmin
+    .from('subscriptions')
+    .select('enrollment_id, status, stripe_subscription_id')
+    .in('enrollment_id', enrollmentIds.length > 0 ? enrollmentIds : ['none']);
+  
+  // Create a map of enrollment_id to payment status
+  const paymentMap = new Map<string, boolean>();
+  subscriptions?.forEach(sub => {
+    if (sub.enrollment_id && sub.status === 'active') {
+      paymentMap.set(sub.enrollment_id, true);
+    }
+  });
+
   // Get stats
   const { count: pendingCount } = await supabaseAdmin
     .from('enrollments')
@@ -312,6 +327,8 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
           enrollments.map((enrollment: any) => {
             const status = STATUS_CONFIG[enrollment.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
             const StatusIcon = status.icon;
+            const hasPaid = paymentMap.get(enrollment.id) || false;
+            const isActiveWithoutPayment = enrollment.status === 'active' && !hasPaid;
             
             return (
               <Link 
@@ -355,8 +372,18 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
                       </span>
                     </div>
 
-                    {/* Right: Status badge & action */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    {/* Right: Status badge & payment indicator */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {isActiveWithoutPayment && (
+                        <Badge className="bg-amber-50 text-amber-600 border-amber-200 border text-xs font-medium">
+                          No Payment
+                        </Badge>
+                      )}
+                      {enrollment.status === 'active' && hasPaid && (
+                        <Badge className="bg-green-50 text-green-600 border-green-200 border text-xs font-medium">
+                          Paid
+                        </Badge>
+                      )}
                       <Badge className={`${status.color} border text-xs font-medium`}>
                         {status.label}
                       </Badge>
