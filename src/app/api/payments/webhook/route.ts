@@ -767,14 +767,15 @@ async function autoActivateUserOnPayment(
           .single();
 
         if (!existingStudent) {
-          // Create student record
+          // Create student record - date_of_birth is required, use placeholder if missing
+          const dob = enrollment.child_date_of_birth || '2020-01-01';
           const { data: newStudent, error: studentError } = await supabase
             .from('students')
             .insert({
               parent_id: parentId,
               first_name: enrollment.child_first_name,
               last_name: enrollment.child_last_name,
-              date_of_birth: enrollment.child_date_of_birth,
+              date_of_birth: dob,
               belt_rank: 'white',
               stripes: 0,
               is_active: true,
