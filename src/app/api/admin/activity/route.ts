@@ -2,11 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { supabaseAdmin } from '@/lib/supabase';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+import { getStripe } from '@/lib/stripe';
 
 interface ActivityItem {
   id: string;
@@ -31,6 +27,7 @@ export async function GET() {
 
     // Fetch recent Stripe events (payments, refunds, subscriptions)
     try {
+      const stripe = getStripe();
       const events = await stripe.events.list({
         limit: 50,
         types: [
