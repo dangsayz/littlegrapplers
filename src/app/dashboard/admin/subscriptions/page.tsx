@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, Edit3, ChevronDown, ChevronUp, Receipt, ExternalLink, RotateCcw } from 'lucide-react';
+import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, Edit3, ChevronDown, ChevronUp, Receipt, ExternalLink, RotateCcw, Lightbulb, MousePointerClick } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -287,6 +287,32 @@ export default function AdminSubscriptionsPage() {
         </Card>
       </div>
 
+      {/* Quick Tips - Soft Hint */}
+      <div className="rounded-xl border border-[#2EC4B6]/20 bg-gradient-to-r from-[#2EC4B6]/5 via-sky-50/50 to-transparent p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2EC4B6]/10 flex-shrink-0">
+            <Lightbulb className="h-4 w-4 text-[#2EC4B6]" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-medium text-slate-700 text-sm mb-1.5">Quick Actions Available</h3>
+            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-xs text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <Edit3 className="h-3 w-3 text-blue-500" />
+                <span>Hover on <strong>Next:</strong> date to <strong>edit billing date</strong></span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <MousePointerClick className="h-3 w-3 text-purple-500" />
+                <span>Click row to expand <strong>payment history</strong></span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Pause className="h-3 w-3 text-amber-500" />
+                <span><strong>Pause/Cancel</strong> buttons on right</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
         {['all', 'active', 'past_due', 'canceled', 'trialing', 'one_time'].map(status => (
@@ -385,7 +411,7 @@ export default function AdminSubscriptionsPage() {
                                 setEditingBillingDate(sub.id);
                                 setNewBillingDate(sub.currentPeriodEnd ? sub.currentPeriodEnd.split('T')[0] : '');
                               }}
-                              className="opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-600 ml-1"
+                              className="opacity-40 group-hover:opacity-100 text-blue-500 hover:text-blue-600 ml-1 transition-opacity"
                               title="Edit billing date"
                             >
                               <Edit3 className="h-3 w-3" />
