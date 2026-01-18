@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-12-15.clover',
 });
 
 interface ActivityItem {
@@ -43,7 +43,7 @@ export async function GET() {
       });
 
       for (const event of events.data) {
-        const eventData = event.data.object as Record<string, unknown>;
+        const eventData = event.data.object as unknown as Record<string, unknown>;
         
         if (event.type === 'payment_intent.succeeded') {
           const amount = (eventData.amount as number) / 100;
