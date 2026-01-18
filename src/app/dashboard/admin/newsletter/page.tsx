@@ -21,7 +21,7 @@ import {
 export default async function AdminNewsletterPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string };
+  searchParams: Promise<{ search?: string; status?: string }>;
 }) {
   const user = await currentUser();
   
@@ -29,18 +29,20 @@ export default async function AdminNewsletterPage({
     redirect('/dashboard');
   }
 
+  const resolvedSearchParams = await searchParams;
+
   // Build query
   let query = supabaseAdmin
     .from('newsletter_subscribers')
     .select('*')
     .order('subscribed_at', { ascending: false });
 
-  if (searchParams.search) {
-    query = query.or(`email.ilike.%${searchParams.search}%,first_name.ilike.%${searchParams.search}%,last_name.ilike.%${searchParams.search}%`);
+  if (resolvedSearchParams.search) {
+    query = query.or(`email.ilike.%${resolvedSearchParams.search}%,first_name.ilike.%${resolvedSearchParams.search}%,last_name.ilike.%${resolvedSearchParams.search}%`);
   }
 
-  if (searchParams.status && searchParams.status !== 'all') {
-    query = query.eq('status', searchParams.status);
+  if (resolvedSearchParams.status && resolvedSearchParams.status !== 'all') {
+    query = query.eq('status', resolvedSearchParams.status);
   }
 
   const { data: subscribers, error } = await query.limit(100);
@@ -198,13 +200,13 @@ export default async function AdminNewsletterPage({
               <Input
                 name="search"
                 placeholder="Search by email or name..."
-                defaultValue={searchParams.search || ''}
+                defaultValue={resolvedSearchParams.search || ''}
                 className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
-              defaultValue={searchParams.status || 'all'}
+              defaultValue={resolvedSearchParams.status || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Status</option>

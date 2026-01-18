@@ -15,6 +15,10 @@ import {
   Edit,
   Save,
   X,
+  CreditCard,
+  Mail,
+  ExternalLink,
+  Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +78,12 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
   
   // Edit mode
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Payment link
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentPlanType, setPaymentPlanType] = useState<'monthly' | '3month'>('monthly');
+  const [generatedPaymentUrl, setGeneratedPaymentUrl] = useState<string | null>(null);
+  const [paymentLinkLoading, setPaymentLinkLoading] = useState(false);
   const [editData, setEditData] = useState({
     guardian_first_name: enrollment.guardian_first_name,
     guardian_last_name: enrollment.guardian_last_name,
@@ -141,6 +151,46 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
       setError(err instanceof Error ? err.message : 'Failed to update location');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGeneratePaymentLink = async (sendEmail: boolean) => {
+    setPaymentLinkLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/admin/enrollments/${enrollment.id}/payment-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planType: paymentPlanType, sendEmail }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate payment link');
+      }
+
+      setGeneratedPaymentUrl(data.checkoutUrl);
+      if (sendEmail) {
+        setSuccess(`Payment link sent to ${enrollment.guardian_email}`);
+      } else {
+        setSuccess('Payment link generated');
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate payment link');
+    } finally {
+      setPaymentLinkLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSuccess('Link copied to clipboard');
+    } catch {
+      setError('Failed to copy link');
     }
   };
 
@@ -222,6 +272,20 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
           <span className="text-[13px] font-medium text-slate-700">Edit Details</span>
           <ChevronDown className="h-3.5 w-3.5 text-slate-300 -rotate-90 group-hover:text-slate-500 transition-colors" />
         </button>
+
+        {/* Payment Link - Only show for pending/approved enrollments */}
+        {['pending', 'approved'].includes(enrollment.status) && (
+          <button
+            onClick={() => {
+              setShowPaymentDialog(true);
+              setGeneratedPaymentUrl(null);
+            }}
+            className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-emerald-50/60 transition-all duration-200 ease-out group"
+          >
+            <span className="text-[13px] font-medium text-emerald-600">Send Payment Link</span>
+            <CreditCard className="h-3.5 w-3.5 text-emerald-400 group-hover:text-emerald-600 transition-colors" />
+          </button>
+        )}
 
         {enrollment.status !== 'cancelled' && (
           <button
@@ -336,6 +400,103 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
             <Button onClick={handleLocationChange} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Update Location
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Link Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-emerald-600" />
+              Send Payment Link
+            </DialogTitle>
+            <DialogDescription>
+              Generate a Stripe checkout link for {enrollment.guardian_first_name} to complete payment for {enrollment.child_first_name}&apos;s enrollment.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-2">Select Plan</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setPaymentPlanType('monthly')}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    paymentPlanType === 'monthly' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="font-medium block">Monthly</span>
+                  <span className="text-xs text-slate-500">$50/month recurring</span>
+                </button>
+                <button
+                  onClick={() => setPaymentPlanType('3month')}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    paymentPlanType === '3month' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="font-medium block">3-Month</span>
+                  <span className="text-xs text-slate-500">$150 one-time</span>
+                </button>
+              </div>
+            </div>
+
+            {generatedPaymentUrl && (
+              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                <p className="text-sm font-medium text-emerald-800 mb-2">Payment Link Generated</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={generatedPaymentUrl}
+                    className="flex-1 text-xs bg-white border rounded px-2 py-1.5 text-slate-600"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyToClipboard(generatedPaymentUrl)}
+                    className="shrink-0"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(generatedPaymentUrl, '_blank')}
+                    className="shrink-0"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowPaymentDialog(false)} disabled={paymentLinkLoading}>
+              Close
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => handleGeneratePaymentLink(false)} 
+              disabled={paymentLinkLoading}
+            >
+              {paymentLinkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+              Generate Link
+            </Button>
+            <Button 
+              onClick={() => handleGeneratePaymentLink(true)} 
+              disabled={paymentLinkLoading}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {paymentLinkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+              Email to Parent
             </Button>
           </DialogFooter>
         </DialogContent>

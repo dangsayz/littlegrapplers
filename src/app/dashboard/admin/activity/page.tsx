@@ -28,7 +28,7 @@ const actionColors: Record<string, string> = {
 export default async function AdminActivityPage({
   searchParams,
 }: {
-  searchParams: { search?: string; type?: string };
+  searchParams: Promise<{ search?: string; type?: string }>;
 }) {
   const user = await currentUser();
   
@@ -36,18 +36,20 @@ export default async function AdminActivityPage({
     redirect('/dashboard');
   }
 
+  const resolvedSearchParams = await searchParams;
+
   // Fetch activity logs
   let query = supabaseAdmin
     .from('activity_logs')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (searchParams.search) {
-    query = query.or(`action.ilike.%${searchParams.search}%,entity_type.ilike.%${searchParams.search}%`);
+  if (resolvedSearchParams.search) {
+    query = query.or(`action.ilike.%${resolvedSearchParams.search}%,entity_type.ilike.%${resolvedSearchParams.search}%`);
   }
 
-  if (searchParams.type && searchParams.type !== 'all') {
-    query = query.eq('entity_type', searchParams.type);
+  if (resolvedSearchParams.type && resolvedSearchParams.type !== 'all') {
+    query = query.eq('entity_type', resolvedSearchParams.type);
   }
 
   const { data: activities, error } = await query.limit(100);
@@ -125,13 +127,13 @@ export default async function AdminActivityPage({
               <Input
                 name="search"
                 placeholder="Search activities..."
-                defaultValue={searchParams.search || ''}
+                defaultValue={resolvedSearchParams.search || ''}
                 className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="type"
-              defaultValue={searchParams.type || 'all'}
+              defaultValue={resolvedSearchParams.type || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Types</option>

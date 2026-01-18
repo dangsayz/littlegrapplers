@@ -28,7 +28,7 @@ import {
 export default async function AdminStudentsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; location?: string };
+  searchParams: Promise<{ search?: string; location?: string }>;
 }) {
   const user = await currentUser();
   
@@ -36,14 +36,16 @@ export default async function AdminStudentsPage({
     redirect('/dashboard');
   }
 
+  const resolvedSearchParams = await searchParams;
+
   // Fetch all signed waivers (students)
   let query = supabaseAdmin
     .from('signed_waivers')
     .select('*')
     .order('signed_at', { ascending: false });
 
-  if (searchParams.search) {
-    query = query.or(`child_full_name.ilike.%${searchParams.search}%,parent_email.ilike.%${searchParams.search}%,parent_first_name.ilike.%${searchParams.search}%,parent_last_name.ilike.%${searchParams.search}%`);
+  if (resolvedSearchParams.search) {
+    query = query.or(`child_full_name.ilike.%${resolvedSearchParams.search}%,parent_email.ilike.%${resolvedSearchParams.search}%,parent_first_name.ilike.%${resolvedSearchParams.search}%,parent_last_name.ilike.%${resolvedSearchParams.search}%`);
   }
 
   const { data: students, error } = await query.limit(100);
@@ -116,13 +118,13 @@ export default async function AdminStudentsPage({
               <Input
                 name="search"
                 placeholder="Search by child name, parent name, or email..."
-                defaultValue={searchParams.search || ''}
+                defaultValue={resolvedSearchParams.search || ''}
                 className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="location"
-              defaultValue={searchParams.location || 'all'}
+              defaultValue={resolvedSearchParams.location || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Locations</option>

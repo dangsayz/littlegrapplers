@@ -22,7 +22,7 @@ const MONTHLY_RATE = 99;
 export default async function AdminMembershipsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string };
+  searchParams: Promise<{ search?: string; status?: string }>;
 }) {
   const user = await currentUser();
   
@@ -30,14 +30,16 @@ export default async function AdminMembershipsPage({
     redirect('/dashboard');
   }
 
+  const resolvedSearchParams = await searchParams;
+
   // Fetch all signed waivers as memberships
   let query = supabaseAdmin
     .from('signed_waivers')
     .select('*')
     .order('signed_at', { ascending: false });
 
-  if (searchParams.search) {
-    query = query.or(`child_full_name.ilike.%${searchParams.search}%,parent_email.ilike.%${searchParams.search}%`);
+  if (resolvedSearchParams.search) {
+    query = query.or(`child_full_name.ilike.%${resolvedSearchParams.search}%,parent_email.ilike.%${resolvedSearchParams.search}%`);
   }
 
   const { data: memberships, error } = await query.limit(100);
@@ -139,13 +141,13 @@ export default async function AdminMembershipsPage({
               <Input
                 name="search"
                 placeholder="Search by child name or parent email..."
-                defaultValue={searchParams.search || ''}
+                defaultValue={resolvedSearchParams.search || ''}
                 className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
-              defaultValue={searchParams.status || 'all'}
+              defaultValue={resolvedSearchParams.status || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Status</option>

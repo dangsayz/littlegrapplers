@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
         status: sub.status,
         currentPeriodStart: subAny.current_period_start ? new Date((subAny.current_period_start as number) * 1000).toISOString() : null,
         currentPeriodEnd: subAny.current_period_end ? new Date((subAny.current_period_end as number) * 1000).toISOString() : null,
+        trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
         cancelAtPeriodEnd: sub.cancel_at_period_end,
         canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
         created: new Date(sub.created * 1000).toISOString(),

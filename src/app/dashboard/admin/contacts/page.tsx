@@ -13,7 +13,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 export default async function AdminContactsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string };
+  searchParams: Promise<{ search?: string; status?: string }>;
 }) {
   const user = await currentUser();
   
@@ -21,19 +21,21 @@ export default async function AdminContactsPage({
     redirect('/dashboard');
   }
 
+  const resolvedSearchParams = await searchParams;
+
   // Fetch contact submissions
   let query = supabaseAdmin
     .from('contact_submissions')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (searchParams.search) {
-    query = query.or(`name.ilike.%${searchParams.search}%,email.ilike.%${searchParams.search}%,message.ilike.%${searchParams.search}%`);
+  if (resolvedSearchParams.search) {
+    query = query.or(`name.ilike.%${resolvedSearchParams.search}%,email.ilike.%${resolvedSearchParams.search}%,message.ilike.%${resolvedSearchParams.search}%`);
   }
 
-  if (searchParams.status === 'unread') {
+  if (resolvedSearchParams.status === 'unread') {
     query = query.eq('is_read', false);
-  } else if (searchParams.status === 'read') {
+  } else if (resolvedSearchParams.status === 'read') {
     query = query.eq('is_read', true);
   }
 
@@ -100,13 +102,13 @@ export default async function AdminContactsPage({
               <Input
                 name="search"
                 placeholder="Search by name, email, or message..."
-                defaultValue={searchParams.search || ''}
+                defaultValue={resolvedSearchParams.search || ''}
                 className="pl-9 border-slate-200"
               />
             </div>
             <select
               name="status"
-              defaultValue={searchParams.status || 'all'}
+              defaultValue={resolvedSearchParams.status || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
             >
               <option value="all">All Messages</option>

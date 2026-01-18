@@ -32,13 +32,13 @@ const ITEMS_PER_PAGE = 10;
 
 const STATUS_CONFIG = {
   pending: { 
-    label: 'Awaiting Payment', 
+    label: 'Pending Review', 
     color: 'bg-amber-100 text-amber-800 border-amber-200',
     icon: Clock,
   },
   approved: { 
     label: 'Awaiting Payment', 
-    color: 'bg-amber-100 text-amber-800 border-amber-200',
+    color: 'bg-blue-100 text-blue-800 border-blue-200',
     icon: Clock,
   },
   active: { 
@@ -59,7 +59,7 @@ const STATUS_CONFIG = {
 };
 
 interface PageProps {
-  searchParams: { search?: string; page?: string; status?: string; location?: string };
+  searchParams: Promise<{ search?: string; page?: string; status?: string; location?: string }>;
 }
 
 export default async function AdminEnrollmentsPage({ searchParams }: PageProps) {
@@ -69,10 +69,11 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
     redirect('/dashboard');
   }
 
-  const currentPage = parseInt(searchParams.page || '1', 10);
+  const resolvedSearchParams = await searchParams;
+  const currentPage = parseInt(resolvedSearchParams.page || '1', 10);
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  const statusFilter = searchParams.status || 'all';
-  const locationFilter = searchParams.location || 'all';
+  const statusFilter = resolvedSearchParams.status || 'all';
+  const locationFilter = resolvedSearchParams.location || 'all';
 
   // Fetch locations for filter dropdown
   const { data: locations } = await supabaseAdmin
@@ -86,9 +87,9 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
     .from('enrollments')
     .select('*', { count: 'exact', head: true });
 
-  if (searchParams.search) {
+  if (resolvedSearchParams.search) {
     countQuery = countQuery.or(
-      `guardian_first_name.ilike.%${searchParams.search}%,guardian_last_name.ilike.%${searchParams.search}%,guardian_email.ilike.%${searchParams.search}%,child_first_name.ilike.%${searchParams.search}%,child_last_name.ilike.%${searchParams.search}%`
+      `guardian_first_name.ilike.%${resolvedSearchParams.search}%,guardian_last_name.ilike.%${resolvedSearchParams.search}%,guardian_email.ilike.%${resolvedSearchParams.search}%,child_first_name.ilike.%${resolvedSearchParams.search}%,child_last_name.ilike.%${resolvedSearchParams.search}%`
     );
   }
 
@@ -113,9 +114,9 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
     .order('submitted_at', { ascending: false })
     .range(offset, offset + ITEMS_PER_PAGE - 1);
 
-  if (searchParams.search) {
+  if (resolvedSearchParams.search) {
     query = query.or(
-      `guardian_first_name.ilike.%${searchParams.search}%,guardian_last_name.ilike.%${searchParams.search}%,guardian_email.ilike.%${searchParams.search}%,child_first_name.ilike.%${searchParams.search}%,child_last_name.ilike.%${searchParams.search}%`
+      `guardian_first_name.ilike.%${resolvedSearchParams.search}%,guardian_last_name.ilike.%${resolvedSearchParams.search}%,guardian_email.ilike.%${resolvedSearchParams.search}%,child_first_name.ilike.%${resolvedSearchParams.search}%,child_last_name.ilike.%${resolvedSearchParams.search}%`
     );
   }
 
@@ -170,9 +171,9 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
 
   // Build search params for pagination
   const paginationParams: Record<string, string> = {};
-  if (searchParams.search) paginationParams.search = searchParams.search;
-  if (searchParams.status) paginationParams.status = searchParams.status;
-  if (searchParams.location) paginationParams.location = searchParams.location;
+  if (resolvedSearchParams.search) paginationParams.search = resolvedSearchParams.search;
+  if (resolvedSearchParams.status) paginationParams.status = resolvedSearchParams.status;
+  if (resolvedSearchParams.location) paginationParams.location = resolvedSearchParams.location;
 
   return (
     <div className="space-y-8">
@@ -243,72 +244,60 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
         </CardContent>
       </Card>
 
-      {/* Stats Cards with Hints */}
+      {/* Stats Cards - Clickable to filter */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm group cursor-help">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 relative">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-              <span className="text-sm text-slate-500">Pending</span>
-              <HelpCircle className="h-3 w-3 text-slate-300" />
-            </div>
-            <div className="text-3xl font-bold text-amber-700 mt-1">{pendingCount || 0}</div>
-            <p className="text-xs text-amber-600/70 mt-1">Needs your review</p>
-          </CardContent>
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
-            New applications waiting for approval
-            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-          </div>
-        </Card>
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-violet-50/40 backdrop-blur-sm group cursor-help">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 relative">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-blue-600" />
-              <span className="text-sm text-slate-500">Approved</span>
-              <HelpCircle className="h-3 w-3 text-slate-300" />
-            </div>
-            <div className="text-3xl font-bold text-blue-700 mt-1">{approvedCount || 0}</div>
-            <p className="text-xs text-blue-600/70 mt-1">Ready for payment</p>
-          </CardContent>
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
-            Approved but not yet paying
-            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-          </div>
-        </Card>
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/40 backdrop-blur-sm group cursor-help">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 relative">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-slate-500">Active</span>
-              <HelpCircle className="h-3 w-3 text-slate-300" />
-            </div>
-            <div className="text-3xl font-bold text-green-700 mt-1">{activeCount || 0}</div>
-            <p className="text-xs text-green-600/70 mt-1">Currently enrolled</p>
-          </CardContent>
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
-            Students actively enrolled in classes
-            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-          </div>
-        </Card>
-        <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm group cursor-help">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-          <CardContent className="pt-6 relative">
-            <div className="flex items-center gap-2">
-              <UserPlus className="h-4 w-4 text-slate-600" />
-              <span className="text-sm text-slate-500">Total</span>
-              <HelpCircle className="h-3 w-3 text-slate-300" />
-            </div>
-            <div className="text-3xl font-bold text-slate-700 mt-1">{totalEnrollments || 0}</div>
-            <p className="text-xs text-slate-500/70 mt-1">All time</p>
-          </CardContent>
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-lg">
-            Total enrollment applications received
-            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
-          </div>
-        </Card>
+        <Link href="/dashboard/admin/enrollments?status=pending">
+          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'pending' ? 'ring-2 ring-amber-500 border-amber-300' : 'border-white/60'}`}>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <CardContent className="pt-6 relative">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-amber-600" />
+                <span className="text-sm text-slate-500">Pending</span>
+              </div>
+              <div className="text-3xl font-bold text-amber-700 mt-1">{pendingCount || 0}</div>
+              <p className="text-xs text-amber-600/70 mt-1">Needs your review</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/admin/enrollments?status=approved">
+          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-violet-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'approved' ? 'ring-2 ring-blue-500 border-blue-300' : 'border-white/60'}`}>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <CardContent className="pt-6 relative">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <span className="text-sm text-slate-500">Approved</span>
+              </div>
+              <div className="text-3xl font-bold text-blue-700 mt-1">{approvedCount || 0}</div>
+              <p className="text-xs text-blue-600/70 mt-1">Ready for payment</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/admin/enrollments?status=active">
+          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'active' ? 'ring-2 ring-green-500 border-green-300' : 'border-white/60'}`}>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <CardContent className="pt-6 relative">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-slate-500">Active</span>
+              </div>
+              <div className="text-3xl font-bold text-green-700 mt-1">{activeCount || 0}</div>
+              <p className="text-xs text-green-600/70 mt-1">Currently enrolled</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/admin/enrollments">
+          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'all' ? 'ring-2 ring-slate-400 border-slate-300' : 'border-white/60'}`}>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <CardContent className="pt-6 relative">
+              <div className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4 text-slate-600" />
+                <span className="text-sm text-slate-500">Total</span>
+              </div>
+              <div className="text-3xl font-bold text-slate-700 mt-1">{totalEnrollments || 0}</div>
+              <p className="text-xs text-slate-500/70 mt-1">All time</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -318,7 +307,7 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
           <Input
             name="search"
             placeholder="Search by name or email..."
-            defaultValue={searchParams.search}
+            defaultValue={resolvedSearchParams.search}
             className="pl-10 h-10 border-slate-200 bg-white rounded-lg"
           />
         </div>

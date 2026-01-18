@@ -15,6 +15,7 @@ interface Subscription {
   status: string;
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
+  trialEnd: string | null;
   cancelAtPeriodEnd: boolean;
   canceledAt: string | null;
   created: string;
@@ -125,7 +126,12 @@ export default function AdminSubscriptionsPage() {
       case 'canceled':
         return <Badge variant="outline" className="text-gray-500">Canceled</Badge>;
       case 'trialing':
-        return <Badge className="bg-blue-500">Trial</Badge>;
+        // Show "Billing Deferred" with next charge date instead of confusing "Trial" badge
+        return (
+          <Badge className="bg-purple-500">
+            Billing Deferred → {sub.trialEnd ? formatDate(sub.trialEnd) : 'TBD'}
+          </Badge>
+        );
       case 'paused':
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Paused</Badge>;
       default:

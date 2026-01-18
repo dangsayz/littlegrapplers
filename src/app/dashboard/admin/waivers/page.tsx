@@ -22,7 +22,7 @@ import { Pagination } from '@/components/ui/pagination';
 const ITEMS_PER_PAGE = 10;
 
 interface PageProps {
-  searchParams: { search?: string; page?: string; consent?: string };
+  searchParams: Promise<{ search?: string; page?: string; consent?: string }>;
 }
 
 export default async function AdminWaiversPage({ searchParams }: PageProps) {
@@ -32,7 +32,8 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
     redirect('/dashboard');
   }
 
-  const currentPage = parseInt(searchParams.page || '1', 10);
+  const resolvedSearchParams = await searchParams;
+  const currentPage = parseInt(resolvedSearchParams.page || '1', 10);
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   // Get total count for pagination
@@ -40,15 +41,15 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
     .from('signed_waivers')
     .select('*', { count: 'exact', head: true });
 
-  if (searchParams.search) {
+  if (resolvedSearchParams.search) {
     countQuery = countQuery.or(
-      `guardian_full_name.ilike.%${searchParams.search}%,guardian_email.ilike.%${searchParams.search}%,child_full_name.ilike.%${searchParams.search}%`
+      `guardian_full_name.ilike.%${resolvedSearchParams.search}%,guardian_email.ilike.%${resolvedSearchParams.search}%,child_full_name.ilike.%${resolvedSearchParams.search}%`
     );
   }
 
-  if (searchParams.consent === 'granted') {
+  if (resolvedSearchParams.consent === 'granted') {
     countQuery = countQuery.eq('photo_media_consent', true);
-  } else if (searchParams.consent === 'not-granted') {
+  } else if (resolvedSearchParams.consent === 'not-granted') {
     countQuery = countQuery.eq('photo_media_consent', false);
   }
 
@@ -62,15 +63,15 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
     .order('signed_at', { ascending: false })
     .range(offset, offset + ITEMS_PER_PAGE - 1);
 
-  if (searchParams.search) {
+  if (resolvedSearchParams.search) {
     query = query.or(
-      `guardian_full_name.ilike.%${searchParams.search}%,guardian_email.ilike.%${searchParams.search}%,child_full_name.ilike.%${searchParams.search}%`
+      `guardian_full_name.ilike.%${resolvedSearchParams.search}%,guardian_email.ilike.%${resolvedSearchParams.search}%,child_full_name.ilike.%${resolvedSearchParams.search}%`
     );
   }
 
-  if (searchParams.consent === 'granted') {
+  if (resolvedSearchParams.consent === 'granted') {
     query = query.eq('photo_media_consent', true);
-  } else if (searchParams.consent === 'not-granted') {
+  } else if (resolvedSearchParams.consent === 'not-granted') {
     query = query.eq('photo_media_consent', false);
   }
 
@@ -108,8 +109,8 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
 
   // Build search params for pagination
   const paginationParams: Record<string, string> = {};
-  if (searchParams.search) paginationParams.search = searchParams.search;
-  if (searchParams.consent) paginationParams.consent = searchParams.consent;
+  if (resolvedSearchParams.search) paginationParams.search = resolvedSearchParams.search;
+  if (resolvedSearchParams.consent) paginationParams.consent = resolvedSearchParams.consent;
 
   return (
     <div className="space-y-8">
@@ -189,13 +190,13 @@ export default async function AdminWaiversPage({ searchParams }: PageProps) {
               <Input
                 name="search"
                 placeholder="Search by parent name, email, or child name..."
-                defaultValue={searchParams.search}
+                defaultValue={resolvedSearchParams.search}
                 className="pl-10 border-slate-200"
               />
             </div>
             <select
               name="consent"
-              defaultValue={searchParams.consent || 'all'}
+              defaultValue={resolvedSearchParams.consent || 'all'}
               className="px-3 py-2 rounded-md border border-slate-200 bg-white/80 text-slate-600"
             >
               <option value="all">All Consent Status</option>
