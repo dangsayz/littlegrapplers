@@ -403,6 +403,32 @@ async function handleRefund(charge: Stripe.Charge) {
     })
     .eq('parent_id', payment.parent_id);
 
+  // If full refund, update subscription and enrollment status
+  if (charge.refunded) {
+    // Find subscription linked to this payment via enrollment
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('id, enrollment_id')
+      .eq('enrollment_id', payment.enrollment_id)
+      .single();
+
+    if (subscription) {
+      await supabase
+        .from('subscriptions')
+        .update({ status: 'refunded', updated_at: new Date().toISOString() })
+        .eq('id', subscription.id);
+
+      if (subscription.enrollment_id) {
+        await supabase
+          .from('enrollments')
+          .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+          .eq('id', subscription.enrollment_id);
+        
+        console.log(`Enrollment ${subscription.enrollment_id} cancelled due to full refund`);
+      }
+    }
+  }
+
   console.log(`Refund processed for parent ${payment.parent_id}: $${refundAmount}`);
 }
 
@@ -499,18 +525,38 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
-  const { error } = await supabase
+  // Update subscription status
+  const { data: sub, error } = await supabase
     .from('subscriptions')
     .update({
       status: 'canceled',
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', subscription.id);
+    .eq('stripe_subscription_id', subscription.id)
+    .select('enrollment_id')
+    .single();
 
   if (error) {
     console.error('Failed to update cancelled subscription:', error);
   } else {
     console.log(`Subscription cancelled: ${subscription.id}`);
+    
+    // Also update linked enrollment status to cancelled
+    if (sub?.enrollment_id) {
+      const { error: enrollmentError } = await supabase
+        .from('enrollments')
+        .update({
+          status: 'cancelled',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', sub.enrollment_id);
+      
+      if (enrollmentError) {
+        console.error('Failed to cancel linked enrollment:', enrollmentError);
+      } else {
+        console.log(`Enrollment ${sub.enrollment_id} cancelled due to subscription cancellation`);
+      }
+    }
   }
 }
 
