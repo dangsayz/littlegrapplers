@@ -60,9 +60,10 @@ interface AdminActionsProps {
   enrollment: Enrollment;
   locations: Location[];
   currentLocationName: string;
+  hasPaymentRecord?: boolean;
 }
 
-export function AdminActions({ enrollment, locations, currentLocationName }: AdminActionsProps) {
+export function AdminActions({ enrollment, locations, currentLocationName, hasPaymentRecord = false }: AdminActionsProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -317,6 +318,40 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
               <CheckCircle className="h-3.5 w-3.5 text-green-400 group-hover:text-green-600 transition-colors" />
             </button>
           </>
+        )}
+
+        {/* Link Payment - For active enrollments without payment record */}
+        {enrollment.status === 'active' && !hasPaymentRecord && (
+          <button
+            onClick={async () => {
+              if (confirm('Create payment record for this enrollment?')) {
+                setIsLoading(true);
+                setError(null);
+                try {
+                  const response = await fetch(`/api/admin/enrollments/${enrollment.id}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'active' }),
+                  });
+                  if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to link payment');
+                  }
+                  setSuccess('Payment record created successfully');
+                  router.refresh();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to link payment');
+                } finally {
+                  setIsLoading(false);
+                }
+              }
+            }}
+            disabled={isLoading}
+            className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-amber-50/60 transition-all duration-200 ease-out group"
+          >
+            <span className="text-[13px] font-medium text-amber-600">Link Payment Record</span>
+            <CreditCard className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-600 transition-colors" />
+          </button>
         )}
 
         {enrollment.status !== 'cancelled' && (

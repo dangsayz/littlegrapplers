@@ -102,6 +102,15 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
     studentCount: studentCountByLocation[loc.id] || 0,
   }));
 
+  // Check if enrollment has a payment record
+  const { data: subscription } = await supabaseAdmin
+    .from('subscriptions')
+    .select('id, status')
+    .eq('enrollment_id', id)
+    .single();
+  
+  const hasPaymentRecord = !!subscription;
+
   // Fetch reviewer info if reviewed
   let reviewerName = null;
   if (enrollment.reviewed_by) {
@@ -226,6 +235,7 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
         }}
         locations={locationsWithCounts}
         currentLocationName={enrollment.locations?.name || 'Not assigned'}
+        hasPaymentRecord={hasPaymentRecord}
       />
 
       {/* Rejection Reason */}
