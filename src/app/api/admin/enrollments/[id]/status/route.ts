@@ -73,6 +73,30 @@ export async function POST(
         });
     }
 
+    // If marking as active, create a subscription record to track payment
+    if (status === 'active') {
+      // Check if subscription already exists for this enrollment
+      const { data: existingSub } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id')
+        .eq('enrollment_id', id)
+        .single();
+
+      if (!existingSub) {
+        // Create a manual subscription record
+        await supabaseAdmin.from('subscriptions').insert({
+          stripe_subscription_id: `manual_${id}_${Date.now()}`,
+          status: 'active',
+          plan_id: enrollment.plan_type || 'monthly',
+          plan_name: enrollment.plan_type === '3month' ? '3-Month Paid-In-Full' : 'Monthly Agreement',
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+          location_id: enrollment.location_id || null,
+          enrollment_id: id,
+        });
+      }
+    }
+
     // Log activity
     await supabaseAdmin.from('activity_logs').insert({
       admin_id: adminUser?.id,
