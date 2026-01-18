@@ -116,13 +116,13 @@ export async function POST(request: NextRequest) {
         // Status - approved so admin can send payment link
         status: 'approved',
         
-        // Waiver (mark as signed since they're existing student)
-        waiver_signed: true,
-        waiver_signed_at: new Date().toISOString(),
-        waiver_signer_name: `${parent.first_name} ${parent.last_name}`,
+        // Digital signature (required field) - admin-created enrollment
+        digital_signature: `Admin-created by ${userEmail}`,
+        waiver_agreed_at: new Date().toISOString(),
         
         // Link to user
         clerk_user_id: parent.user.clerk_user_id,
+        user_id: parent.user.id,
         
         submitted_at: new Date().toISOString(),
       })
