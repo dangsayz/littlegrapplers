@@ -18,6 +18,24 @@ function getResend(): Resend | null {
   return _resend;
 }
 
+// Track processed webhook events to prevent double-processing
+async function isEventProcessed(eventId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('webhook_events')
+    .select('id')
+    .eq('stripe_event_id', eventId)
+    .single();
+  return !!data;
+}
+
+async function markEventProcessed(eventId: string, eventType: string): Promise<void> {
+  await supabase.from('webhook_events').upsert({
+    stripe_event_id: eventId,
+    event_type: eventType,
+    processed_at: new Date().toISOString(),
+  }, { onConflict: 'stripe_event_id', ignoreDuplicates: true });
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
@@ -38,6 +56,13 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  // IDEMPOTENCY: Check if we've already processed this event
+  const alreadyProcessed = await isEventProcessed(event.id);
+  if (alreadyProcessed) {
+    console.log(`Webhook event ${event.id} already processed, skipping`);
+    return NextResponse.json({ received: true, skipped: true });
   }
 
   try {
@@ -83,6 +108,9 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
+    // Mark event as processed to prevent duplicate handling
+    await markEventProcessed(event.id, event.type);
+
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Webhook handler error:', error);
@@ -100,6 +128,17 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
   // Handle NEW unified enrollment flow (no account required)
   if (enrollmentId && planType) {
+    // Check if enrollment is already active (prevent double-processing)
+    const { data: existingEnrollment } = await supabase
+      .from('enrollments')
+      .select('status')
+      .eq('id', enrollmentId)
+      .single();
+    
+    if (existingEnrollment?.status === 'active') {
+      console.log(`Enrollment ${enrollmentId} already active, skipping duplicate processing`);
+      return;
+    }
     const locationId = session.metadata?.location_id || null;
     const customerEmail = session.customer_details?.email || session.metadata?.guardian_email;
     const customerName = session.customer_details?.name || '';
@@ -120,9 +159,9 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       console.log(`Enrollment ${enrollmentId} activated via payment`);
     }
 
-    // Create subscription record for tracking
+    // Create subscription record for tracking (use upsert to prevent duplicates)
     if (session.mode === 'payment') {
-      await supabase.from('subscriptions').insert({
+      await supabase.from('subscriptions').upsert({
         stripe_subscription_id: `one_time_${session.id}`,
         status: 'active',
         plan_id: 'threeMonth',
@@ -132,7 +171,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         cancel_at_period_end: true,
         location_id: locationId || null,
         enrollment_id: enrollmentId,
-      });
+      }, { onConflict: 'stripe_subscription_id' });
     }
 
     // Send welcome email
@@ -164,33 +203,39 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const customerEmail = session.customer_details?.email;
     const customerName = session.customer_details?.name || '';
     
-    // AUTO-ACTIVATION: Create user/parent records so they can access dashboard
+    // For SUBSCRIPTION mode, let customer.subscription.created handle activation
+    // This prevents double-processing and double-charging
+    if (session.mode === 'subscription') {
+      console.log(`Subscription checkout complete for ${clerkUserId}, deferring to subscription webhook`);
+      return;
+    }
+    
+    // AUTO-ACTIVATION: Only for one-time payments (3-month plans)
+    // Subscriptions are activated by customer.subscription.created event
     await autoActivateUserOnPayment(clerkUserId, customerEmail, customerName, locationId);
     
-    // For one-time payments (3-month), create a subscription record
-    if (session.mode === 'payment') {
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert({
-          stripe_subscription_id: `one_time_${session.id}`,
-          clerk_user_id: clerkUserId,
-          status: 'active',
-          plan_id: 'threeMonth',
-          plan_name: '3-Month Paid-In-Full',
-          current_period_start: new Date().toISOString(),
-          current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-          cancel_at_period_end: true,
-          location_id: locationId || null,
-        });
+    // For one-time payments (3-month), create a subscription record (use upsert)
+    const { error } = await supabase
+      .from('subscriptions')
+      .upsert({
+        stripe_subscription_id: `one_time_${session.id}`,
+        clerk_user_id: clerkUserId,
+        status: 'active',
+        plan_id: 'threeMonth',
+        plan_name: '3-Month Paid-In-Full',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        cancel_at_period_end: true,
+        location_id: locationId || null,
+      }, { onConflict: 'stripe_subscription_id' });
 
-      if (error) {
-        console.error('Failed to create one-time subscription record:', error);
-      } else {
-        console.log(`One-time payment recorded for user ${clerkUserId}`);
-      }
+    if (error) {
+      console.error('Failed to create one-time subscription record:', error);
+    } else {
+      console.log(`One-time payment recorded for user ${clerkUserId}`);
     }
 
-    // Send welcome/confirmation email
+    // Send welcome/confirmation email for one-time payments only
     if (customerEmail) {
       await sendWelcomeEmail(
         customerEmail,
@@ -200,7 +245,6 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       );
     }
 
-    // Subscription mode payments are handled by customer.subscription.created event
     return;
   }
 

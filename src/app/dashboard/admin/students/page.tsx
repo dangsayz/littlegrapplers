@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
-import { ArrowLeft, GraduationCap, Search, Eye, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, GraduationCap, Search, Eye, Pencil, Trash2, MoreHorizontal, CreditCard } from 'lucide-react';
+import { PaymentLinkButton } from '@/components/admin/payment-link-button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -221,6 +222,14 @@ export default async function AdminStudentsPage({
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Edit Student
                               </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                              <PaymentLinkButton
+                                studentId={student.id}
+                                studentName={student.child_full_name}
+                                parentEmail={student.parent_email}
+                              />
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
