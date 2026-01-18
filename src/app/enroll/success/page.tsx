@@ -68,8 +68,14 @@ export default function EnrollmentSuccessPage() {
 
           <div className="mt-8 space-y-3">
             <Button size="lg" className="w-full" asChild>
-              <Link href="/sign-up">
+              <Link href="/enroll">
                 <UserPlus className="h-5 w-5 mr-2" />
+                Enroll Another Child
+              </Link>
+            </Button>
+            
+            <Button size="lg" variant="outline" className="w-full" asChild>
+              <Link href="/sign-up">
                 Create Your Account
               </Link>
             </Button>

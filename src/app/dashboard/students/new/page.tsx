@@ -73,8 +73,8 @@ export default function NewStudentPage() {
         throw new Error(data.error || 'Failed to add student');
       }
 
-      // Redirect to checkout to complete membership
-      router.push('/dashboard/checkout');
+      // Redirect to enroll to complete membership
+      router.push('/enroll');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add student');
       setIsSubmitting(false);

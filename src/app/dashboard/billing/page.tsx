@@ -70,8 +70,8 @@ export default async function BillingPage() {
             </div>
           </div>
           <Button asChild className="w-full">
-            <Link href="/dashboard/checkout" className="flex items-center justify-center gap-2">
-              Start Membership
+            <Link href="/enroll" className="flex items-center justify-center gap-2">
+              Enroll a Child
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -172,8 +172,8 @@ export default async function BillingPage() {
                 No payment history yet
               </p>
               <Button asChild variant="outline" className="mt-4">
-                <Link href="/dashboard/checkout">
-                  Start your membership
+                <Link href="/enroll">
+                  Enroll a child
                 </Link>
               </Button>
             </div>

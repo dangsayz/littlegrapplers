@@ -147,7 +147,7 @@ export default async function NewMembershipPage() {
                   </div>
                 </div>
                 <Button asChild>
-                  <Link href="/dashboard/checkout">
+                  <Link href="/enroll">
                     <CreditCard className="h-4 w-4 mr-1" />
                     Enroll Now
                   </Link>

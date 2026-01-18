@@ -150,9 +150,9 @@ export function WaiverSigningForm({ clerkUserId, userEmail, userName, locations 
 
       setSubmitStatus('success');
       clearDraft();
-      // Redirect to checkout after showing success message
+      // Redirect to enroll after showing success message
       setTimeout(() => {
-        router.push('/dashboard/checkout');
+        router.push('/enroll');
       }, 2000);
     } catch (error) {
       setSubmitStatus('error');

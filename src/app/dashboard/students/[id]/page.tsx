@@ -316,7 +316,7 @@ export default async function StudentPage({ params }: StudentPageProps) {
           ) : (
             <p className="text-muted-foreground text-center py-6">
               No active memberships.{' '}
-              <Link href="/dashboard/memberships/new" className="text-brand hover:underline">
+              <Link href="/enroll" className="text-brand hover:underline">
                 Enroll in a program
               </Link>
             </p>

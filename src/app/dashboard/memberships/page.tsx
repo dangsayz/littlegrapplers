@@ -110,9 +110,9 @@ export default async function MembershipsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/memberships/new">
+          <Link href="/enroll">
             <Plus className="h-4 w-4 mr-2" />
-            Add Membership
+            Enroll a Child
           </Link>
         </Button>
       </div>
@@ -137,6 +137,16 @@ export default async function MembershipsPage() {
           {memberships.map((membership) => (
             <MembershipCard key={membership.id} membership={membership} />
           ))}
+          
+          {/* Easy add another child */}
+          <Card className="border-dashed border-brand/30 hover:border-brand/60 transition-colors">
+            <CardContent className="p-6">
+              <Link href="/enroll" className="flex items-center justify-center gap-3 text-brand hover:text-brand/80">
+                <Plus className="h-5 w-5" />
+                <span className="font-medium">Enroll Another Child</span>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <NoMembershipsCard hasStudents={hasStudents} />

@@ -109,26 +109,13 @@ export function NoMembershipsCard({ hasStudents = false }: { hasStudents?: boole
         <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
           <FileText className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold mb-2">No memberships yet</h3>
-        {hasStudents ? (
-          <>
-            <p className="text-sm text-muted-foreground mb-4">
-              Start a membership to enroll your student in classes.
-            </p>
-            <Button asChild>
-              <Link href="/dashboard/billing">Start Membership</Link>
-            </Button>
-          </>
-        ) : (
-          <>
-            <p className="text-sm text-muted-foreground mb-4">
-              Once you add a student, you can enroll them in a program.
-            </p>
-            <Button asChild>
-              <Link href="/dashboard/students">Add a Student First</Link>
-            </Button>
-          </>
-        )}
+        <h3 className="font-semibold mb-2">No active memberships</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Enroll your child in Little Grapplers to get started.
+        </p>
+        <Button asChild>
+          <Link href="/enroll">Enroll a Child</Link>
+        </Button>
       </CardContent>
     </Card>
   );
