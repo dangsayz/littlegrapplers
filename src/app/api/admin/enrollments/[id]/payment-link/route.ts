@@ -45,8 +45,8 @@ export async function POST(
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://littlegrapplers.net';
     const isSubscription = planType === 'monthly';
     const priceId = isSubscription 
-      ? process.env.STRIPE_PRICE_MONTHLY 
-      : process.env.STRIPE_PRICE_3MONTH;
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY 
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_3MONTH;
 
     if (!priceId) {
       return NextResponse.json({ error: 'Payment configuration error - price not set' }, { status: 500 });
