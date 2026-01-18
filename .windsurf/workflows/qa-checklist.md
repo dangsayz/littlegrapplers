@@ -30,6 +30,37 @@ When this workflow is called, execute the following autonomous pipeline:
    - Flag any table/column referenced in code but missing from migrations
    - Check for unapplied migrations (files exist but not run in prod)
 
+5. **MANDATORY: NOT NULL Field Validation** (Layer 5 Extension):
+   For EVERY `.insert()` or `.upsert()` call, verify these required fields:
+   
+   **enrollments table:**
+   - `digital_signature` (NOT NULL) - must be provided
+   - `guardian_first_name`, `guardian_last_name`, `guardian_email` (NOT NULL)
+   - `child_first_name`, `child_last_name` (NOT NULL)
+   
+   **subscriptions table:**
+   - `clerk_user_id` (NOT NULL) - CRITICAL: always required
+   - `plan_id`, `plan_name` (NOT NULL)
+   - `status` (NOT NULL, default 'pending')
+   
+   **students table:**
+   - `date_of_birth` (NOT NULL) - must provide fallback if source is nullable
+   - `parent_id` (NOT NULL)
+   - `first_name`, `last_name` (NOT NULL)
+   
+   **users table:**
+   - `email` (NOT NULL, UNIQUE)
+   
+   **parents table:**
+   - `user_id` (NOT NULL, UNIQUE)
+   - `first_name`, `last_name` (NOT NULL)
+
+6. **Webhook Payment Flow Verification:**
+   - `checkout.session.completed` → must update enrollment AND create subscription
+   - `customer.subscription.deleted` → must update BOTH subscription AND enrollment
+   - `charge.refunded` → must update subscription AND enrollment if full refund
+   - All subscription inserts MUST include `enrollment_id` for linking
+
 ---
 
 ## PHASE 2: PATTERN MATCHING
@@ -138,3 +169,59 @@ This workflow must:
 - Always log actions with timestamps and results
 - Cross-validate findings across layers before reporting
 - Require consensus from multiple layers for critical actions
+
+---
+
+## KNOWN FAILURE PATTERNS (Updated 2026-01-18)
+
+### Pattern 1: Missing NOT NULL Fields in Insert
+**Fingerprint:** `SCHEMA_NOTNULL_MISSING`
+**Severity:** CRITICAL
+**Detection:** Grep for `.insert()` or `.upsert()` calls, verify all NOT NULL fields present
+**Resolution:** Add missing field with appropriate value or fallback
+**Examples Fixed:**
+- `digital_signature` missing in admin enrollment create
+- `clerk_user_id` missing in subscription inserts
+- `date_of_birth` null passed to students table
+
+### Pattern 2: Enrollment-Subscription Desync
+**Fingerprint:** `SYNC_ENROLLMENT_SUBSCRIPTION`
+**Severity:** HIGH
+**Detection:** Subscription status changes without enrollment update
+**Resolution:** Always update BOTH tables on status changes
+**Triggers:**
+- `customer.subscription.deleted` → enrollment.status = 'cancelled'
+- `charge.refunded` (full) → enrollment.status = 'cancelled'
+
+### Pattern 3: Payment Record Not Linked
+**Fingerprint:** `PAYMENT_LINK_MISSING`
+**Severity:** MEDIUM
+**Detection:** Active enrollment without subscription record
+**Resolution:** Create subscription with `enrollment_id` link
+**Admin Action:** "Link Payment Record" button
+
+### Pattern 4: Email Not Sent on Activation
+**Fingerprint:** `EMAIL_ACTIVATION_MISSING`
+**Severity:** MEDIUM
+**Detection:** Enrollment activated without PIN/welcome email
+**Resolution:** Call `sendCommunityPinEmail()` after activation
+**Admin Action:** "Resend PIN" button in Settings
+
+---
+
+## EXECUTABLE CHECKS
+
+Before any deployment, run these grep commands:
+
+```bash
+# Check all subscription inserts have clerk_user_id
+grep -rn "from('subscriptions').*insert" src/ | grep -v clerk_user_id
+
+# Check all enrollment inserts have digital_signature
+grep -rn "from('enrollments').*insert" src/ | grep -v digital_signature
+
+# Check webhook handlers update both tables
+grep -rn "handleSubscription" src/app/api/payments/webhook/
+```
+
+If any check fails, DO NOT deploy until fixed.
