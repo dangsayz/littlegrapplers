@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { supabaseAdmin } from '@/lib/supabase';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { SettingsForm } from './settings-form';
+import { ResendPinsButton } from './resend-pins-button';
 import { isSuperAdmin } from '@/lib/admin-roles';
 
 
@@ -82,6 +83,9 @@ export default async function AdminSettingsPage() {
         {/* Settings Form */}
         <div className="lg:col-span-2 space-y-6">
           <SettingsForm settings={settingsMap} isSuperAdmin={userIsSuperAdmin} />
+          
+          {/* Quick Actions */}
+          <ResendPinsButton />
         </div>
 
         {/* Activity Log */}
