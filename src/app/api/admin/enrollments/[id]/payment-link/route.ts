@@ -106,9 +106,11 @@ export async function POST(
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@littlegrapplers.net';
+        const fromName = process.env.RESEND_FROM_NAME || 'Little Grapplers';
         
         await resend.emails.send({
-          from: 'Little Grapplers <noreply@littlegrapplers.net>',
+          from: `${fromName} <${fromEmail}>`,
           to: enrollment.guardian_email,
           subject: `Complete Your Enrollment for ${enrollment.child_first_name}`,
           html: `
