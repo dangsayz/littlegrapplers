@@ -28,6 +28,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { EnrollmentActions } from './enrollment-actions';
 import { ClickStopWrapper } from './click-stop-wrapper';
 import { SearchForm } from './search-form';
+import { CreateEnrollmentDialog } from './create-enrollment-dialog';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -206,12 +207,15 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
               </p>
             </div>
           </div>
-          {(pendingCount || 0) > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30">
-              <Clock className="h-4 w-4 text-amber-400" />
-              <span className="text-amber-300 font-medium">{pendingCount} pending</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {(pendingCount || 0) > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30">
+                <Clock className="h-4 w-4 text-amber-400" />
+                <span className="text-amber-300 font-medium">{pendingCount} pending</span>
+              </div>
+            )}
+            <CreateEnrollmentDialog locations={locations || []} />
+          </div>
         </div>
       </div>
 
