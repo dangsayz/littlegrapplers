@@ -275,16 +275,48 @@ export function AdminActions({ enrollment, locations, currentLocationName }: Adm
 
         {/* Payment Link - Only show for pending/approved enrollments */}
         {['pending', 'approved'].includes(enrollment.status) && (
-          <button
-            onClick={() => {
-              setShowPaymentDialog(true);
-              setGeneratedPaymentUrl(null);
-            }}
-            className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-emerald-50/60 transition-all duration-200 ease-out group"
-          >
-            <span className="text-[13px] font-medium text-emerald-600">Send Payment Link</span>
-            <CreditCard className="h-3.5 w-3.5 text-emerald-400 group-hover:text-emerald-600 transition-colors" />
-          </button>
+          <>
+            <button
+              onClick={() => {
+                setShowPaymentDialog(true);
+                setGeneratedPaymentUrl(null);
+              }}
+              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-emerald-50/60 transition-all duration-200 ease-out group"
+            >
+              <span className="text-[13px] font-medium text-emerald-600">Send Payment Link</span>
+              <CreditCard className="h-3.5 w-3.5 text-emerald-400 group-hover:text-emerald-600 transition-colors" />
+            </button>
+            <button
+              onClick={async () => {
+                if (confirm('Mark this enrollment as paid and activate it?')) {
+                  setIsLoading(true);
+                  setError(null);
+                  try {
+                    const response = await fetch(`/api/admin/enrollments/${enrollment.id}/status`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: 'active' }),
+                    });
+                    if (!response.ok) {
+                      const data = await response.json();
+                      throw new Error(data.error || 'Failed to activate enrollment');
+                    }
+                    setSuccess('Enrollment marked as paid and activated');
+                    router.refresh();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Failed to activate');
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }
+              }}
+              disabled={isLoading}
+              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-green-50/60 transition-all duration-200 ease-out group"
+            >
+              <span className="text-[13px] font-medium text-green-600">Mark as Paid</span>
+              <CheckCircle className="h-3.5 w-3.5 text-green-400 group-hover:text-green-600 transition-colors" />
+            </button>
+          </>
         )}
 
         {enrollment.status !== 'cancelled' && (
