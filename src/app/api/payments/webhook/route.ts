@@ -179,6 +179,35 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       await sendWelcomeEmail(customerEmail, customerName || 'Parent', planType, amount);
     }
 
+    // Send community PIN code email if location is set
+    if (locationId && customerEmail) {
+      try {
+        // Get location details including PIN
+        const { data: location } = await supabase
+          .from('locations')
+          .select('name, slug, access_pin')
+          .eq('id', locationId)
+          .single();
+
+        if (location?.access_pin) {
+          const { sendCommunityPinEmail } = await import('@/lib/email');
+          await sendCommunityPinEmail({
+            parentEmail: customerEmail,
+            parentName: customerName || 'Parent',
+            childName: childName || 'your child',
+            locationName: location.name,
+            locationSlug: location.slug,
+            pinCode: location.access_pin,
+          });
+          console.log(`Community PIN sent to ${customerEmail} for location ${location.name}`);
+        } else {
+          console.log(`No access_pin set for location ${locationId}, skipping PIN email`);
+        }
+      } catch (pinError) {
+        console.error('Failed to send community PIN email:', pinError);
+      }
+    }
+
     // Log activity
     await supabase.from('activity_logs').insert({
       admin_email: customerEmail || 'system',
@@ -440,6 +469,32 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     }
 
     await autoActivateUserOnPayment(clerkUserId, customerEmail, customerName, locationId);
+    
+    // Send community PIN code email if location is set
+    if (locationId && customerEmail) {
+      try {
+        const { data: location } = await supabase
+          .from('locations')
+          .select('name, slug, access_pin')
+          .eq('id', locationId)
+          .single();
+
+        if (location?.access_pin) {
+          const { sendCommunityPinEmail } = await import('@/lib/email');
+          await sendCommunityPinEmail({
+            parentEmail: customerEmail,
+            parentName: customerName || 'Parent',
+            childName: 'your child',
+            locationName: location.name,
+            locationSlug: location.slug,
+            pinCode: location.access_pin,
+          });
+          console.log(`Community PIN sent to ${customerEmail} for subscription activation`);
+        }
+      } catch (pinError) {
+        console.error('Failed to send community PIN email for subscription:', pinError);
+      }
+    }
   }
 }
 

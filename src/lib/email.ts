@@ -524,6 +524,121 @@ export function createEnrollmentNotificationEmail(data: {
   };
 }
 
+// Send community PIN code to parent after enrollment activation
+export async function sendCommunityPinEmail(data: {
+  parentEmail: string;
+  parentName: string;
+  childName: string;
+  locationName: string;
+  locationSlug: string;
+  pinCode: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.log('[Email] No RESEND_API_KEY configured. PIN email skipped.');
+    return { success: false, reason: 'no_api_key' };
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://littlegrapplers.net';
+  const communityUrl = `${baseUrl}/community/${data.locationSlug}`;
+
+  // Escape user data
+  const safe = {
+    parentName: escapeHtml(data.parentName),
+    childName: escapeHtml(data.childName),
+    locationName: escapeHtml(data.locationName),
+    pinCode: escapeHtml(data.pinCode),
+  };
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: data.parentEmail,
+        subject: `Your Community Access PIN for ${safe.locationName}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
+                .header h1 { color: white; margin: 0; font-size: 24px; }
+                .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
+                .pin-box { background: linear-gradient(135deg, #1F2A44 0%, #2EC4B6 100%); color: white; padding: 30px; border-radius: 12px; margin: 25px 0; text-align: center; }
+                .pin-code { font-size: 48px; font-weight: bold; letter-spacing: 8px; font-family: 'Courier New', monospace; }
+                .pin-label { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+                .info-box { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #2EC4B6; margin: 20px 0; }
+                .button { display: inline-block; background: #2EC4B6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Welcome to the Community!</h1>
+                </div>
+                <div class="content">
+                  <p>Hi ${safe.parentName},</p>
+                  <p>Great news! ${safe.childName}'s enrollment at <strong>${safe.locationName}</strong> is now active. Here's your PIN code to access the parent community:</p>
+                  
+                  <div class="pin-box">
+                    <div class="pin-label">Your Community PIN Code</div>
+                    <div class="pin-code">${safe.pinCode}</div>
+                  </div>
+                  
+                  <div class="info-box">
+                    <h3 style="margin: 0 0 10px 0; color: #1F2A44;">What can you do in the community?</h3>
+                    <ul style="margin: 0; padding-left: 20px; color: #666;">
+                      <li>Connect with other parents at your location</li>
+                      <li>Stay updated on class schedules and events</li>
+                      <li>Share photos and celebrate achievements</li>
+                      <li>Ask questions and get support</li>
+                    </ul>
+                  </div>
+                  
+                  <p style="margin-top: 25px; text-align: center;">
+                    <a href="${communityUrl}" class="button">
+                      Access Your Community
+                    </a>
+                  </p>
+                  
+                  <p style="margin-top: 25px; color: #666; font-size: 14px;">
+                    <strong>Keep this PIN safe!</strong> You'll need it to access the community page. If you lose it, contact us and we can resend it.
+                  </p>
+                </div>
+                <div class="footer">
+                  Little Grapplers - Building Confidence, Building Character
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`[Email] Failed to send PIN to ${data.parentEmail}:`, errorData);
+      return { success: false, error: errorData };
+    }
+
+    const result = await response.json();
+    console.log(`[Email] Community PIN sent to ${data.parentEmail}:`, result.id);
+    return { success: true, id: result.id };
+  } catch (err) {
+    console.error(`[Email] Error sending PIN to ${data.parentEmail}:`, err);
+    return { success: false, error: err };
+  }
+}
+
 // Send notification to all location members when a new community post is created
 export async function sendCommunityPostNotification(data: {
   threadId: string;
