@@ -531,23 +531,27 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
               </div>
             </div>
 
-            {/* Success Message */}
+            {/* Success Message - Apple inspired */}
             {success && (
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
-                  <p className="text-sm text-green-800">{success}</p>
+              <div className="flex items-start gap-3 py-3">
+                <div className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                  <CheckCircle className="h-4 w-4 text-white" />
                 </div>
+                <p className="text-[15px] text-slate-700 leading-relaxed" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
+                  {success}
+                </p>
               </div>
             )}
 
-            {/* Error Message */}
+            {/* Error Message - Apple inspired */}
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-                <div className="flex items-start gap-2">
-                  <XCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
-                  <p className="text-sm text-red-800">{error}</p>
+              <div className="flex items-start gap-3 py-3">
+                <div className="h-6 w-6 rounded-full bg-red-500 flex items-center justify-center shrink-0">
+                  <XCircle className="h-4 w-4 text-white" />
                 </div>
+                <p className="text-[15px] text-slate-700 leading-relaxed" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
+                  {error}
+                </p>
               </div>
             )}
 

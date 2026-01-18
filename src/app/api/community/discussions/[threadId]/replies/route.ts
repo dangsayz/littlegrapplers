@@ -3,6 +3,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ADMIN_EMAILS } from '@/lib/constants';
+import { sendReplyNotification } from '@/lib/email';
 
 // GET: Fetch replies for a thread
 export async function GET(
@@ -90,14 +91,22 @@ export async function POST(
       return NextResponse.json({ error: 'Content too long (max 5000 characters)' }, { status: 400 });
     }
 
-    // Get thread to verify it exists and get location slug
+    // Get thread to verify it exists and get details for notification
     const { data: thread, error: threadError } = await supabaseAdmin
       .from('discussion_threads')
       .select(`
         id,
+        title,
         is_locked,
+        author_email,
+        author:users!discussion_threads_author_id_fkey (
+          first_name,
+          last_name,
+          email
+        ),
         location:locations!discussion_threads_location_id_fkey (
-          slug
+          slug,
+          name
         )
       `)
       .eq('id', threadId)
@@ -111,9 +120,15 @@ export async function POST(
       return NextResponse.json({ error: 'Thread is locked' }, { status: 403 });
     }
 
-    // Get location slug for PIN verification
-    const location = thread.location as unknown as { slug: string } | null;
+    // Get location details for PIN verification and notification
+    const location = thread.location as unknown as { slug: string; name: string } | null;
     const locationSlug = location?.slug;
+    const locationName = location?.name || 'your community';
+    
+    // Get thread author info for notification
+    const threadAuthor = thread.author as unknown as { first_name: string; last_name: string; email: string } | null;
+    const threadAuthorEmail = threadAuthor?.email || thread.author_email;
+    const threadAuthorName = threadAuthor ? `${threadAuthor.first_name || ''} ${threadAuthor.last_name || ''}`.trim() : 'there';
 
     // Verify PIN access (check cookie)
     if (locationSlug) {
@@ -171,6 +186,21 @@ export async function POST(
       .single();
 
     if (replyError) throw replyError;
+
+    // Send notification to thread author (async, don't block response)
+    if (threadAuthorEmail && locationSlug) {
+      sendReplyNotification({
+        threadId,
+        threadTitle: thread.title,
+        threadAuthorEmail,
+        threadAuthorName: threadAuthorName || 'there',
+        replyAuthorName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Someone',
+        replyAuthorEmail: userEmail || '',
+        replyContent: content.trim(),
+        locationSlug,
+        locationName,
+      }).catch((err: unknown) => console.error('Failed to send reply notification:', err));
+    }
 
     return NextResponse.json({
       id: reply.id,

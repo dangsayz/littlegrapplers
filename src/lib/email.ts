@@ -639,6 +639,202 @@ export async function sendCommunityPinEmail(data: {
   }
 }
 
+// Send payment renewal notification to parents
+export async function sendPaymentRenewalEmail(data: {
+  parentEmail: string;
+  childName: string;
+  planName: string;
+  amount: number;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.log('[Email] No RESEND_API_KEY configured. Payment renewal notification skipped.');
+    return { success: false, reason: 'no_api_key' };
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: data.parentEmail,
+        subject: `Payment Confirmed - ${data.childName}'s Membership`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
+                .header h1 { color: white; margin: 0; font-size: 24px; }
+                .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
+                .amount-box { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #2EC4B6; margin: 20px 0; text-align: center; }
+                .amount { font-size: 32px; font-weight: bold; color: #2EC4B6; }
+                .button { display: inline-block; background: #2EC4B6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Payment Confirmed ✓</h1>
+                </div>
+                <div class="content">
+                  <p>Hi there!</p>
+                  <p>Your monthly membership payment for <strong>${data.childName}</strong> has been successfully processed.</p>
+                  
+                  <div class="amount-box">
+                    <p style="margin: 0 0 5px 0; color: #666;">Amount Charged</p>
+                    <p class="amount">$${data.amount.toFixed(2)}</p>
+                    <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">${data.planName}</p>
+                  </div>
+                  
+                  <p>Thank you for being part of the Little Grapplers family! ${data.childName} continues to grow and learn valuable life skills through Brazilian Jiu-Jitsu.</p>
+                  
+                  <p style="margin-top: 20px;">
+                    <a href="${baseUrl}/dashboard" class="button">
+                      View Dashboard
+                    </a>
+                  </p>
+                  
+                  <p style="margin-top: 25px; color: #666; font-size: 14px;">
+                    If you have any questions about this charge, please reply to this email or contact us.
+                  </p>
+                </div>
+                <div class="footer">
+                  Little Grapplers - Building Confidence, Building Character
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`[Email] Failed to send renewal notification to ${data.parentEmail}:`, errorData);
+      return { success: false, error: errorData };
+    }
+
+    const result = await response.json();
+    console.log(`[Email] Payment renewal notification sent to ${data.parentEmail}:`, result.id);
+    return { success: true, id: result.id };
+  } catch (err) {
+    console.error(`[Email] Error sending renewal notification:`, err);
+    return { success: false, error: err };
+  }
+}
+
+// Send notification to thread author when someone replies to their thread
+export async function sendReplyNotification(data: {
+  threadId: string;
+  threadTitle: string;
+  threadAuthorEmail: string;
+  threadAuthorName: string;
+  replyAuthorName: string;
+  replyAuthorEmail: string;
+  replyContent: string;
+  locationSlug: string;
+  locationName: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  
+  if (!apiKey) {
+    console.log('[Email] No RESEND_API_KEY configured. Reply notification skipped.');
+    return { success: false, reason: 'no_api_key' };
+  }
+
+  // Don't notify if the author is replying to their own thread
+  if (data.threadAuthorEmail === data.replyAuthorEmail) {
+    console.log('[Email] Author replied to own thread, skipping notification');
+    return { success: true, reason: 'self_reply' };
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const threadUrl = `${baseUrl}/community/${data.locationSlug}/thread/${data.threadId}`;
+  const isAdminReply = ADMIN_EMAILS.includes(data.replyAuthorEmail);
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: data.threadAuthorEmail,
+        subject: `${isAdminReply ? '📣 ' : ''}New reply to your post: ${data.threadTitle}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #2EC4B6 0%, #1F2A44 100%); padding: 30px; border-radius: 12px 12px 0 0; }
+                .header h1 { color: white; margin: 0; font-size: 24px; }
+                .content { background: #f9fafb; padding: 30px; border-radius: 0 0 12px 12px; }
+                .reply-box { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid ${isAdminReply ? '#2EC4B6' : '#6366f1'}; margin: 20px 0; }
+                .admin-badge { display: inline-block; background: #2EC4B6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+                .button { display: inline-block; background: #2EC4B6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>${isAdminReply ? 'Coach Response' : 'New Reply'}</h1>
+                </div>
+                <div class="content">
+                  <p>Hi ${data.threadAuthorName}!</p>
+                  <p><strong>${data.replyAuthorName}</strong>${isAdminReply ? '<span class="admin-badge">COACH</span>' : ''} replied to your post in <strong>${data.locationName}</strong>:</p>
+                  
+                  <div class="reply-box">
+                    <p style="margin: 0 0 10px 0; font-weight: 600; color: #1F2A44;">${data.threadTitle}</p>
+                    <p style="margin: 0; color: #4B5563;">${data.replyContent.substring(0, 300)}${data.replyContent.length > 300 ? '...' : ''}</p>
+                  </div>
+                  
+                  <p style="margin-top: 20px;">
+                    <a href="${threadUrl}" class="button">
+                      View Full Thread
+                    </a>
+                  </p>
+                </div>
+                <div class="footer">
+                  Little Grapplers - Youth BJJ Program
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`[Email] Failed to send reply notification to ${data.threadAuthorEmail}:`, errorData);
+      return { success: false, error: errorData };
+    }
+
+    const result = await response.json();
+    console.log(`[Email] Reply notification sent to ${data.threadAuthorEmail}:`, result.id);
+    return { success: true, id: result.id };
+  } catch (err) {
+    console.error(`[Email] Error sending reply notification:`, err);
+    return { success: false, error: err };
+  }
+}
+
 // Send notification to all location members when a new community post is created
 export async function sendCommunityPostNotification(data: {
   threadId: string;

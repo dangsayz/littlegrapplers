@@ -104,6 +104,12 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaid(invoice);
+        break;
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -811,5 +817,57 @@ async function autoActivateUserOnPayment(
     console.log(`Auto-activation complete for user ${clerkUserId}`);
   } catch (error) {
     console.error('Auto-activation error:', error);
+  }
+}
+
+async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  // Only notify for subscription renewals (not first payments)
+  if (invoice.billing_reason !== 'subscription_cycle') {
+    console.log(`Invoice ${invoice.id} is not a renewal, skipping notification`);
+    return;
+  }
+
+  const customerEmail = invoice.customer_email;
+  const amount = (invoice.amount_paid || 0) / 100;
+  // Get subscription ID from invoice lines
+  const subscriptionId = invoice.lines?.data?.[0]?.subscription as string | undefined;
+
+  if (!customerEmail) {
+    console.log('No customer email for invoice, skipping notification');
+    return;
+  }
+
+  // Get subscription details
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('plan_name, enrollment_id')
+    .eq('stripe_subscription_id', subscriptionId)
+    .single();
+
+  // Get child name from enrollment if available
+  let childName = 'your child';
+  if (subscription?.enrollment_id) {
+    const { data: enrollment } = await supabase
+      .from('enrollments')
+      .select('child_first_name')
+      .eq('id', subscription.enrollment_id)
+      .single();
+    if (enrollment) {
+      childName = enrollment.child_first_name;
+    }
+  }
+
+  // Send renewal notification email
+  try {
+    const { sendPaymentRenewalEmail } = await import('@/lib/email');
+    await sendPaymentRenewalEmail({
+      parentEmail: customerEmail,
+      childName,
+      planName: subscription?.plan_name || 'Monthly Membership',
+      amount,
+    });
+    console.log(`Payment renewal notification sent to ${customerEmail}`);
+  } catch (err) {
+    console.error('Failed to send renewal notification:', err);
   }
 }
