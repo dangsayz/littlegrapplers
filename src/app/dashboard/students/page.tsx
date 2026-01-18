@@ -153,9 +153,9 @@ export default async function StudentsPage() {
             </div>
           </div>
           <Button asChild className="bg-gradient-to-r from-indigo-400 to-violet-500 text-white border-0 shadow-sm">
-            <Link href="/dashboard/students/new">
+            <Link href="/enroll">
               <Plus className="h-4 w-4 mr-2" />
-              Add Student
+              Enroll Another Child
             </Link>
           </Button>
         </div>

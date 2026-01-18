@@ -302,9 +302,9 @@ export default async function DashboardPage() {
       {hasStudents && (
         <div className="text-center">
           <Button variant="outline" className="border-slate-200 hover:bg-white/50" asChild>
-            <Link href="/dashboard/students/new">
+            <Link href="/enroll">
               <Plus className="h-4 w-4 mr-2" />
-              Add Another Student
+              Enroll Another Child
             </Link>
           </Button>
         </div>
