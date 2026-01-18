@@ -112,19 +112,19 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 border-r border-slate-200/40 bg-gradient-to-b from-white/95 via-slate-50/90 to-sky-50/30 backdrop-blur-xl z-[100]" style={{ overflow: 'visible', clipPath: 'none' }}>
-      {/* Decorative glass elements - cool tones only */}
+      {/* Decorative glass elements - subtle */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-sky-200/25 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -right-10 w-32 h-32 bg-gradient-to-bl from-indigo-200/20 to-transparent rounded-full blur-2xl" />
-        <div className="absolute bottom-20 -left-10 w-28 h-28 bg-gradient-to-tr from-violet-200/15 to-transparent rounded-full blur-2xl" />
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-slate-200/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -right-10 w-32 h-32 bg-gradient-to-bl from-slate-200/15 to-transparent rounded-full blur-2xl" />
+        <div className="absolute bottom-20 -left-10 w-28 h-28 bg-gradient-to-tr from-slate-200/10 to-transparent rounded-full blur-2xl" />
       </div>
       
       {/* Logo / Back to Home */}
       <div className="relative flex items-center h-16 px-4 border-b border-white/30 bg-white/40 backdrop-blur-sm">
         <Button variant="ghost" size="sm" asChild className="gap-2 hover:bg-white/50">
           <Link href="/">
-            <ChevronLeft className="h-4 w-4 text-[#2EC4B6]" />
-            <span className="font-display font-semibold bg-gradient-to-r from-[#1F2A44] to-[#2EC4B6] bg-clip-text text-transparent">Little Grapplers</span>
+            <ChevronLeft className="h-4 w-4 text-slate-500" />
+            <span className="font-display font-semibold text-slate-800">Little Grapplers</span>
           </Link>
         </Button>
       </div>
@@ -136,7 +136,7 @@ export function DashboardSidebar() {
             pathname === item.href ||
             (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
-          const iconColors = ['text-sky-500', 'text-indigo-500', 'text-slate-500'];
+          const iconColors = ['text-slate-500', 'text-slate-500', 'text-slate-500'];
           const iconColor = iconColors[navItems.indexOf(item) % iconColors.length];
 
           return (
@@ -179,61 +179,75 @@ export function DashboardSidebar() {
                 </span>
             </div>
             
-            <div className="space-y-1">
+            <div className="space-y-1.5">
                 {adminNavItems.map((item, index) => {
                   const isActive =
                     item.href === '/dashboard/admin'
                       ? pathname === '/dashboard/admin' || (pathname.startsWith('/dashboard/admin') && !pathname.startsWith('/dashboard/admin/media'))
                       : pathname.startsWith(item.href);
 
-                  const adminIconColors = ['text-slate-500', 'text-slate-500', 'text-slate-500', 'text-sky-600'];
-                  const iconColor = adminIconColors[index % adminIconColors.length];
-                  
-                  // Special styling for Admin Panel (last item)
+                  // Special styling for Video + Images and Admin Panel
+                  const isMediaItem = item.href === '/dashboard/admin/media';
                   const isAdminPanel = item.href === '/dashboard/admin';
+                  const isSpecialItem = isMediaItem || isAdminPanel;
 
                   return (
-                    <div key={item.href} className={cn("group relative", isAdminPanel && "mt-2 pt-2 border-t border-slate-200/40")}>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          'flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13px] transition-all duration-200',
-                          isAdminPanel
-                            ? cn(
-                                'bg-white/60',
-                                'shadow-sm',
-                                'border border-slate-200/40 hover:border-slate-200/60',
-                                'hover:bg-white/80',
-                                isActive ? 'text-slate-800 font-semibold' : 'text-slate-700 font-medium'
-                              )
-                            : cn(
-                                'font-medium',
-                                isActive
-                                  ? 'bg-white/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04),0_1px_2px_rgba(255,255,255,0.8)] text-slate-700'
-                                  : 'text-slate-500 hover:bg-white/50 hover:text-slate-700'
-                              ),
-                          // Apple-style font
-                        )}
-                        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
-                      >
-                        <div className={cn(
-                          'flex items-center justify-center w-7 h-7 rounded-lg transition-all',
-                          isAdminPanel
-                            ? 'bg-gradient-to-b from-sky-50 to-sky-100/80 text-sky-600 shadow-[inset_0_-1px_2px_rgba(0,0,0,0.05)]'
-                            : isActive 
-                              ? `bg-white/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] ${iconColor}` 
+                    <div key={item.href} className={cn("group relative", isAdminPanel && "mt-3")}>
+                      {isSpecialItem ? (
+                        // Gradient card style for Video + Images and Admin Panel
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            'relative overflow-hidden flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300',
+                            'bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800',
+                            'shadow-lg shadow-slate-500/20 hover:shadow-xl hover:shadow-slate-500/30',
+                            'text-white hover:scale-[1.02]',
+                          )}
+                          style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
+                        >
+                          {/* Subtle background pattern */}
+                          <div className="absolute inset-0 opacity-10">
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-12 h-12 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+                          </div>
+                          <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 backdrop-blur-sm">
+                            <item.icon className="h-4 w-4 text-white" strokeWidth={1.5} />
+                          </div>
+                          <span className="relative">{item.label}</span>
+                          {item.badgeKey && badges[item.badgeKey as keyof typeof badges] > 0 && (
+                            <span className="relative ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm px-1.5 text-[10px] font-bold text-white">
+                              {badges[item.badgeKey as keyof typeof badges]}
+                            </span>
+                          )}
+                        </Link>
+                      ) : (
+                        // Regular style for other admin items
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            'flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13px] font-medium transition-all duration-200',
+                            isActive
+                              ? 'bg-white/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04),0_1px_2px_rgba(255,255,255,0.8)] text-slate-700'
+                              : 'text-slate-500 hover:bg-white/50 hover:text-slate-700'
+                          )}
+                          style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
+                        >
+                          <div className={cn(
+                            'flex items-center justify-center w-7 h-7 rounded-lg transition-all',
+                            isActive 
+                              ? 'bg-white/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] text-slate-500' 
                               : 'text-slate-400 group-hover:text-slate-500'
-                        )}>
-                          <item.icon className="h-4 w-4" strokeWidth={1.5} />
-                        </div>
-                        {item.label}
-                        {/* Badge for notification count */}
-                        {item.badgeKey && badges[item.badgeKey as keyof typeof badges] > 0 && (
-                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
-                            {badges[item.badgeKey as keyof typeof badges]}
-                          </span>
-                        )}
-                      </Link>
+                          )}>
+                            <item.icon className="h-4 w-4" strokeWidth={1.5} />
+                          </div>
+                          {item.label}
+                          {item.badgeKey && badges[item.badgeKey as keyof typeof badges] > 0 && (
+                            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                              {badges[item.badgeKey as keyof typeof badges]}
+                            </span>
+                          )}
+                        </Link>
+                      )}
                       {/* Soft tooltip hint */}
                       <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#1F2A44] text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 delay-500 whitespace-nowrap z-[9999]">
                         {item.hint}

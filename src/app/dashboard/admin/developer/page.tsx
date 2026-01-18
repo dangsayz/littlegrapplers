@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity, UserCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -48,29 +49,29 @@ interface WorkOrderComment {
   created_at: string;
 }
 
-// Apple-inspired category colors
+// Muted category colors
 const categoryStyles = {
-  feature: { color: 'text-blue-500', bg: 'bg-blue-500', light: 'bg-blue-50' },
-  bugfix: { color: 'text-red-500', bg: 'bg-red-500', light: 'bg-red-50' },
-  enhancement: { color: 'text-orange-500', bg: 'bg-orange-500', light: 'bg-orange-50' },
-  maintenance: { color: 'text-gray-500', bg: 'bg-gray-500', light: 'bg-gray-50' },
+  feature: { color: 'text-slate-600', bg: 'bg-slate-500', light: 'bg-slate-100' },
+  bugfix: { color: 'text-slate-600', bg: 'bg-slate-500', light: 'bg-slate-100' },
+  enhancement: { color: 'text-slate-500', bg: 'bg-slate-400', light: 'bg-slate-100' },
+  maintenance: { color: 'text-slate-500', bg: 'bg-slate-400', light: 'bg-slate-100' },
 };
 
-// Status styles for work orders
+// Muted status styles for work orders
 const statusStyles = {
-  requested: { color: 'text-amber-600', bg: 'bg-amber-50', label: 'Requested' },
-  quoted: { color: 'text-blue-600', bg: 'bg-blue-50', label: 'Quoted' },
-  approved: { color: 'text-purple-600', bg: 'bg-purple-50', label: 'Approved' },
-  in_progress: { color: 'text-cyan-600', bg: 'bg-cyan-50', label: 'In Progress' },
+  requested: { color: 'text-orange-600', bg: 'bg-orange-50', label: 'Requested' },
+  quoted: { color: 'text-sky-600', bg: 'bg-sky-50', label: 'Quoted' },
+  approved: { color: 'text-slate-600', bg: 'bg-slate-100', label: 'Approved' },
+  in_progress: { color: 'text-slate-600', bg: 'bg-slate-100', label: 'In Progress' },
   completed: { color: 'text-emerald-600', bg: 'bg-emerald-50', label: 'Completed' },
-  cancelled: { color: 'text-gray-400', bg: 'bg-gray-50', label: 'Cancelled' },
+  cancelled: { color: 'text-slate-400', bg: 'bg-slate-50', label: 'Cancelled' },
 };
 
 const priorityStyles = {
-  low: { color: 'text-gray-500', label: 'Low' },
-  normal: { color: 'text-blue-500', label: 'Normal' },
+  low: { color: 'text-slate-400', label: 'Low' },
+  normal: { color: 'text-slate-500', label: 'Normal' },
   high: { color: 'text-orange-500', label: 'High' },
-  urgent: { color: 'text-red-500', label: 'Urgent' },
+  urgent: { color: 'text-slate-700', label: 'Urgent' },
 };
 
 // Detailed breakdown data - plain English for Stephen
@@ -147,7 +148,7 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
               <div className="w-px h-12 bg-[#1F2A44]/10" />
               <div className="flex-1">
                 <p className="text-[32px] font-semibold text-[#1F2A44]">${totalPaid.toLocaleString()}</p>
-                <p className="text-[13px] text-[#2EC4B6] mt-1">You paid</p>
+                <p className="text-[13px] text-slate-500 mt-1">You paid</p>
               </div>
             </div>
           </div>
@@ -847,7 +848,7 @@ function DeveloperBillingContent() {
         {!showRequestForm && (
           <button
             onClick={() => setShowRequestForm(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2EC4B6] text-white text-sm font-medium hover:bg-[#2EC4B6]/90 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 text-white text-sm font-medium hover:bg-slate-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
             {isDev ? 'Add Work Order' : 'Submit Request'}
@@ -972,7 +973,7 @@ function DeveloperBillingContent() {
             <button
               onClick={handleSubmitRequest}
               disabled={isSubmitting || !requestForm.title.trim() || (isDev && !requestForm.quoted_cost)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#2EC4B6] rounded-xl hover:bg-[#2EC4B6]/90 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-800 rounded-xl hover:bg-slate-700 disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isDev ? 'Create Invoice' : 'Submit Request'}
@@ -1004,37 +1005,64 @@ function DeveloperBillingContent() {
       )}
 
       {/* Monthly Hosting Banner */}
-      <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
-              <RefreshCw className="h-5 w-5 text-slate-600" />
+      <div className="relative mb-6 bg-gradient-to-br from-white via-sky-50/80 to-indigo-50/50 rounded-2xl shadow-sm border border-sky-100/60 overflow-hidden">
+        {/* Floating glass elements - more visible */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            className="absolute -top-4 -right-4 w-32 h-32 rounded-full bg-gradient-to-br from-sky-300/40 via-cyan-200/30 to-transparent blur-2xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-300/35 via-purple-200/25 to-transparent blur-2xl"
+            animate={{ y: [0, -10, 0], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
+          <motion.div
+            className="absolute top-1/2 right-1/3 w-16 h-16 rounded-full bg-sky-200/20 blur-xl"
+            animate={{ y: [0, -8, 0], x: [0, 5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          />
+        </div>
+        
+        <div className="relative p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
+                <RefreshCw className="h-5 w-5 text-slate-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800">Monthly Hosting</p>
+                <p className="text-sm text-slate-500">$30/mo · Supabase + Vercel infrastructure</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-gray-900">Monthly Hosting</p>
-              <p className="text-sm text-gray-500">$30/mo · Supabase + Vercel infrastructure</p>
-            </div>
+            {subscription ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50/80 backdrop-blur-sm border border-emerald-100">
+                <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="text-sm font-medium text-emerald-600">Active</span>
+              </div>
+            ) : (
+              <button
+                onClick={handleSubscribe}
+                disabled={processingSubscription}
+                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 disabled:opacity-50 shadow-lg shadow-slate-900/20"
+              >
+                {processingSubscription ? 'Processing...' : 'Subscribe'}
+              </button>
+            )}
           </div>
-          {subscription ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50">
-              <div className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600">Active</span>
-            </div>
-          ) : (
-            <button
-              onClick={handleSubscribe}
-              disabled={processingSubscription}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 disabled:opacity-50"
-            >
-              {processingSubscription ? 'Processing...' : 'Subscribe'}
-            </button>
-          )}
+        </div>
+        <div className="relative px-4 py-3 bg-slate-50/50 border-t border-slate-100/50">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <CalendarClock className="h-3.5 w-3.5" />
+            <span>Billed on the <span className="font-medium text-slate-700">1st of each month</span>. Services will be paused if payment is not received.</span>
+          </div>
         </div>
       </div>
 
       {/* Unpaid Work Orders - Payment Card */}
       {unpaidTotal > 0 && (
-        <div className="mb-6 bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-500 rounded-2xl shadow-lg shadow-emerald-500/20 p-5 text-white">
+        <div className="mb-6 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 rounded-2xl shadow-lg shadow-slate-500/20 p-5 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
@@ -1050,7 +1078,7 @@ function DeveloperBillingContent() {
               <button
                 onClick={handlePayAll}
                 disabled={processingPayAll}
-                className="mt-2 px-5 py-2 rounded-xl bg-white text-emerald-600 text-sm font-semibold hover:bg-white/90 disabled:opacity-50 transition-colors"
+                className="mt-2 px-5 py-2 rounded-xl bg-white text-slate-700 text-sm font-semibold hover:bg-white/90 disabled:opacity-50 transition-colors"
               >
                 {processingPayAll ? 'Processing...' : 'Pay Now'}
               </button>

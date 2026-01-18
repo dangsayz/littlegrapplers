@@ -35,27 +35,27 @@ const ITEMS_PER_PAGE = 10;
 const STATUS_CONFIG = {
   pending: { 
     label: 'Pending Review', 
-    color: 'bg-amber-100 text-amber-800 border-amber-200',
+    color: 'bg-orange-50 text-orange-600 border-orange-100',
     icon: Clock,
   },
   approved: { 
     label: 'Awaiting Payment', 
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
+    color: 'bg-sky-50 text-sky-600 border-sky-100',
     icon: Clock,
   },
   active: { 
     label: 'Active', 
-    color: 'bg-green-100 text-green-800 border-green-200',
+    color: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     icon: CheckCircle,
   },
   rejected: { 
     label: 'Rejected', 
-    color: 'bg-red-100 text-red-800 border-red-200',
+    color: 'bg-rose-50 text-rose-600 border-rose-100',
     icon: XCircle,
   },
   cancelled: { 
     label: 'Cancelled', 
-    color: 'bg-slate-100 text-slate-800 border-slate-200',
+    color: 'bg-slate-50 text-slate-500 border-slate-100',
     icon: XCircle,
   },
 };
@@ -187,60 +187,54 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
         ]}
       />
 
-      {/* Page Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/10 via-transparent to-[#F7931E]/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#2EC4B6]/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-[#F7931E]/20 to-transparent rounded-full blur-3xl" />
-        
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] shadow-sm">
-              <UserPlus className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-display font-bold text-white">
-                Enrollments
-              </h1>
-              <p className="text-slate-400 mt-1">
-                Review and approve new enrollment applications
-              </p>
-            </div>
+      {/* Page Header - Apple Clean Style */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 ring-1 ring-slate-200/50">
+            <UserPlus className="h-6 w-6 text-slate-600" />
           </div>
-          <div className="flex items-center gap-3">
-            {(pendingCount || 0) > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30">
-                <Clock className="h-4 w-4 text-amber-400" />
-                <span className="text-amber-300 font-medium">{pendingCount} pending</span>
-              </div>
-            )}
-            <CreateEnrollmentDialog locations={locations || []} />
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+              Enrollments
+            </h1>
+            <p className="text-slate-500 text-sm">
+              Review and approve new enrollment applications
+            </p>
           </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {(pendingCount || 0) > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100">
+              <Clock className="h-3.5 w-3.5 text-orange-500" />
+              <span className="text-orange-600 text-sm font-medium">{pendingCount} pending</span>
+            </div>
+          )}
+          <CreateEnrollmentDialog locations={locations || []} />
         </div>
       </div>
 
       {/* How It Works - Quick Guide */}
-      <Card className="border border-[#2EC4B6]/20 bg-gradient-to-r from-[#2EC4B6]/5 to-transparent">
-        <CardContent className="py-5">
+      <Card className="border border-slate-200/60 bg-slate-50/50">
+        <CardContent className="py-4">
           <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2EC4B6]/10 flex-shrink-0">
-              <Lightbulb className="h-4 w-4 text-[#2EC4B6]" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200/60 flex-shrink-0">
+              <Lightbulb className="h-3.5 w-3.5 text-slate-500" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-slate-800 mb-2">How Enrollments Work</h3>
+              <h3 className="font-medium text-slate-700 mb-2 text-sm">How Enrollments Work</h3>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 text-xs font-bold">1</div>
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-slate-600 text-xs font-medium">1</div>
                   <span className="text-slate-600">Parent submits waiver form</span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-300 hidden sm:block" />
+                <ArrowRight className="h-3.5 w-3.5 text-slate-300 hidden sm:block" />
                 <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">2</div>
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-slate-600 text-xs font-medium">2</div>
                   <span className="text-slate-600">You review and <strong>Approve</strong> or <strong>Reject</strong></span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-300 hidden sm:block" />
+                <ArrowRight className="h-3.5 w-3.5 text-slate-300 hidden sm:block" />
                 <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">3</div>
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-slate-600 text-xs font-medium">3</div>
                   <span className="text-slate-600">Student record is auto-created</span>
                 </div>
               </div>
@@ -249,59 +243,35 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
         </CardContent>
       </Card>
 
-      {/* Stats Cards - Clickable to filter */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link href="/dashboard/admin/enrollments?status=pending">
-          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'pending' ? 'ring-2 ring-amber-500 border-amber-300' : 'border-white/60'}`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="pt-6 relative">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-600" />
-                <span className="text-sm text-slate-500">Pending</span>
-              </div>
-              <div className="text-3xl font-bold text-amber-700 mt-1">{pendingCount || 0}</div>
-              <p className="text-xs text-amber-600/70 mt-1">Needs your review</p>
-            </CardContent>
-          </Card>
+      {/* Stats Row - Unified Container */}
+      <div className="flex items-stretch bg-white rounded-2xl border border-slate-200/60 divide-x divide-slate-100">
+        <Link href="/dashboard/admin/enrollments?status=pending" className={`flex-1 px-5 py-4 hover:bg-slate-50/50 transition-colors first:rounded-l-2xl ${statusFilter === 'pending' ? 'bg-slate-50' : ''}`}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Clock className="h-3.5 w-3.5 text-orange-400" />
+            <span className="text-xs text-slate-500">Pending</span>
+          </div>
+          <div className="text-2xl font-semibold text-slate-900">{pendingCount || 0}</div>
         </Link>
-        <Link href="/dashboard/admin/enrollments?status=approved">
-          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-violet-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'approved' ? 'ring-2 ring-blue-500 border-blue-300' : 'border-white/60'}`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="pt-6 relative">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
-                <span className="text-sm text-slate-500">Approved</span>
-              </div>
-              <div className="text-3xl font-bold text-blue-700 mt-1">{approvedCount || 0}</div>
-              <p className="text-xs text-blue-600/70 mt-1">Ready for payment</p>
-            </CardContent>
-          </Card>
+        <Link href="/dashboard/admin/enrollments?status=approved" className={`flex-1 px-5 py-4 hover:bg-slate-50/50 transition-colors ${statusFilter === 'approved' ? 'bg-slate-50' : ''}`}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <CheckCircle className="h-3.5 w-3.5 text-sky-400" />
+            <span className="text-xs text-slate-500">Approved</span>
+          </div>
+          <div className="text-2xl font-semibold text-slate-900">{approvedCount || 0}</div>
         </Link>
-        <Link href="/dashboard/admin/enrollments?status=active">
-          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'active' ? 'ring-2 ring-green-500 border-green-300' : 'border-white/60'}`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="pt-6 relative">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-slate-500">Active</span>
-              </div>
-              <div className="text-3xl font-bold text-green-700 mt-1">{activeCount || 0}</div>
-              <p className="text-xs text-green-600/70 mt-1">Currently enrolled</p>
-            </CardContent>
-          </Card>
+        <Link href="/dashboard/admin/enrollments?status=active" className={`flex-1 px-5 py-4 hover:bg-slate-50/50 transition-colors ${statusFilter === 'active' ? 'bg-slate-50' : ''}`}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-xs text-slate-500">Active</span>
+          </div>
+          <div className="text-2xl font-semibold text-slate-900">{activeCount || 0}</div>
         </Link>
-        <Link href="/dashboard/admin/enrollments">
-          <Card className={`relative overflow-hidden border shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm group cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${statusFilter === 'all' ? 'ring-2 ring-slate-400 border-slate-300' : 'border-white/60'}`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="pt-6 relative">
-              <div className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-slate-600" />
-                <span className="text-sm text-slate-500">Total</span>
-              </div>
-              <div className="text-3xl font-bold text-slate-700 mt-1">{totalEnrollments || 0}</div>
-              <p className="text-xs text-slate-500/70 mt-1">All time</p>
-            </CardContent>
-          </Card>
+        <Link href="/dashboard/admin/enrollments" className={`flex-1 px-5 py-4 hover:bg-slate-50/50 transition-colors last:rounded-r-2xl ${statusFilter === 'all' ? 'bg-slate-50' : ''}`}>
+          <div className="flex items-center gap-1.5 mb-1">
+            <UserPlus className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-xs text-slate-500">Total</span>
+          </div>
+          <div className="text-2xl font-semibold text-slate-900">{totalEnrollments || 0}</div>
         </Link>
       </div>
 
@@ -349,16 +319,16 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
                 href={`/dashboard/admin/enrollments/${enrollment.id}`}
                 className="block"
               >
-                <div className={`p-4 rounded-xl border bg-white transition-all hover:shadow-md hover:border-slate-300 ${enrollment.status === 'pending' ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200'}`}>
+                <div className={`p-4 rounded-xl border bg-white transition-all hover:bg-slate-50/50 ${enrollment.status === 'pending' ? 'border-slate-200' : 'border-slate-200/60'}`}>
                   <div className="flex items-center justify-between gap-4">
                     {/* Left: Primary info */}
                     <div className="flex items-center gap-4 min-w-0">
                       {/* Status indicator */}
-                      <div className={`flex-shrink-0 w-2 h-10 rounded-full ${
-                        enrollment.status === 'pending' ? 'bg-amber-400' :
-                        enrollment.status === 'active' ? 'bg-green-500' :
-                        enrollment.status === 'approved' ? 'bg-blue-500' :
-                        'bg-slate-300'
+                      <div className={`flex-shrink-0 w-1 h-10 rounded-full ${
+                        enrollment.status === 'pending' ? 'bg-orange-300' :
+                        enrollment.status === 'active' ? 'bg-emerald-400' :
+                        enrollment.status === 'approved' ? 'bg-sky-400' :
+                        'bg-slate-200'
                       }`} />
                       
                       {/* Child name - Primary */}

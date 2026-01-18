@@ -85,9 +85,30 @@ export default function AdminSignupsPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'needs-access' | 'no-payment'>('all');
+  const [filter, setFilter] = useState<'all' | 'needs-access' | 'no-payment' | 'needs-attention'>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [selectedSignup, setSelectedSignup] = useState<Signup | null>(null);
+  const [showHint, setShowHint] = useState(true);
+
+  // Check if hint was previously dismissed
+  useEffect(() => {
+    const dismissed = localStorage.getItem('signups-hint-dismissed');
+    if (dismissed === 'true') setShowHint(false);
+  }, []);
+
+  const dismissHint = () => {
+    setShowHint(false);
+    localStorage.setItem('signups-hint-dismissed', 'true');
+  };
+
+  // Keyboard listener for Esc to dismiss hint
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showHint) dismissHint();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showHint]);
   const [grantingAccess, setGrantingAccess] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<string>('');
 
@@ -191,6 +212,9 @@ export default function AdminSignupsPage() {
       filtered = filtered.filter(s => !s.hasLocationAccess);
     } else if (filter === 'no-payment') {
       filtered = filtered.filter(s => !s.hasPaid);
+    } else if (filter === 'needs-attention') {
+      // Needs attention = no location access OR no location assigned
+      filtered = filtered.filter(s => !s.hasLocationAccess || !s.locationId);
     }
 
     if (locationFilter !== 'all') {
@@ -259,53 +283,68 @@ export default function AdminSignupsPage() {
         </div>
       </div>
 
+      {/* Stats Row - Unified Clickable Container */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card className="border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 to-gray-50/40 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-slate-600" />
-                <span className="text-sm text-slate-500">Total Signups</span>
-              </div>
-              <div className="text-3xl font-bold text-slate-700 mt-1">{summary.total}</div>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/60 shadow-sm bg-gradient-to-br from-blue-50/80 to-indigo-50/40 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <UserCheck className="h-4 w-4 text-blue-600" />
-                <span className="text-sm text-slate-500">With Account</span>
-              </div>
-              <div className="text-3xl font-bold text-blue-700 mt-1">{summary.withAccount}</div>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/60 shadow-sm bg-gradient-to-br from-teal-50/80 to-cyan-50/40 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-teal-600" />
-                <span className="text-sm text-slate-500">Location Access</span>
-              </div>
-              <div className="text-3xl font-bold text-teal-700 mt-1">{summary.withLocationAccess}</div>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/60 shadow-sm bg-gradient-to-br from-green-50/80 to-emerald-50/40 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-slate-500">Paid</span>
-              </div>
-              <div className="text-3xl font-bold text-green-700 mt-1">{summary.withPayment}</div>
-            </CardContent>
-          </Card>
-          <Card className="border border-white/60 shadow-sm bg-gradient-to-br from-orange-50/80 to-amber-50/40 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-                <span className="text-sm text-slate-500">Needs Attention</span>
-              </div>
-              <div className="text-3xl font-bold text-orange-700 mt-1">{summary.needsAttention}</div>
-            </CardContent>
-          </Card>
+        <div className="flex items-stretch bg-white rounded-2xl border border-slate-200/60 divide-x divide-slate-100">
+          <button 
+            onClick={() => setFilter('all')}
+            className={`flex-1 px-5 py-4 text-left hover:bg-slate-50/50 transition-colors first:rounded-l-2xl ${filter === 'all' ? 'bg-slate-50' : ''}`}
+          >
+            <div className="flex items-center gap-1.5 mb-1">
+              <Users className="h-3.5 w-3.5 text-slate-400" />
+              <span className="text-xs text-slate-500">Total</span>
+            </div>
+            <div className="text-2xl font-semibold text-slate-900">{summary.total}</div>
+          </button>
+          <button 
+            onClick={() => setFilter('needs-access')}
+            className={`flex-1 px-5 py-4 text-left hover:bg-slate-50/50 transition-colors ${filter === 'needs-access' ? 'bg-slate-50' : ''}`}
+          >
+            <div className="flex items-center gap-1.5 mb-1">
+              <MapPin className="h-3.5 w-3.5 text-orange-400" />
+              <span className="text-xs text-slate-500">No Location</span>
+            </div>
+            <div className="text-2xl font-semibold text-slate-900">{summary.total - summary.withLocationAccess}</div>
+          </button>
+          <button 
+            onClick={() => setFilter('no-payment')}
+            className={`flex-1 px-5 py-4 text-left hover:bg-slate-50/50 transition-colors ${filter === 'no-payment' ? 'bg-slate-50' : ''}`}
+          >
+            <div className="flex items-center gap-1.5 mb-1">
+              <CreditCard className="h-3.5 w-3.5 text-orange-400" />
+              <span className="text-xs text-slate-500">Unpaid</span>
+            </div>
+            <div className="text-2xl font-semibold text-slate-900">{summary.total - summary.withPayment}</div>
+          </button>
+          <button 
+            onClick={() => setFilter('needs-attention')}
+            className={`flex-1 px-5 py-4 text-left hover:bg-orange-50/50 transition-colors last:rounded-r-2xl ${filter === 'needs-attention' ? 'bg-orange-50' : ''}`}
+          >
+            <div className="flex items-center gap-1.5 mb-1">
+              <AlertCircle className="h-3.5 w-3.5 text-orange-500" />
+              <span className="text-xs text-orange-600 font-medium">Needs Attention</span>
+            </div>
+            <div className="text-2xl font-semibold text-orange-600">{summary.needsAttention}</div>
+          </button>
+        </div>
+      )}
+
+      {/* Dismissible Hint */}
+      {showHint && summary && summary.needsAttention > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-sky-50 border border-sky-100 rounded-xl text-sm">
+          <div className="h-8 w-8 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0">
+            <MapPin className="h-4 w-4 text-sky-600" />
+          </div>
+          <p className="text-slate-600 flex-1">
+            <span className="font-medium text-slate-700">Tip:</span> Click on any row to assign a location and grant community access.
+          </p>
+          <button 
+            onClick={dismissHint}
+            className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+            aria-label="Dismiss hint"
+          >
+            <XCircle className="h-4 w-4" />
+          </button>
         </div>
       )}
 
@@ -322,6 +361,7 @@ export default function AdminSignupsPage() {
                   <SelectItem value="all">All Signups</SelectItem>
                   <SelectItem value="needs-access">Needs Location Access</SelectItem>
                   <SelectItem value="no-payment">No Payment</SelectItem>
+                  <SelectItem value="needs-attention">Needs Attention</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -408,21 +448,14 @@ export default function AdminSignupsPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm text-slate-600">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(signup.signedAt)}
-                        </div>
+                      <TableCell className="whitespace-nowrap">
+                        <span className="text-sm text-slate-500">{formatDate(signup.signedAt)}</span>
                       </TableCell>
                       <TableCell>
                         {signup.locationName ? (
-                          <Badge variant="secondary" className="bg-teal-100 text-teal-800">
-                            {signup.locationName}
-                          </Badge>
+                          <span className="text-sm text-slate-600">{signup.locationName}</span>
                         ) : (
-                          <Badge variant="outline" className="text-orange-600 border-orange-300">
-                            Not assigned
-                          </Badge>
+                          <span className="text-sm text-orange-500">—</span>
                         )}
                       </TableCell>
                       <TableCell>

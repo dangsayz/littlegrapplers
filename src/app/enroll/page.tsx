@@ -1,5 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { EnrollmentWizard } from './enrollment-wizard';
+import Link from 'next/link';
+import { ChevronRight, Home } from 'lucide-react';
 
 interface Location {
   id: string;
@@ -24,6 +26,16 @@ export default async function EnrollPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
       <div className="mx-auto max-w-2xl px-4 py-12">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8">
+          <Link href="/" className="flex items-center gap-1 hover:text-slate-700 transition-colors">
+            <Home className="h-3.5 w-3.5" />
+            <span>Home</span>
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+          <span className="text-slate-700 font-medium">Enroll</span>
+        </nav>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-display font-bold text-foreground">
             Enroll Your Child

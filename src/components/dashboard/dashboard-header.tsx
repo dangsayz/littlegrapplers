@@ -18,9 +18,9 @@ interface DashboardHeaderProps {
 }
 
 const LOCATIONS = [
-  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX', icon: Church, color: 'bg-violet-500' },
-  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX', icon: Building2, color: 'bg-blue-500' },
-  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX', icon: GraduationCap, color: 'bg-emerald-500' },
+  { id: 'lionheart-central', name: 'Lionheart Central Church', slug: 'lionheart-central-church', address: '2301 Premier Dr, Plano, TX', icon: Church, color: 'bg-slate-400' },
+  { id: 'lionheart-plano', name: 'Lionheart First Baptist Plano', slug: 'lionheart-first-baptist-plano', address: '3665 W President George Bush Hwy, Plano, TX', icon: Building2, color: 'bg-slate-500' },
+  { id: 'pinnacle', name: 'Pinnacle at Montessori of St. Paul', slug: 'pinnacle-montessori', address: '2931 Parker Rd, Wylie, TX', icon: GraduationCap, color: 'bg-slate-400' },
 ] as const;
 
 const mobileNavItems: Array<{ label: string; href: Route }> = [
@@ -152,9 +152,8 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                 onClick={() => setLocationsOpen(!locationsOpen)}
                 className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                <div className="relative flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#2EC4B6] to-[#8FE3CF] shadow-sm group-hover:shadow-md transition-shadow">
-                  <MapPin className="h-3.5 w-3.5 text-white" />
-                  <span className="absolute inset-0 rounded-md bg-white/20 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 ring-1 ring-slate-200/50">
+                  <MapPin className="h-3.5 w-3.5 text-slate-500" />
                 </div>
                 <span className="hidden sm:inline">Locations</span>
                 <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-200', locationsOpen && 'rotate-180')} />
@@ -178,8 +177,8 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                       onClick={() => setLocationsOpen(false)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-400 to-teal-600">
-                        <LayoutDashboard className="h-4 w-4 text-white" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 ring-1 ring-slate-200/50">
+                        <LayoutDashboard className="h-4 w-4 text-slate-600" />
                       </div>
                       <span>My Family</span>
                     </Link>
@@ -189,8 +188,8 @@ export function DashboardHeader({ firstName, lastName }: DashboardHeaderProps) {
                         onClick={() => setLocationsOpen(false)}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500">
-                          <Shield className="h-4 w-4 text-white" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 ring-1 ring-slate-200/50">
+                          <Shield className="h-4 w-4 text-slate-600" />
                         </div>
                         <span>Admin Panel</span>
                       </Link>

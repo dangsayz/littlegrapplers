@@ -117,7 +117,7 @@ export function CreateEnrollmentDialog({ locations }: CreateEnrollmentDialogProp
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) resetForm(); }}>
       <DialogTrigger asChild>
-        <Button className="gap-2 bg-[#2EC4B6] hover:bg-[#2EC4B6]/90">
+        <Button className="gap-2 bg-slate-900 hover:bg-slate-800">
           <Plus className="h-4 w-4" />
           Create Enrollment
         </Button>
@@ -184,7 +184,7 @@ export function CreateEnrollmentDialog({ locations }: CreateEnrollmentDialogProp
             {selectedStudent && (
               <div className="bg-slate-50 rounded-lg p-3 border">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#2EC4B6]" />
+                  <User className="h-4 w-4 text-slate-600" />
                   <span className="font-medium">{selectedStudent.name}</span>
                 </div>
                 <p className="text-sm text-slate-600 ml-6">
@@ -229,7 +229,7 @@ export function CreateEnrollmentDialog({ locations }: CreateEnrollmentDialogProp
               <Button 
                 onClick={handleCreate}
                 disabled={!selectedStudent || !selectedLocation || creating}
-                className="bg-[#2EC4B6] hover:bg-[#2EC4B6]/90"
+                className="bg-slate-900 hover:bg-slate-800"
               >
                 {creating ? (
                   <>

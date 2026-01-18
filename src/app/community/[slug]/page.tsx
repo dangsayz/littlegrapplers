@@ -1811,16 +1811,30 @@ export default function CommunityPage() {
             
             {/* Location Card */}
             {location && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-[#2EC4B6]/10 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-[#2EC4B6]" />
+              <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/20 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
+                {/* Floating glass elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <motion.div
+                    className="absolute -top-4 right-2 w-14 h-14 rounded-full bg-gradient-to-bl from-emerald-200/25 to-transparent blur-xl"
+                    animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <motion.div
+                    className="absolute bottom-2 -left-2 w-8 h-8 rounded-full bg-gradient-to-tr from-slate-200/30 to-transparent blur-lg"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  />
+                </div>
+                
+                <div className="relative flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
+                    <MapPin className="h-5 w-5 text-slate-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Location</p>
-                    <p className="text-sm font-semibold text-gray-900">{location.name}</p>
+                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Location</p>
+                    <p className="text-sm font-semibold text-slate-800">{location.name}</p>
                     {location.address && (
-                      <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                      <p className="text-[11px] text-slate-400 mt-0.5 truncate">
                         {location.address}{location.city ? `, ${location.city}` : ''}{location.state ? `, ${location.state}` : ''}
                       </p>
                     )}
@@ -1830,35 +1844,49 @@ export default function CommunityPage() {
             )}
 
             {/* Stats */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-4">
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Community Stats</p>
-              <div className="space-y-3">
+            <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/20 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
+              {/* Floating glass elements */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <motion.div
+                  className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-br from-indigo-200/20 to-transparent blur-xl"
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <motion.div
+                  className="absolute bottom-4 right-0 w-10 h-10 rounded-full bg-gradient-to-tl from-sky-200/20 to-transparent blur-lg"
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                />
+              </div>
+              
+              <p className="relative text-xs text-slate-400 uppercase tracking-wide font-medium mb-3">Community Stats</p>
+              <div className="relative space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-[#2EC4B6]/10 flex items-center justify-center">
-                      <Users className="h-4 w-4 text-[#2EC4B6]" />
+                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
+                      <Users className="h-4 w-4 text-slate-500" />
                     </div>
-                    <span className="text-sm text-gray-600">Members</span>
+                    <span className="text-sm text-slate-600">Members</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{members.length}</span>
+                  <span className="text-sm font-semibold text-slate-800">{members.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                      <MessageCircle className="h-4 w-4 text-blue-500" />
+                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
+                      <MessageCircle className="h-4 w-4 text-slate-500" />
                     </div>
-                    <span className="text-sm text-gray-600">Discussions</span>
+                    <span className="text-sm text-slate-600">Discussions</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{threads.length}</span>
+                  <span className="text-sm font-semibold text-slate-800">{threads.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                      <Play className="h-4 w-4 text-purple-500" />
+                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
+                      <Play className="h-4 w-4 text-slate-500" />
                     </div>
-                    <span className="text-sm text-gray-600">Media</span>
+                    <span className="text-sm text-slate-600">Media</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{media.length}</span>
+                  <span className="text-sm font-semibold text-slate-800">{media.length}</span>
                 </div>
               </div>
             </div>
@@ -1870,9 +1898,28 @@ export default function CommunityPage() {
               const paginatedMembers = members.slice(startIdx, startIdx + MEMBERS_PER_PAGE);
               
               return (
-                <div className="bg-white rounded-2xl border border-gray-100 p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Members ({members.length})</p>
+                <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-sky-50/30 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
+                  {/* Floating glass elements */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-slate-200/30 to-transparent blur-xl"
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                    <motion.div
+                      className="absolute bottom-8 -left-4 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-200/25 to-transparent blur-lg"
+                      animate={{ y: [0, -8, 0], opacity: [0.2, 0.4, 0.2] }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    />
+                    <motion.div
+                      className="absolute top-1/2 right-2 w-2 h-2 rounded-full bg-slate-300/40"
+                      animate={{ y: [0, -6, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                  
+                  <div className="relative flex items-center justify-between mb-3">
+                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Members ({members.length})</p>
                     {totalPages > 1 && (
                       <div className="flex items-center gap-1">
                         <button
@@ -1895,20 +1942,20 @@ export default function CommunityPage() {
                       </div>
                     )}
                   </div>
-                  <div className="space-y-2">
+                  <div className="relative space-y-2.5">
                     {paginatedMembers.map((member) => {
                       const memberSince = member.joinedAt 
                         ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                         : null;
                       return (
-                        <div key={member.id} className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-medium text-gray-600">{member.initials}</span>
+                        <div key={member.id} className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <span className="text-xs font-semibold text-slate-600">{member.initials}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-gray-900 truncate">{member.name}</p>
+                            <p className="text-sm font-medium text-slate-800 truncate">{member.name}</p>
                             {memberSince && (
-                              <p className="text-[10px] text-gray-400">Since {memberSince}</p>
+                              <p className="text-[10px] text-slate-400">Since {memberSince}</p>
                             )}
                           </div>
                         </div>
@@ -2303,8 +2350,11 @@ export default function CommunityPage() {
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            onClick={() => setPreviewMedia(null)}
-            className="fixed top-6 right-6 z-10 h-10 w-10 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 hover:bg-gray-100 flex items-center justify-center transition-colors shadow-lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewMedia(null);
+            }}
+            className="fixed top-6 right-6 z-[60] h-10 w-10 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 hover:bg-gray-100 flex items-center justify-center transition-colors shadow-lg cursor-pointer"
           >
             <X className="h-5 w-5 text-gray-600" />
           </motion.button>

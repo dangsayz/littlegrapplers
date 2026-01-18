@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { Plus, Users, ArrowRight, User } from 'lucide-react';
+import { Plus, Users, ArrowRight, User, Sparkles, ChevronRight } from 'lucide-react';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabaseAdmin } from '@/lib/supabase';
 import { LocationTeaser } from '@/components/dashboard';
 import { StudentLocationLink } from '@/components/dashboard/student-location-link';
+import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
 interface StudentDisplay {
@@ -210,110 +211,108 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      {/* Welcome Header - Apple Glass Style */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-emerald-500/10" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-400/20 to-transparent rounded-full blur-3xl" />
-        
-        <div className="relative text-center">
-          <h1 className="text-3xl font-display font-bold text-white">
-            Hi, {firstName}
-          </h1>
-          <p className="text-slate-400 mt-2">
-            {hasStudents 
-              ? `You have ${students.length} student${students.length > 1 ? 's' : ''} enrolled`
-              : 'Get started by adding your first student'
-            }
-          </p>
-        </div>
+    <div className="max-w-4xl mx-auto">
+      {/* Welcome Header - Clean & Bold */}
+      <div className="pt-4 pb-6">
+        <h1 className="text-3xl font-display font-semibold text-slate-900 tracking-tight">
+          Hi, {firstName}
+        </h1>
+        <p className="text-slate-500 mt-1">
+          {hasStudents 
+            ? `You have ${students.length} student${students.length > 1 ? 's' : ''} enrolled`
+            : 'Get started by enrolling your child'
+          }
+        </p>
       </div>
 
-      {/* Students List - Glass Cards */}
-      <div className="space-y-3">
-        {hasStudents ? (
-          <>
-            {students.map((student, index) => {
-              const colors = [
-                { gradient: 'from-teal-400 to-emerald-500', bg: 'from-teal-50/80 via-emerald-50/60 to-green-50/40', text: 'text-teal-700' },
-                { gradient: 'from-sky-400 to-blue-500', bg: 'from-sky-50/80 via-blue-50/60 to-indigo-50/40', text: 'text-sky-700' },
-                { gradient: 'from-violet-400 to-purple-500', bg: 'from-violet-50/80 via-purple-50/60 to-fuchsia-50/40', text: 'text-violet-700' },
-                { gradient: 'from-amber-400 to-orange-500', bg: 'from-amber-50/80 via-orange-50/60 to-yellow-50/40', text: 'text-amber-700' },
-              ];
-              const theme = colors[index % colors.length];
-              
-              return (
-                <Link key={student.id} href={`/dashboard/students/${student.id}`}>
-                  <Card className={`relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br ${theme.bg} backdrop-blur-sm hover:shadow-md transition-all cursor-pointer`}>
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-                    <CardContent className="p-4 relative">
-                      <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center shadow-sm`}>
-                          <User className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className={`font-semibold text-lg ${theme.text}`}>
-                            {student.firstName} {student.lastName}
-                          </h3>
-                          <p className="text-sm text-slate-500 capitalize">
-                            {student.beltRank.replace('_', ' ')} Belt
-                            {student.stripes > 0 && ` · ${student.stripes} stripe${student.stripes > 1 ? 's' : ''}`}
-                          </p>
-                          {student.locationName && student.locationSlug && (
-                            <StudentLocationLink
-                              locationName={student.locationName}
-                              locationSlug={student.locationSlug}
-                              locationPin={student.locationPin}
-                            />
-                          )}
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-slate-400" />
-                      </div>
-                    </CardContent>
-                  </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content - Left Side */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Your Students */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Your Students</h2>
+              {hasStudents && (
+                <Link href="/enroll" className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1">
+                  <Plus className="h-3 w-3" /> Add
                 </Link>
-              );
-            })}
-          </>
-        ) : (
-          <Card className="relative overflow-hidden border border-white/60 shadow-sm bg-gradient-to-br from-slate-50/80 via-gray-50/60 to-zinc-50/40 backdrop-blur-sm">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="p-8 text-center relative">
-              <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-200 to-gray-300 flex items-center justify-center mb-4 shadow-sm">
-                <Users className="h-8 w-8 text-slate-500" />
+              )}
+            </div>
+            
+            {hasStudents ? (
+              <div className="space-y-2">
+                {students.map((student) => (
+                  <Link key={student.id} href={`/dashboard/students/${student.id}`}>
+                    <Card className="border border-slate-200/60 bg-white hover:bg-slate-50/50 transition-colors cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 ring-1 ring-slate-200/50 flex items-center justify-center">
+                            <User className="h-5 w-5 text-slate-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-base text-slate-900">
+                              {student.firstName} {student.lastName}
+                            </h3>
+                            <p className="text-sm text-slate-500 capitalize">
+                              {student.beltRank.replace('_', ' ')} Belt
+                              {student.stripes > 0 && ` · ${student.stripes} stripe${student.stripes > 1 ? 's' : ''}`}
+                            </p>
+                            {student.locationName && student.locationSlug && (
+                              <StudentLocationLink
+                                locationName={student.locationName}
+                                locationSlug={student.locationSlug}
+                                locationPin={student.locationPin}
+                              />
+                            )}
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-slate-300" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
               </div>
-              <h3 className="font-semibold text-lg mb-2 text-slate-700">No students yet</h3>
-              <p className="text-slate-500 mb-6">
-                Add your child to get started with classes
-              </p>
-              <Button size="lg" className="bg-gradient-to-r from-teal-400 to-emerald-500 text-white border-0 shadow-sm" asChild>
-                <Link href="/dashboard/students/new">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Your First Student
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            ) : (
+              <Card className="relative overflow-hidden border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/50 rounded-2xl">
+                <CardContent className="p-8 text-center">
+                  <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <Users className="h-7 w-7 text-slate-400" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2 text-slate-900">No students yet</h3>
+                  <p className="text-slate-500 mb-6 text-sm max-w-xs mx-auto">
+                    Enroll your child to join classes and access the community
+                  </p>
+                  <Button className="bg-slate-900 hover:bg-slate-800 text-white" asChild>
+                    <Link href="/enroll">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Enroll Your Child
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-      {/* Add Another Button */}
-      {hasStudents && (
-        <div className="text-center">
-          <Button variant="outline" className="border-slate-200 hover:bg-white/50" asChild>
-            <Link href="/enroll">
-              <Plus className="h-4 w-4 mr-2" />
-              Enroll Another Child
-            </Link>
-          </Button>
+          {/* Community Locations */}
+          {pinnedLocations.length > 0 && (
+            <LocationTeaser locations={pinnedLocations} isAdmin={isAdmin} />
+          )}
         </div>
-      )}
 
-      {/* Locations Teaser */}
-      {pinnedLocations.length > 0 && (
-        <LocationTeaser locations={pinnedLocations} isAdmin={isAdmin} />
-      )}
+        {/* Sidebar - Activity Feed */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Recent Activity</h2>
+            </div>
+            <Card className="border border-slate-200/60 bg-white/80 backdrop-blur-sm">
+              <CardContent className="p-2">
+                <ActivityFeed />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

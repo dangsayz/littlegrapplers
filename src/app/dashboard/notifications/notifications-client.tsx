@@ -13,6 +13,11 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
+  DollarSign,
+  CreditCard,
+  RefreshCw,
+  FileCheck,
+  Ban,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,6 +51,16 @@ interface Notification {
   created_at: string;
 }
 
+interface ActivityItem {
+  id: string;
+  type: 'payment' | 'refund' | 'enrollment' | 'signup' | 'subscription' | 'cancellation';
+  title: string;
+  description: string;
+  amount?: number;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+}
+
 function getTimeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -62,6 +77,7 @@ export function NotificationsClient() {
   const [activeTab, setActiveTab] = useState('requests');
   const [requests, setRequests] = useState<MembershipRequest[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -84,6 +100,13 @@ export function NotificationsClient() {
       if (notifRes.ok) {
         const notifData = await notifRes.json();
         setNotifications(notifData.notifications || []);
+      }
+
+      // Fetch activity feed
+      const activityRes = await fetch('/api/admin/activity');
+      if (activityRes.ok) {
+        const activityData = await activityRes.json();
+        setActivities(activityData.activities || []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -245,68 +268,77 @@ export function NotificationsClient() {
 
       <TabsContent value="activity">
         <div className="flex justify-between items-center mb-4">
-          <p className="text-sm text-muted-foreground">
-            {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+          <p className="text-sm text-slate-500">
+            Recent activity across your platform
           </p>
-          {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllRead}>
-              Mark all as read
-            </Button>
-          )}
+          <Button variant="ghost" size="sm" onClick={fetchData} className="gap-2">
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
+          </Button>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        ) : notifications.length === 0 ? (
-          <Card>
+        ) : activities.length === 0 ? (
+          <Card className="border-slate-200/60">
             <CardContent className="py-12 text-center">
-              <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">No notifications yet</h3>
-              <p className="text-muted-foreground">Activity will appear here</p>
+              <Bell className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <h3 className="font-semibold text-slate-700 mb-2">No activity yet</h3>
+              <p className="text-slate-500">Payments, signups, and events will appear here</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-2">
-            {notifications.map((notification) => (
-              <Card 
-                key={notification.id} 
-                className={notification.is_read ? 'opacity-60' : ''}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      notification.type === 'membership_request' 
-                        ? 'bg-blue-100' 
-                        : notification.type === 'new_thread'
-                        ? 'bg-green-100'
-                        : 'bg-gray-100'
-                    }`}>
-                      {notification.type === 'membership_request' ? (
-                        <UserPlus className="h-5 w-5 text-blue-600" />
-                      ) : notification.type === 'new_thread' ? (
-                        <MessageSquare className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <Bell className="h-5 w-5 text-gray-600" />
+            {activities.map((activity) => {
+              const getActivityStyle = () => {
+                switch (activity.type) {
+                  case 'payment':
+                    return { bg: 'bg-emerald-50', icon: DollarSign, iconColor: 'text-emerald-600' };
+                  case 'refund':
+                    return { bg: 'bg-orange-50', icon: RefreshCw, iconColor: 'text-orange-600' };
+                  case 'enrollment':
+                    return { bg: 'bg-sky-50', icon: UserPlus, iconColor: 'text-sky-600' };
+                  case 'signup':
+                    return { bg: 'bg-slate-100', icon: FileCheck, iconColor: 'text-slate-600' };
+                  case 'subscription':
+                    return { bg: 'bg-indigo-50', icon: CreditCard, iconColor: 'text-indigo-600' };
+                  case 'cancellation':
+                    return { bg: 'bg-red-50', icon: Ban, iconColor: 'text-red-500' };
+                  default:
+                    return { bg: 'bg-slate-100', icon: Bell, iconColor: 'text-slate-600' };
+                }
+              };
+              
+              const style = getActivityStyle();
+              const Icon = style.icon;
+              
+              return (
+                <div 
+                  key={activity.id}
+                  className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200/60"
+                >
+                  <div className={`h-10 w-10 rounded-full ${style.bg} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`h-5 w-5 ${style.iconColor}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-slate-800">{activity.title}</p>
+                      {activity.amount && (
+                        <span className={`text-sm font-semibold ${activity.type === 'refund' ? 'text-orange-600' : 'text-emerald-600'}`}>
+                          {activity.type === 'refund' ? '-' : '+'}${activity.amount.toFixed(2)}
+                        </span>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{notification.title}</p>
-                        {!notification.is_read && (
-                          <div className="h-2 w-2 rounded-full bg-brand" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{notification.message}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {getTimeAgo(notification.created_at)}
-                      </p>
-                    </div>
+                    <p className="text-sm text-slate-500 truncate">{activity.description}</p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="text-xs text-slate-400 whitespace-nowrap">
+                    {getTimeAgo(activity.timestamp)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </TabsContent>

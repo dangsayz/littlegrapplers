@@ -27,14 +27,14 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { RevenueIntelligence, SiteControlToggle } from '@/components/dashboard';
 import { isSuperAdmin } from '@/lib/admin-roles';
 
-// Apple-inspired accent colors
+// Muted Apple-inspired colors
 const accentColors = {
-  blue: { bg: 'bg-blue-500', light: 'bg-blue-50', text: 'text-blue-600' },
-  green: { bg: 'bg-emerald-500', light: 'bg-emerald-50', text: 'text-emerald-600' },
-  orange: { bg: 'bg-orange-500', light: 'bg-orange-50', text: 'text-orange-600' },
-  purple: { bg: 'bg-purple-500', light: 'bg-purple-50', text: 'text-purple-600' },
-  pink: { bg: 'bg-pink-500', light: 'bg-pink-50', text: 'text-pink-600' },
-  indigo: { bg: 'bg-indigo-500', light: 'bg-indigo-50', text: 'text-indigo-600' },
+  blue: { bg: 'bg-slate-500', light: 'bg-slate-100', text: 'text-slate-600' },
+  green: { bg: 'bg-slate-500', light: 'bg-slate-100', text: 'text-slate-600' },
+  orange: { bg: 'bg-slate-400', light: 'bg-slate-100', text: 'text-slate-500' },
+  purple: { bg: 'bg-slate-500', light: 'bg-slate-100', text: 'text-slate-600' },
+  pink: { bg: 'bg-slate-400', light: 'bg-slate-100', text: 'text-slate-500' },
+  indigo: { bg: 'bg-slate-500', light: 'bg-slate-100', text: 'text-slate-600' },
 };
 
 export default async function AdminPage() {
@@ -279,7 +279,7 @@ export default async function AdminPage() {
         href={'/dashboard/admin/developer' as Route}
         className="block mb-8 group"
       >
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-green-500 to-lime-500 p-6 shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all duration-300">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 p-6 shadow-lg shadow-slate-500/20 hover:shadow-xl hover:shadow-slate-500/30 transition-all duration-300">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -297,7 +297,7 @@ export default async function AdminPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-white/80">Invoice</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-white text-green-600 animate-pulse">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-white text-slate-700">
                       <AlertCircle className="h-3 w-3" />
                       Payment Due
                     </span>
@@ -316,7 +316,7 @@ export default async function AdminPage() {
               </div>
               <div className="text-right">
                 <p className="text-white/60 text-xs mb-2">{unpaidCount} completed {unpaidCount === 1 ? 'task' : 'tasks'}</p>
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-green-600 font-semibold text-sm group-hover:bg-white/90 transition-colors">
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-700 font-semibold text-sm group-hover:bg-white/90 transition-colors">
                   View & Pay
                 </span>
               </div>
