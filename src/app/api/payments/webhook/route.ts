@@ -161,8 +161,20 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
     // Create subscription record for tracking (use upsert to prevent duplicates)
     if (session.mode === 'payment') {
+      // Get clerk_user_id from enrollment if not in session metadata
+      let subClerkUserId = clerkUserId;
+      if (!subClerkUserId) {
+        const { data: enrollmentData } = await supabase
+          .from('enrollments')
+          .select('clerk_user_id, guardian_email')
+          .eq('id', enrollmentId)
+          .single();
+        subClerkUserId = enrollmentData?.clerk_user_id || `email_${enrollmentData?.guardian_email || customerEmail}`;
+      }
+      
       await supabase.from('subscriptions').upsert({
         stripe_subscription_id: `one_time_${session.id}`,
+        clerk_user_id: subClerkUserId,
         status: 'active',
         plan_id: 'threeMonth',
         plan_name: '3-Month Paid-In-Full',

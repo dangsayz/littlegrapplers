@@ -82,10 +82,24 @@ export async function POST(
         .eq('enrollment_id', id)
         .single();
 
-      if (!existingSub) {
+      if (!existingSub && enrollment.clerk_user_id) {
         // Create a manual subscription record
         await supabaseAdmin.from('subscriptions').insert({
           stripe_subscription_id: `manual_${id}_${Date.now()}`,
+          clerk_user_id: enrollment.clerk_user_id,
+          status: 'active',
+          plan_id: enrollment.plan_type || 'monthly',
+          plan_name: enrollment.plan_type === '3month' ? '3-Month Paid-In-Full' : 'Monthly Agreement',
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+          location_id: enrollment.location_id || null,
+          enrollment_id: id,
+        });
+      } else if (!existingSub && !enrollment.clerk_user_id) {
+        // For enrollments without clerk_user_id, use guardian email as identifier
+        await supabaseAdmin.from('subscriptions').insert({
+          stripe_subscription_id: `manual_${id}_${Date.now()}`,
+          clerk_user_id: `email_${enrollment.guardian_email}`,
           status: 'active',
           plan_id: enrollment.plan_type || 'monthly',
           plan_name: enrollment.plan_type === '3month' ? '3-Month Paid-In-Full' : 'Monthly Agreement',
