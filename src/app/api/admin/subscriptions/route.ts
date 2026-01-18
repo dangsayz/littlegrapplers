@@ -4,7 +4,7 @@ import { getStripe } from '@/lib/stripe';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// GET: List all subscriptions from Stripe
+// GET: List all subscriptions from Stripe + one-time payments from database
 export async function GET(request: NextRequest) {
   try {
     const user = await currentUser();
@@ -21,13 +21,13 @@ export async function GET(request: NextRequest) {
 
     // Fetch subscriptions from Stripe
     const subscriptionParams: Record<string, unknown> = { limit, expand: ['data.customer'] };
-    if (status !== 'all') {
+    if (status !== 'all' && status !== 'one_time') {
       subscriptionParams.status = status;
     }
 
     const subscriptions = await stripe.subscriptions.list(subscriptionParams);
 
-    // Format subscriptions for frontend
+    // Format Stripe subscriptions for frontend
     const formattedSubscriptions = subscriptions.data.map(sub => {
       const customer = sub.customer as { email?: string; name?: string; id: string };
       const subAny = sub as unknown as Record<string, unknown>;
@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
         customerEmail: customer.email || 'Unknown',
         customerName: customer.name || 'Unknown',
         status: sub.status,
+        planType: 'recurring',
         currentPeriodStart: subAny.current_period_start ? new Date((subAny.current_period_start as number) * 1000).toISOString() : null,
         currentPeriodEnd: subAny.current_period_end ? new Date((subAny.current_period_end as number) * 1000).toISOString() : null,
         trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
@@ -49,8 +50,79 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    // Also fetch one-time payments from local database (3-month plans)
+    // These are stored with stripe_subscription_id starting with 'one_time_'
+    const { data: oneTimePayments } = await supabaseAdmin
+      .from('subscriptions')
+      .select(`
+        id,
+        stripe_subscription_id,
+        status,
+        plan_name,
+        current_period_start,
+        current_period_end,
+        created_at,
+        enrollment:enrollments(
+          id,
+          guardian_email,
+          guardian_first_name,
+          guardian_last_name,
+          child_first_name,
+          child_last_name
+        )
+      `)
+      .like('stripe_subscription_id', 'one_time_%')
+      .order('created_at', { ascending: false });
+
+    // Format one-time payments
+    const formattedOneTime = (oneTimePayments || []).map(sub => {
+      const enrollment = sub.enrollment as unknown as {
+        guardian_email?: string;
+        guardian_first_name?: string;
+        guardian_last_name?: string;
+        child_first_name?: string;
+        child_last_name?: string;
+      } | null;
+      
+      return {
+        id: sub.id,
+        customerId: sub.stripe_subscription_id, // Use as unique ID for payment history
+        customerEmail: enrollment?.guardian_email || 'Unknown',
+        customerName: enrollment 
+          ? `${enrollment.guardian_first_name || ''} ${enrollment.guardian_last_name || ''}`.trim() || 'Unknown'
+          : 'Unknown',
+        childName: enrollment
+          ? `${enrollment.child_first_name || ''} ${enrollment.child_last_name || ''}`.trim()
+          : null,
+        status: sub.status,
+        planType: 'one_time',
+        currentPeriodStart: sub.current_period_start,
+        currentPeriodEnd: sub.current_period_end,
+        trialEnd: null,
+        cancelAtPeriodEnd: false,
+        canceledAt: null,
+        created: sub.created_at,
+        amount: 150, // 3-month plan price
+        interval: '3 months',
+        metadata: {},
+      };
+    });
+
+    // Combine and sort by created date
+    let allSubscriptions = [...formattedSubscriptions, ...formattedOneTime];
+    
+    // Filter by status if needed
+    if (status === 'one_time') {
+      allSubscriptions = formattedOneTime;
+    } else if (status === 'active') {
+      allSubscriptions = allSubscriptions.filter(s => s.status === 'active');
+    }
+    
+    // Sort by created date descending
+    allSubscriptions.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+
     return NextResponse.json({ 
-      subscriptions: formattedSubscriptions,
+      subscriptions: allSubscriptions,
       hasMore: subscriptions.has_more,
     });
   } catch (error) {

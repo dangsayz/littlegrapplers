@@ -12,7 +12,9 @@ interface Subscription {
   customerId: string;
   customerEmail: string;
   customerName: string;
+  childName?: string | null;
   status: string;
+  planType: 'recurring' | 'one_time';
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
   trialEnd: string | null;
@@ -165,6 +167,16 @@ export default function AdminSubscriptionsPage() {
   };
 
   const getStatusBadge = (sub: Subscription) => {
+    // Show plan type badge for one-time payments
+    if (sub.planType === 'one_time') {
+      return (
+        <div className="flex items-center gap-1">
+          <Badge className="bg-blue-500">3-Month Plan</Badge>
+          {sub.status === 'active' && <Badge className="bg-emerald-500">Active</Badge>}
+        </div>
+      );
+    }
+    
     if (sub.cancelAtPeriodEnd) {
       return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Canceling</Badge>;
     }
@@ -276,8 +288,8 @@ export default function AdminSubscriptionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
-        {['all', 'active', 'past_due', 'canceled', 'trialing'].map(status => (
+      <div className="flex gap-2 flex-wrap">
+        {['all', 'active', 'past_due', 'canceled', 'trialing', 'one_time'].map(status => (
           <Button
             key={status}
             variant={statusFilter === status ? 'default' : 'outline'}
@@ -285,7 +297,7 @@ export default function AdminSubscriptionsPage() {
             onClick={() => setStatusFilter(status)}
             className="capitalize"
           >
-            {status === 'all' ? 'All' : status.replace('_', ' ')}
+            {status === 'all' ? 'All' : status === 'one_time' ? '3-Month Plans' : status.replace('_', ' ')}
           </Button>
         ))}
       </div>
@@ -333,6 +345,9 @@ export default function AdminSubscriptionsPage() {
                         {getStatusBadge(sub)}
                       </div>
                       <p className="text-sm text-gray-500 truncate">{sub.customerEmail}</p>
+                      {sub.childName && (
+                        <p className="text-xs text-brand mt-0.5">Child: {sub.childName}</p>
+                      )}
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
                           <DollarSign className="h-3.5 w-3.5" />
