@@ -6,19 +6,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MembershipCard, NoMembershipsCard } from '@/components/dashboard';
 import { supabaseAdmin } from '@/lib/supabase';
 
+import { getUnifiedMembershipStatus } from '@/lib/membership-sync';
+
 export default async function MembershipsPage() {
   const { userId } = await auth();
   
-  // Fetch subscriptions from database
-  let subscriptions: Array<{
-    id: string;
-    status: string;
-    plan_name: string;
-    current_period_start: string | null;
-    current_period_end: string | null;
-  }> = [];
-  
-  // Fetch pending membership requests
+  // Get unified membership status
+  let membershipStatus: any = null;
   let pendingRequests: Array<{
     id: string;
     request_type: string;
@@ -30,16 +24,8 @@ export default async function MembershipsPage() {
   let hasStudents = false;
 
   if (userId) {
-    const { data: subs } = await supabaseAdmin
-      .from('subscriptions')
-      .select('id, status, plan_name, current_period_start, current_period_end')
-      .eq('clerk_user_id', userId)
-      .order('created_at', { ascending: false });
+    membershipStatus = await getUnifiedMembershipStatus(userId);
     
-    if (subs) {
-      subscriptions = subs;
-    }
-
     const { data: requests } = await supabaseAdmin
       .from('membership_requests')
       .select('id, request_type, status, created_at, reason')
@@ -76,20 +62,26 @@ export default async function MembershipsPage() {
     }
   }
 
-  // Transform to membership format for existing cards
-  const memberships = subscriptions
-    .filter(s => s.status === 'active')
-    .map(s => ({
-      id: s.id,
-      status: s.status,
-      monthlyRate: 0, // Will be updated when we have pricing
-      startDate: s.current_period_start ? new Date(s.current_period_start) : new Date(),
-      student: { id: '', firstName: '', lastName: '' },
-      program: { id: '', name: s.plan_name, location: { name: '' } },
-    }));
+  // Transform to membership format for display
+  // Show membership if user has subscription OR has an enrollment (even if pending payment)
+  const hasMembershipRecord = membershipStatus?.hasSubscription || membershipStatus?.hasEnrollment;
+  
+  const memberships = hasMembershipRecord ? [{
+    id: membershipStatus.subscription?.id || membershipStatus.enrollment?.id || 'unified',
+    status: membershipStatus.unifiedStatus,
+    monthlyRate: 0, // Will be updated when we have pricing
+    startDate: membershipStatus.subscription?.current_period_start 
+      ? new Date(membershipStatus.subscription.current_period_start) 
+      : membershipStatus.enrollment?.submitted_at 
+        ? new Date(membershipStatus.enrollment.submitted_at)
+        : new Date(),
+    student: { id: '', firstName: '', lastName: '' },
+    program: { id: '', name: membershipStatus.subscription?.plan_name || 'Enrollment', location: { name: '' } },
+  }] : [];
 
-  const hasMemberships = memberships.length > 0;
-  const hasActiveSubscription = subscriptions.some(s => s.status === 'active');
+  const hasMemberships = hasMembershipRecord;
+  const hasActiveSubscription = membershipStatus?.unifiedStatus === 'active';
+  const isPendingPayment = membershipStatus?.unifiedStatus === 'pending_payment';
 
   // Calculate totals
   const totalMonthly = memberships
@@ -117,8 +109,25 @@ export default async function MembershipsPage() {
         </Button>
       </div>
 
+      {/* Pending Payment Banner */}
+      {isPendingPayment && (
+        <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-amber-800">Payment Required</p>
+              <p className="text-sm text-amber-600">
+                Your enrollment has been approved. Please complete payment to activate your membership.
+              </p>
+            </div>
+            <Button asChild className="bg-amber-600 hover:bg-amber-700">
+              <Link href="/dashboard/checkout">Complete Payment</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Monthly Summary */}
-      {hasMemberships && (
+      {hasActiveSubscription && (
         <div className="p-4 rounded-lg bg-brand/5 border border-brand/20">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
