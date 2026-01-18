@@ -59,7 +59,7 @@ const adminNavItems: Array<{ label: string; href: Route; icon: LucideIcon; hint:
     href: '/dashboard/notifications' as Route,
     icon: Bell,
     hint: 'View and manage system alerts',
-    badgeKey: 'unreadContacts',
+    badgeKey: 'notifications',
   },
   {
     label: 'Video + Images',
@@ -79,7 +79,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
   const [mounted, setMounted] = useState(false);
-  const [badges, setBadges] = useState<{ pendingEnrollments: number; unreadContacts: number }>({ pendingEnrollments: 0, unreadContacts: 0 });
+  const [badges, setBadges] = useState<{ pendingEnrollments: number; notifications: number }>({ pendingEnrollments: 0, notifications: 0 });
   
   useEffect(() => {
     setMounted(true);

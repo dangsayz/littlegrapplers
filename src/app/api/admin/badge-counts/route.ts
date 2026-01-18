@@ -13,20 +13,27 @@ export async function GET() {
     }
 
     // Fetch counts in parallel
-    const [pendingEnrollmentsRes, unreadContactsRes] = await Promise.all([
+    const [pendingEnrollmentsRes, pendingMembershipRequestsRes, unreadNotificationsRes] = await Promise.all([
       supabaseAdmin
         .from('enrollments')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending'),
       supabaseAdmin
-        .from('contact_submissions')
+        .from('membership_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      supabaseAdmin
+        .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('is_read', false),
     ]);
 
+    // Notification badge = pending membership requests + unread notifications
+    const notificationBadge = (pendingMembershipRequestsRes.count || 0) + (unreadNotificationsRes.count || 0);
+
     return NextResponse.json({
       pendingEnrollments: pendingEnrollmentsRes.count || 0,
-      unreadContacts: unreadContactsRes.count || 0,
+      notifications: notificationBadge,
     });
   } catch (error) {
     console.error('Error fetching badge counts:', error);
