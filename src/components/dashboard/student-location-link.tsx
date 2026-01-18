@@ -1,7 +1,4 @@
 'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
 import { MapPin, Key } from 'lucide-react';
 import {
   Tooltip,
@@ -21,54 +18,32 @@ export function StudentLocationLink({
   locationSlug,
   locationPin,
 }: StudentLocationLinkProps) {
-  const [showPin, setShowPin] = useState(false);
-
   return (
-    <TooltipProvider>
-      <Tooltip open={showPin} onOpenChange={setShowPin}>
-        <TooltipTrigger asChild>
-          <Link
-            href={`/community/${locationSlug}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowPin(true);
-            }}
-            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-teal-600 transition-colors mt-0.5 group"
-          >
-            <MapPin className="h-3 w-3" />
-            <span className="underline-offset-2 group-hover:underline">
-              {locationName}
-            </span>
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          className="bg-slate-900 text-white border-slate-700 p-3"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="space-y-2">
-            <p className="text-xs text-slate-400">Access PIN for {locationName}</p>
-            {locationPin ? (
-              <div className="flex items-center gap-2">
-                <Key className="h-4 w-4 text-teal-400" />
-                <span className="font-mono text-lg font-bold tracking-widest text-teal-400">
+    <div className="flex items-center gap-2 mt-1">
+      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+        <MapPin className="h-3 w-3" />
+        <span>{locationName}</span>
+      </span>
+      {locationPin && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div 
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 cursor-help"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Key className="h-3 w-3 text-teal-600" />
+                <span className="font-mono text-xs font-semibold text-teal-700 tracking-wider">
                   {locationPin}
                 </span>
               </div>
-            ) : (
-              <p className="text-sm text-slate-300">No PIN required</p>
-            )}
-            <Link
-              href={`/community/${locationSlug}`}
-              className="block text-xs text-teal-400 hover:text-teal-300 underline mt-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Go to community page
-            </Link>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="bg-slate-900 text-white">
+              <p className="text-xs">Community PIN - use this to access discussions</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
   );
 }

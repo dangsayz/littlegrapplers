@@ -75,12 +75,38 @@ export default async function DashboardPage() {
             const key = `${s.first_name?.toLowerCase()}-${s.last_name?.toLowerCase()}`;
             if (!seenNames.has(key)) {
               seenNames.add(key);
+              // Get location info from student_locations table
+              let locationName: string | undefined;
+              let locationSlug: string | undefined;
+              let locationPin: string | undefined;
+              
+              const { data: studentLocation } = await supabaseAdmin
+                .from('student_locations')
+                .select('location_id')
+                .eq('student_id', s.id)
+                .limit(1)
+                .single();
+              
+              if (studentLocation?.location_id) {
+                const { data: loc } = await supabaseAdmin
+                  .from('locations')
+                  .select('name, slug, access_pin')
+                  .eq('id', studentLocation.location_id)
+                  .single();
+                locationName = loc?.name;
+                locationSlug = loc?.slug;
+                locationPin = loc?.access_pin;
+              }
+              
               students.push({
                 id: s.id,
                 firstName: s.first_name || '',
                 lastName: s.last_name || '',
                 beltRank: s.belt_rank || 'white',
                 stripes: s.stripes || 0,
+                locationName,
+                locationSlug,
+                locationPin,
               });
             }
           }
@@ -174,39 +200,94 @@ export default async function DashboardPage() {
 
   const hasStudents = students.length > 0;
 
-  // Fetch locations with their latest activity
+  // Collect unique location IDs from enrolled students
+  const enrolledLocationIds = new Set<string>();
+  for (const student of students) {
+    if (student.locationSlug) {
+      // We have location slug but need ID - we'll fetch by slug
+    }
+  }
+
+  // Fetch locations with their latest activity - prioritize parent's enrolled locations
   const pinnedLocations: PinnedLocation[] = [];
-  const { data: locations } = await supabaseAdmin
-    .from('locations')
-    .select('id, name, slug, city, state, access_pin')
-    .eq('is_active', true)
-    .limit(3);
+  
+  // First, get locations where parent has enrolled children (from students array)
+  const parentLocationSlugs = students
+    .filter(s => s.locationSlug)
+    .map(s => s.locationSlug as string);
+  const uniqueParentSlugs = [...new Set(parentLocationSlugs)];
 
-  if (locations) {
-    for (const loc of locations) {
-      const { data: latestThread } = await supabaseAdmin
-        .from('discussion_threads')
-        .select('id, title, created_at, author_email')
-        .eq('location_id', loc.id)
-        .eq('is_hidden', false)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+  if (uniqueParentSlugs.length > 0) {
+    // Fetch parent's enrolled locations first
+    const { data: parentLocations } = await supabaseAdmin
+      .from('locations')
+      .select('id, name, slug, city, state, access_pin')
+      .in('slug', uniqueParentSlugs)
+      .eq('is_active', true);
 
-      pinnedLocations.push({
-        id: loc.id,
-        name: loc.name,
-        slug: loc.slug,
-        city: loc.city,
-        state: loc.state,
-        accessPin: loc.access_pin,
-        latestActivity: latestThread ? {
-          id: latestThread.id,
-          title: latestThread.title,
-          createdAt: latestThread.created_at,
-          authorEmail: latestThread.author_email,
-        } : null,
-      });
+    if (parentLocations) {
+      for (const loc of parentLocations) {
+        const { data: latestThread } = await supabaseAdmin
+          .from('discussion_threads')
+          .select('id, title, created_at, author_email')
+          .eq('location_id', loc.id)
+          .eq('is_hidden', false)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        pinnedLocations.push({
+          id: loc.id,
+          name: loc.name,
+          slug: loc.slug,
+          city: loc.city,
+          state: loc.state,
+          accessPin: loc.access_pin,
+          latestActivity: latestThread ? {
+            id: latestThread.id,
+            title: latestThread.title,
+            createdAt: latestThread.created_at,
+            authorEmail: latestThread.author_email,
+          } : null,
+        });
+      }
+    }
+  }
+
+  // If no enrolled locations, show general active locations
+  if (pinnedLocations.length === 0) {
+    const { data: locations } = await supabaseAdmin
+      .from('locations')
+      .select('id, name, slug, city, state, access_pin')
+      .eq('is_active', true)
+      .limit(3);
+
+    if (locations) {
+      for (const loc of locations) {
+        const { data: latestThread } = await supabaseAdmin
+          .from('discussion_threads')
+          .select('id, title, created_at, author_email')
+          .eq('location_id', loc.id)
+          .eq('is_hidden', false)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        pinnedLocations.push({
+          id: loc.id,
+          name: loc.name,
+          slug: loc.slug,
+          city: loc.city,
+          state: loc.state,
+          accessPin: loc.access_pin,
+          latestActivity: latestThread ? {
+            id: latestThread.id,
+            title: latestThread.title,
+            createdAt: latestThread.created_at,
+            authorEmail: latestThread.author_email,
+          } : null,
+        });
+      }
     }
   }
 

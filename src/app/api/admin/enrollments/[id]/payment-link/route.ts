@@ -102,46 +102,64 @@ export async function POST(
     });
 
     // Optionally send email with payment link
+    let emailSent = false;
+    let emailError: string | null = null;
+    
     if (sendEmail && session.url) {
-      try {
-        const { Resend } = await import('resend');
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@littlegrapplers.net';
-        const fromName = process.env.RESEND_FROM_NAME || 'Little Grapplers';
-        
-        await resend.emails.send({
-          from: `${fromName} <${fromEmail}>`,
-          to: enrollment.guardian_email,
-          subject: `Complete Your Enrollment for ${enrollment.child_first_name}`,
-          html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #1F2A44;">Complete Your Enrollment</h2>
-              <p>Hi ${enrollment.guardian_first_name},</p>
-              <p>You're just one step away from completing ${enrollment.child_first_name}'s enrollment at Little Grapplers ${enrollment.locations?.name || ''}!</p>
-              <p>Click the button below to complete your payment:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${session.url}" style="background-color: #2EC4B6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                  Complete Payment
-                </a>
+      // Check if Resend API key is configured
+      if (!process.env.RESEND_API_KEY) {
+        console.error('RESEND_API_KEY not configured');
+        emailError = 'Email service not configured. Please contact admin.';
+      } else {
+        try {
+          const { Resend } = await import('resend');
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@littlegrapplers.net';
+          const fromName = process.env.RESEND_FROM_NAME || 'Little Grapplers';
+          
+          const emailResult = await resend.emails.send({
+            from: `${fromName} <${fromEmail}>`,
+            to: enrollment.guardian_email,
+            subject: `Complete Your Enrollment for ${enrollment.child_first_name}`,
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #1F2A44;">Complete Your Enrollment</h2>
+                <p>Hi ${enrollment.guardian_first_name},</p>
+                <p>You're just one step away from completing ${enrollment.child_first_name}'s enrollment at Little Grapplers ${enrollment.locations?.name || ''}!</p>
+                <p>Click the button below to complete your payment:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${session.url}" style="background-color: #2EC4B6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                    Complete Payment
+                  </a>
+                </div>
+                <p style="color: #666; font-size: 14px;">This link will expire in 24 hours. If you have any questions, please reply to this email.</p>
+                <p>Thank you,<br>The Little Grapplers Team</p>
               </div>
-              <p style="color: #666; font-size: 14px;">This link will expire in 24 hours. If you have any questions, please reply to this email.</p>
-              <p>Thank you,<br>The Little Grapplers Team</p>
-            </div>
-          `,
-        });
+            `,
+          });
 
-        await supabaseAdmin.from('activity_logs').insert({
-          admin_email: userEmail,
-          action: 'enrollment.payment_link_emailed',
-          entity_type: 'enrollment',
-          entity_id: id,
-          details: {
-            guardian_email: enrollment.guardian_email,
-          },
-        });
-      } catch (emailError) {
-        console.error('Failed to send payment link email:', emailError);
-        // Don't fail the request if email fails
+          if (emailResult.error) {
+            console.error('Resend API error:', emailResult.error);
+            emailError = `Email failed: ${emailResult.error.message || 'Unknown error'}`;
+          } else {
+            emailSent = true;
+            console.log(`Payment link email sent to ${enrollment.guardian_email}, id: ${emailResult.data?.id}`);
+            
+            await supabaseAdmin.from('activity_logs').insert({
+              admin_email: userEmail,
+              action: 'enrollment.payment_link_emailed',
+              entity_type: 'enrollment',
+              entity_id: id,
+              details: {
+                guardian_email: enrollment.guardian_email,
+                resend_id: emailResult.data?.id,
+              },
+            });
+          }
+        } catch (err) {
+          console.error('Failed to send payment link email:', err);
+          emailError = `Email failed: ${err instanceof Error ? err.message : 'Unknown error'}`;
+        }
       }
     }
 
@@ -149,7 +167,14 @@ export async function POST(
       success: true,
       checkoutUrl: session.url,
       sessionId: session.id,
-      emailSent: sendEmail,
+      emailSent,
+      emailError,
+      emailDetails: emailSent ? {
+        recipient: enrollment.guardian_email,
+        sentAt: new Date().toISOString(),
+        childName: `${enrollment.child_first_name} ${enrollment.child_last_name}`,
+        planType,
+      } : null,
     });
   } catch (error) {
     console.error('Error generating payment link:', error);

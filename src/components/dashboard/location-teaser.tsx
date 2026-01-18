@@ -208,19 +208,29 @@ export function LocationTeaser({ locations, isAdmin = false }: LocationTeaserPro
                             {location.city}, {location.state}
                           </p>
                         </div>
-                        {isAdmin && (
+                        {location.accessPin && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <button
-                                onClick={(e) => handlePinClick(e, location)}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-mono transition-colors"
-                              >
-                                <Lock className="h-3 w-3" />
-                                {location.accessPin || '----'}
-                              </button>
+                              {isAdmin ? (
+                                <button
+                                  onClick={(e) => handlePinClick(e, location)}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 text-xs font-mono transition-colors"
+                                >
+                                  <Lock className="h-3 w-3" />
+                                  {location.accessPin}
+                                </button>
+                              ) : (
+                                <div
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 text-xs font-mono cursor-help"
+                                  onClick={(e) => e.preventDefault()}
+                                >
+                                  <Lock className="h-3 w-3" />
+                                  {location.accessPin}
+                                </div>
+                              )}
                             </TooltipTrigger>
                             <TooltipContent side="top">
-                              <p>Admin PIN. Click to edit.</p>
+                              <p>{isAdmin ? 'Admin PIN. Click to edit.' : 'Use this PIN to access the community'}</p>
                             </TooltipContent>
                           </Tooltip>
                         )}

@@ -167,6 +167,7 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
       });
 
       const data = await response.json();
+      console.log('Payment link API response:', data);
       
       if (!response.ok) {
         throw new Error(data.error || 'Failed to generate payment link');
@@ -174,9 +175,23 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
 
       setGeneratedPaymentUrl(data.checkoutUrl);
       if (sendEmail) {
-        setSuccess(`Payment link sent to ${enrollment.guardian_email}`);
+        if (data.emailSent === true && data.emailDetails) {
+          const sentTime = new Date(data.emailDetails.sentAt).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          });
+          setSuccess(`Email sent successfully to ${data.emailDetails.recipient} at ${sentTime} for ${data.emailDetails.childName}'s ${data.emailDetails.planType} plan`);
+        } else if (data.emailError) {
+          setError(`Failed to send email: ${data.emailError}`);
+        } else {
+          setError('Email was not sent. The email service may not be configured. Copy the link and send manually.');
+        }
       } else {
-        setSuccess('Payment link generated');
+        setSuccess('Payment link generated - copy and share manually');
       }
       router.refresh();
     } catch (err) {
@@ -281,6 +296,8 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
               onClick={() => {
                 setShowPaymentDialog(true);
                 setGeneratedPaymentUrl(null);
+                setSuccess(null);
+                setError(null);
               }}
               className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-emerald-50/60 transition-all duration-200 ease-out group"
             >
@@ -514,9 +531,29 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
               </div>
             </div>
 
+            {/* Success Message */}
+            {success && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                  <p className="text-sm text-green-800">{success}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                <div className="flex items-start gap-2">
+                  <XCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              </div>
+            )}
+
             {generatedPaymentUrl && (
-              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-                <p className="text-sm font-medium text-emerald-800 mb-2">Payment Link Generated</p>
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <p className="text-sm font-medium text-slate-700 mb-2">Payment Link</p>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
