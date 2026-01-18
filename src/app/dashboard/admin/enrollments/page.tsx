@@ -27,6 +27,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Pagination } from '@/components/ui/pagination';
 import { EnrollmentActions } from './enrollment-actions';
 import { ClickStopWrapper } from './click-stop-wrapper';
+import { SearchForm } from './search-form';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -301,42 +302,12 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
       </div>
 
       {/* Filters */}
-      <form className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            name="search"
-            placeholder="Search by name or email..."
-            defaultValue={resolvedSearchParams.search}
-            className="pl-10 h-10 border-slate-200 bg-white rounded-lg"
-          />
-        </div>
-        <select
-          name="status"
-          defaultValue={statusFilter}
-          className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-600 min-w-[130px]"
-        >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="active">Active</option>
-          <option value="rejected">Rejected</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          name="location"
-          defaultValue={locationFilter}
-          className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-600 min-w-[160px]"
-        >
-          <option value="all">All Locations</option>
-          {(locations || []).map((loc) => (
-            <option key={loc.id} value={loc.id}>{loc.name}</option>
-          ))}
-        </select>
-        <Button type="submit" size="sm" className="h-10 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg">
-          Filter
-        </Button>
-      </form>
+      <SearchForm 
+        locations={locations || []}
+        defaultSearch={resolvedSearchParams.search}
+        defaultStatus={statusFilter}
+        defaultLocation={locationFilter}
+      />
 
       {/* Enrollments List */}
       <div className="space-y-4">
