@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, Edit3 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Calendar, DollarSign, Pause, Play, X, RefreshCw, Clock, CheckCircle, AlertCircle, Ban, Edit3, ChevronDown, ChevronUp, Receipt, ExternalLink, RotateCcw } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,28 @@ interface Subscription {
   metadata: Record<string, string>;
 }
 
+interface Payment {
+  id: string;
+  number: string | null;
+  date: string;
+  amount: number;
+  status: string;
+  description: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  receiptUrl: string | null;
+  pdfUrl: string | null;
+  refunded: boolean;
+  refundAmount: number;
+}
+
+interface PaymentSummary {
+  totalPaid: number;
+  totalRefunded: number;
+  netRevenue: number;
+  paymentCount: number;
+}
+
 export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +55,10 @@ export default function AdminSubscriptionsPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [editingBillingDate, setEditingBillingDate] = useState<string | null>(null);
   const [newBillingDate, setNewBillingDate] = useState('');
+  const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
+  const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null);
+  const [loadingPayments, setLoadingPayments] = useState(false);
 
   const fetchSubscriptions = async () => {
     setLoading(true);
@@ -95,6 +121,30 @@ export default function AdminSubscriptionsPage() {
     await performAction('update_billing_anchor', subscriptionId, { billingCycleAnchor: newBillingDate });
     setEditingBillingDate(null);
     setNewBillingDate('');
+  };
+
+  const fetchPaymentHistory = async (customerId: string) => {
+    if (expandedCustomer === customerId) {
+      setExpandedCustomer(null);
+      return;
+    }
+    
+    setExpandedCustomer(customerId);
+    setLoadingPayments(true);
+    setPaymentHistory([]);
+    setPaymentSummary(null);
+    
+    try {
+      const res = await fetch(`/api/admin/subscriptions/${customerId}/payments`);
+      if (!res.ok) throw new Error('Failed to fetch payments');
+      const data = await res.json();
+      setPaymentHistory(data.payments || []);
+      setPaymentSummary(data.summary || null);
+    } catch (err) {
+      console.error('Error fetching payment history:', err);
+    } finally {
+      setLoadingPayments(false);
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -263,14 +313,23 @@ export default function AdminSubscriptionsPage() {
               {subscriptions.map(sub => (
                 <div 
                   key={sub.id} 
-                  className="border rounded-xl p-4 hover:bg-gray-50 transition-colors"
+                  className="border rounded-xl overflow-hidden transition-colors"
                 >
+                  <div className="p-4 hover:bg-gray-50">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900 truncate">
+                        <button
+                          onClick={() => fetchPaymentHistory(sub.customerId)}
+                          className="font-semibold text-gray-900 truncate hover:text-brand transition-colors flex items-center gap-1"
+                        >
                           {sub.customerName}
-                        </h3>
+                          {expandedCustomer === sub.customerId ? (
+                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
                         {getStatusBadge(sub)}
                       </div>
                       <p className="text-sm text-gray-500 truncate">{sub.customerEmail}</p>
@@ -398,6 +457,110 @@ export default function AdminSubscriptionsPage() {
                       )}
                     </div>
                   </div>
+                  </div>
+                  
+                  {/* Payment History Expandable Section */}
+                  {expandedCustomer === sub.customerId && (
+                    <div className="border-t bg-gray-50 p-4">
+                      {loadingPayments ? (
+                        <div className="text-center py-4 text-gray-500">
+                          <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2" />
+                          Loading payment history...
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Payment Summary */}
+                          {paymentSummary && (
+                            <div className="grid grid-cols-4 gap-4 mb-4">
+                              <div className="bg-white rounded-lg p-3 border">
+                                <p className="text-xs text-gray-500">Total Paid</p>
+                                <p className="text-lg font-bold text-emerald-600">{formatCurrency(paymentSummary.totalPaid)}</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border">
+                                <p className="text-xs text-gray-500">Total Refunded</p>
+                                <p className="text-lg font-bold text-red-600">{formatCurrency(paymentSummary.totalRefunded)}</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border">
+                                <p className="text-xs text-gray-500">Net Revenue</p>
+                                <p className="text-lg font-bold text-gray-900">{formatCurrency(paymentSummary.netRevenue)}</p>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border">
+                                <p className="text-xs text-gray-500">Payments</p>
+                                <p className="text-lg font-bold text-gray-900">{paymentSummary.paymentCount}</p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Payment List */}
+                          <div className="space-y-2">
+                            <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
+                              <Receipt className="h-4 w-4" />
+                              Payment History
+                            </h4>
+                            {paymentHistory.length === 0 ? (
+                              <p className="text-sm text-gray-500 py-2">No payments found</p>
+                            ) : (
+                              <div className="space-y-2">
+                                {paymentHistory.map(payment => (
+                                  <div 
+                                    key={payment.id}
+                                    className={`flex items-center justify-between p-3 rounded-lg border bg-white ${payment.refunded ? 'border-red-200' : ''}`}
+                                  >
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium text-sm">
+                                          {formatCurrency(payment.amount)}
+                                        </span>
+                                        {payment.refunded && (
+                                          <Badge variant="outline" className="text-red-600 border-red-200 text-xs">
+                                            <RotateCcw className="h-3 w-3 mr-1" />
+                                            Refunded {formatCurrency(payment.refundAmount)}
+                                          </Badge>
+                                        )}
+                                        {payment.status === 'paid' && !payment.refunded && (
+                                          <Badge className="bg-emerald-500 text-xs">Paid</Badge>
+                                        )}
+                                        {payment.status === 'open' && (
+                                          <Badge variant="outline" className="text-amber-600 text-xs">Pending</Badge>
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        {formatDate(payment.date)} • {payment.description}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {payment.receiptUrl && (
+                                        <a
+                                          href={payment.receiptUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                                        >
+                                          <ExternalLink className="h-3 w-3" />
+                                          Receipt
+                                        </a>
+                                      )}
+                                      {payment.pdfUrl && (
+                                        <a
+                                          href={payment.pdfUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-xs text-gray-600 hover:text-gray-700 flex items-center gap-1"
+                                        >
+                                          <Receipt className="h-3 w-3" />
+                                          Invoice
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
