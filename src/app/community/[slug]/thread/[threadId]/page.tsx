@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Route } from 'next';
-import { ArrowLeft, Send, Pin, Clock, User, MessageCircle, ImagePlus, X, Film, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Send, Pin, Clock, User, MessageCircle, ImagePlus, X, Film, Pencil, Trash2, MoreHorizontal, AlertCircle } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -94,6 +94,7 @@ export default function ThreadPage() {
   const [editThreadTitle, setEditThreadTitle] = useState('');
   const [editThreadContent, setEditThreadContent] = useState('');
   const [isSavingThread, setIsSavingThread] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
   const { user: clerkUser } = useUser();
   const currentUserEmail = clerkUser?.emailAddresses[0]?.emailAddress;
   const theme = getLocationTheme(slug);
@@ -160,6 +161,7 @@ export default function ThreadPage() {
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setReplyError(null);
 
     try {
       const res = await fetch(`/api/community/discussions/${threadId}/replies`, {
@@ -184,10 +186,18 @@ export default function ThreadPage() {
         setReplyContent('');
         setReplyMediaFiles([]);
         setReplyMediaPreviews([]);
+        setReplyError(null);
         fetchThread();
+      } else {
+        // Handle error response from API
+        const errorData = await res.json().catch(() => ({ error: 'Failed to post reply' }));
+        const errorMessage = errorData.error || 'Failed to post reply. Please try again.';
+        setReplyError(errorMessage);
+        console.error('Reply submission failed:', errorMessage);
       }
     } catch (err) {
       console.error('Error posting reply:', err);
+      setReplyError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -620,6 +630,13 @@ export default function ThreadPage() {
                       </label>
                     )}
                   </div>
+                  
+                  {replyError && (
+                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                      <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                      <p className="text-sm text-red-600">{replyError}</p>
+                    </div>
+                  )}
                   
                   <Button
                     type="submit"

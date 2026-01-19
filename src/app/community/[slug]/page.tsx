@@ -613,6 +613,7 @@ export default function CommunityPage() {
   const [loadingReplies, setLoadingReplies] = useState<string | null>(null);
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editReplyContent, setEditReplyContent] = useState('');
+  const [threadReplyError, setThreadReplyError] = useState<string | null>(null);
   const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
   const [replyMenuOpen, setReplyMenuOpen] = useState<string | null>(null);
   const [membersPage, setMembersPage] = useState(0);
@@ -878,6 +879,7 @@ export default function CommunityPage() {
     if (!threadReplyContent.trim()) return;
     
     setIsSubmittingThreadReply(true);
+    setThreadReplyError(null);
     try {
       const res = await fetch(`/api/community/discussions/${threadId}/replies`, {
         method: 'POST',
@@ -910,9 +912,17 @@ export default function CommunityPage() {
         ));
         setThreadReplyContent('');
         setReplyingToThreadId(null);
+        setThreadReplyError(null);
+      } else {
+        // Handle error response from API
+        const errorData = await res.json().catch(() => ({ error: 'Failed to post reply' }));
+        const errorMessage = errorData.error || 'Failed to post reply. Please try again.';
+        setThreadReplyError(errorMessage);
+        console.error('Reply submission failed:', errorMessage);
       }
     } catch (err) {
       console.error('Error submitting reply:', err);
+      setThreadReplyError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmittingThreadReply(false);
     }
@@ -1687,12 +1697,18 @@ export default function CommunityPage() {
                                                   {isSubmittingThreadReply ? 'Posting...' : 'Reply'}
                                                 </button>
                                                 <button
-                                                  onClick={() => { setReplyingToThreadId(null); setThreadReplyContent(''); }}
+                                                  onClick={() => { setReplyingToThreadId(null); setThreadReplyContent(''); setThreadReplyError(null); }}
                                                   className="px-3 py-1.5 text-gray-500 text-xs font-medium hover:text-gray-700 transition-colors"
                                                 >
                                                   Cancel
                                                 </button>
                                               </div>
+                                              {threadReplyError && (
+                                                <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                                                  <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                                                  <p className="text-xs text-red-600">{threadReplyError}</p>
+                                                </div>
+                                              )}
                                             </div>
                                           </div>
                                         </div>
