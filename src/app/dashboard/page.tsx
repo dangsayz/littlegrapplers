@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Plus, Users, ArrowRight, User, Sparkles, ChevronRight } from 'lucide-react';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { Card, CardContent } from '@/components/ui/card';
@@ -43,6 +44,11 @@ export default async function DashboardPage() {
   const firstName = user?.firstName || 'there';
   const userEmail = user?.emailAddresses[0]?.emailAddress || '';
   const isAdmin = ADMIN_EMAILS.includes(userEmail);
+
+  // Redirect admins to admin dashboard
+  if (isAdmin) {
+    redirect('/dashboard/admin');
+  }
 
   // Fetch students
   const students: StudentDisplay[] = [];

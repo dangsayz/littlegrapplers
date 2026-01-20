@@ -7,7 +7,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Settings } from 'lucide-react';
 import { LocationOfflineOverlay } from '@/components/community/location-offline-overlay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -2274,93 +2274,66 @@ export default function CommunityPage() {
         </div>
       </Container>
 
-      {/* Media Preview Modal - White Background */}
+      {/* Admin Quick Tools FAB - Only visible for admins */}
+      {isAdmin && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+          {/* Expandable menu */}
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="flex flex-col gap-2"
+          >
+            {/* Upload Video Button */}
+            <Link
+              href="/dashboard/admin/media"
+              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-[#2EC4B6]/30 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#2EC4B6]/80 flex items-center justify-center shadow-sm">
+                <Video className="h-5 w-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-gray-900">Upload Media</p>
+                <p className="text-xs text-gray-500">Add videos or images</p>
+              </div>
+            </Link>
+
+            {/* Manage Community Button */}
+            <Link
+              href="/dashboard/admin/community"
+              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-[#F7931E]/30 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F7931E] to-[#FFC857] flex items-center justify-center shadow-sm">
+                <MessageCircle className="h-5 w-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-gray-900">Manage Posts</p>
+                <p className="text-xs text-gray-500">Moderate discussions</p>
+              </div>
+            </Link>
+
+            {/* Admin Dashboard Link */}
+            <Link
+              href="/dashboard/admin"
+              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-gray-300 transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-sm">
+                <Settings className="h-5 w-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-gray-900">Admin Panel</p>
+                <p className="text-xs text-gray-500">Full dashboard</p>
+              </div>
+            </Link>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Media Preview Modal - Apple-style Blurred Background */}
       {previewMedia && (
         <div 
-          className="fixed inset-0 z-50 bg-gradient-to-br from-white via-gray-50/50 to-[#2EC4B6]/5 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xl overflow-y-auto"
           onClick={() => setPreviewMedia(null)}
         >
-          {/* Floating Animated Background Elements */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            {/* Floating circles */}
-            <motion.div
-              className="absolute top-20 left-[10%] w-64 h-64 rounded-full bg-[#2EC4B6]/5 blur-3xl"
-              animate={{
-                y: [0, -30, 0],
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute top-40 right-[15%] w-48 h-48 rounded-full bg-[#F7931E]/5 blur-3xl"
-              animate={{
-                y: [0, 20, 0],
-                scale: [1, 1.15, 1],
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            />
-            <motion.div
-              className="absolute bottom-40 left-[20%] w-56 h-56 rounded-full bg-[#FFC857]/5 blur-3xl"
-              animate={{
-                y: [0, -20, 0],
-                x: [0, 10, 0],
-                opacity: [0.2, 0.35, 0.2],
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            />
-            <motion.div
-              className="absolute bottom-60 right-[10%] w-40 h-40 rounded-full bg-[#8FE3CF]/10 blur-2xl"
-              animate={{
-                y: [0, 15, 0],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            />
-            
-            {/* Floating decorative shapes */}
-            <motion.div
-              className="absolute top-[30%] left-[5%] w-3 h-3 rounded-full bg-[#2EC4B6]/30"
-              animate={{
-                y: [0, -40, 0],
-                opacity: [0.3, 0.7, 0.3],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute top-[25%] right-[8%] w-2 h-2 rounded-full bg-[#F7931E]/40"
-              animate={{
-                y: [0, -30, 0],
-                x: [0, 10, 0],
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-            />
-            <motion.div
-              className="absolute bottom-[35%] left-[8%] w-2.5 h-2.5 rounded-full bg-[#FFC857]/50"
-              animate={{
-                y: [0, -25, 0],
-              }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-            />
-            <motion.div
-              className="absolute top-[60%] right-[5%] w-4 h-4 rounded-full bg-[#2EC4B6]/20"
-              animate={{
-                y: [0, 20, 0],
-                scale: [1, 1.3, 1],
-              }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2.5 }}
-            />
-            
-            {/* Subtle grid pattern overlay */}
-            <div 
-              className="absolute inset-0 opacity-[0.015]"
-              style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, #1F2A44 1px, transparent 0)',
-                backgroundSize: '40px 40px',
-              }}
-            />
-          </div>
           
           {/* Close button */}
           <motion.button
@@ -2370,9 +2343,9 @@ export default function CommunityPage() {
               e.stopPropagation();
               setPreviewMedia(null);
             }}
-            className="fixed top-6 right-6 z-[60] h-10 w-10 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 hover:bg-gray-100 flex items-center justify-center transition-colors shadow-lg cursor-pointer"
+            className="fixed top-6 right-6 z-[60] h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 hover:bg-white/30 flex items-center justify-center transition-colors shadow-lg cursor-pointer"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-5 w-5 text-white" />
           </motion.button>
 
           <div 
@@ -2386,9 +2359,7 @@ export default function CommunityPage() {
               transition={{ duration: 0.5 }}
               className="w-full max-w-4xl relative"
             >
-              {/* Decorative frame elements */}
-              <div className="absolute -inset-3 bg-gradient-to-br from-[#2EC4B6]/10 via-transparent to-[#F7931E]/10 rounded-2xl blur-xl opacity-50" />
-              <div className="relative bg-white rounded-xl shadow-2xl shadow-gray-200/50 overflow-hidden ring-1 ring-gray-100">
+              <div className="relative bg-black rounded-xl shadow-2xl overflow-hidden ring-1 ring-white/10">
                 {previewMedia.file_type === 'video' ? (
                   <video
                     src={previewMedia.file_url}
@@ -2419,8 +2390,8 @@ export default function CommunityPage() {
               <div className="flex items-center justify-center gap-2 mb-3">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                   previewMedia.file_type === 'video' 
-                    ? 'bg-red-50 text-red-600 ring-1 ring-red-100' 
-                    : 'bg-blue-50 text-blue-600 ring-1 ring-blue-100'
+                    ? 'bg-red-500/20 text-red-300 ring-1 ring-red-500/30' 
+                    : 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/30'
                 }`}>
                   {previewMedia.file_type === 'video' ? (
                     <><Video className="h-3 w-3" /> Video</>
@@ -2430,15 +2401,15 @@ export default function CommunityPage() {
                 </span>
               </div>
               
-              <h3 className="text-gray-900 text-2xl font-bold tracking-tight">{previewMedia.title}</h3>
+              <h3 className="text-white text-2xl font-bold tracking-tight">{previewMedia.title}</h3>
               
               {previewMedia.description && (
-                <p className="mt-3 text-gray-500 text-base leading-relaxed">{previewMedia.description}</p>
+                <p className="mt-3 text-white/70 text-base leading-relaxed">{previewMedia.description}</p>
               )}
               
               {/* Upload date */}
               <div className="mt-4 flex items-center justify-center gap-4">
-                <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                <div className="flex items-center gap-1.5 text-sm text-white/50">
                   <Calendar className="h-4 w-4" />
                   <span>Added {new Date(previewMedia.created_at).toLocaleDateString('en-US', { 
                     month: 'long', 
@@ -2446,8 +2417,8 @@ export default function CommunityPage() {
                     year: 'numeric' 
                   })}</span>
                 </div>
-                <span className="text-gray-200">•</span>
-                <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                <span className="text-white/30">•</span>
+                <div className="flex items-center gap-1.5 text-sm text-white/50">
                   <Clock className="h-4 w-4" />
                   <span>{formatRelativeTime(previewMedia.created_at)}</span>
                 </div>
@@ -2461,10 +2432,10 @@ export default function CommunityPage() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="mt-10 w-full max-w-2xl"
             >
-              <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <MessageCircle className="h-4 w-4 text-[#2EC4B6]" />
-                  <h4 className="text-gray-900 text-sm font-semibold">Questions</h4>
+                  <h4 className="text-white text-sm font-semibold">Questions</h4>
                 </div>
                 
                 {/* Ask Question Input */}
@@ -2475,7 +2446,7 @@ export default function CommunityPage() {
                     onChange={(e) => setNewQuestion(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
                     placeholder="Ask a question about this video..."
-                    className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-300"
+                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30"
                   />
                   <button
                     onClick={() => handleSubmitQuestion()}
@@ -2488,9 +2459,9 @@ export default function CommunityPage() {
 
                 {/* Nested Comments List - Reddit Style */}
                 {mediaComments.length === 0 ? (
-                  <p className="text-gray-400 text-sm text-center py-8">No questions yet. Be the first to ask!</p>
+                  <p className="text-white/50 text-sm text-center py-8">No questions yet. Be the first to ask!</p>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-white/10">
                     {nestComments(mediaComments).map((comment) => (
                       <CommentThread
                         key={comment.id}

@@ -198,24 +198,75 @@ async function sendReceiptEmail({
 
 /**
  * Updates platform_status to mark payment as received
- * This automatically removes the payment due banner from the website
+ * This automatically:
+ * 1. Removes the payment due banner from the website
+ * 2. Re-enables the platform if it was auto-disabled for non-payment
+ * 3. Sets the next payment due date to the 1st of next month
  */
 async function updatePlatformPaymentStatus(session: Stripe.Checkout.Session) {
   try {
-    const { error } = await supabase
+    // Calculate next payment due date (1st of next month)
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const nextPaymentDueDate = nextMonth.toISOString().split('T')[0];
+
+    // First, update the payment status
+    const { data: currentStatus } = await supabase
+      .from('platform_status')
+      .select('id, is_enabled, auto_disabled')
+      .single();
+
+    if (!currentStatus) {
+      console.error('No platform_status record found');
+      return;
+    }
+
+    // Update payment received and set next due date
+    const { error: updateError } = await supabase
       .from('platform_status')
       .update({
         payment_received_at: new Date().toISOString(),
         payment_overdue_days: 0,
+        payment_due_date: nextPaymentDueDate,
+        payment_expiration_date: nextPaymentDueDate, // Auto-disable after this date if not paid
         last_checked_at: new Date().toISOString(),
       })
-      .eq('id', (await supabase.from('platform_status').select('id').single()).data?.id);
+      .eq('id', currentStatus.id);
 
-    if (error) {
-      console.error('Failed to update platform payment status:', error);
-    } else {
-      console.log('Platform payment status updated - banner will be removed');
+    if (updateError) {
+      console.error('Failed to update platform payment status:', updateError);
+      return;
     }
+
+    // If the platform was auto-disabled for non-payment, RE-ENABLE it
+    if (!currentStatus.is_enabled && currentStatus.auto_disabled) {
+      const { error: enableError } = await supabase.rpc('update_platform_status', {
+        p_is_enabled: true,
+        p_reason: null,
+        p_performed_by: 'stripe_webhook',
+        p_auto_disabled: false,
+      });
+
+      if (enableError) {
+        console.error('Failed to re-enable platform:', enableError);
+      } else {
+        console.log('Platform automatically RE-ENABLED after payment received');
+        
+        // Log this action
+        await supabase.from('platform_status_log').insert({
+          action: 'auto_enabled',
+          performed_by: 'stripe_webhook',
+          reason: 'Platform re-enabled after payment received via Stripe',
+          metadata: { 
+            session_id: session.id,
+            amount: session.amount_total,
+            next_due_date: nextPaymentDueDate,
+          },
+        });
+      }
+    }
+
+    console.log(`Platform payment status updated - next due date: ${nextPaymentDueDate}`);
   } catch (error) {
     console.error('Error updating platform payment status:', error);
   }

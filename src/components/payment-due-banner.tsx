@@ -1,7 +1,7 @@
 'use client';
 
-import { AlertCircle, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { AlertCircle, ArrowRight, Clock, AlertTriangle } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 
 interface PaymentDueBannerProps {
@@ -10,41 +10,112 @@ interface PaymentDueBannerProps {
   isOverdue: boolean;
 }
 
-export function PaymentDueBanner({ dueDate, overdueDays, isOverdue }: PaymentDueBannerProps) {
+type UrgencyLevel = 'info' | 'warning' | 'urgent' | 'critical';
+
+export function PaymentDueBanner({ dueDate }: PaymentDueBannerProps) {
   const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (dismissed) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const formattedDueDate = dueDate 
-    ? new Date(dueDate).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric'
-      })
-    : null;
-
-  const isUrgent = overdueDays > 7;
-  const isCritical = overdueDays > 14;
-
-  const getMessage = () => {
-    if (isCritical) {
-      return `Payment ${overdueDays} days overdue. Immediate action required.`;
-    } else if (isUrgent) {
-      return `Payment ${overdueDays} days overdue. Please resolve soon.`;
-    } else if (isOverdue) {
-      return `Payment overdue since ${formattedDueDate}.`;
+  // Calculate days until the 1st of next month (payment always due on the 1st)
+  const { daysUntilDue, isActuallyOverdue, urgencyLevel, targetDate } = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    
+    // Target is always the 1st of the next month
+    const target = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+    
+    const diffTime = target.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Determine urgency level based on days until due
+    let level: UrgencyLevel = 'info';
+    if (diffDays <= 3) {
+      level = 'warning';
+    } else if (diffDays <= 7) {
+      level = 'info';
     }
-    return `Payment due ${formattedDueDate}.`;
+    
+    return { 
+      daysUntilDue: diffDays, 
+      isActuallyOverdue: false, // Payment is never overdue since we're counting to next 1st
+      urgencyLevel: level,
+      targetDate: target
+    };
+  }, []);
+
+  // Don't render until mounted (avoid hydration mismatch)
+  if (!mounted || dismissed || !dueDate) return null;
+
+  const formattedDueDate = targetDate.toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric'
+  });
+
+  const getMessage = (): { main: string; sub?: string } => {
+    if (daysUntilDue === 0) {
+      return {
+        main: `Invoice due today`,
+        sub: 'Payment is due by end of business day.'
+      };
+    } else if (daysUntilDue === 1) {
+      return {
+        main: `Invoice due tomorrow`,
+        sub: 'Services will pause if unpaid.'
+      };
+    } else if (daysUntilDue <= 3) {
+      return {
+        main: `Invoice due in ${daysUntilDue} days`,
+        sub: 'Services will pause if unpaid.'
+      };
+    } else if (daysUntilDue <= 7) {
+      return {
+        main: `Payment due in ${daysUntilDue} days`,
+        sub: `Due ${formattedDueDate}`
+      };
+    }
+    return {
+      main: `Next payment in ${daysUntilDue} days`,
+      sub: 'Billed on the 1st of each month.'
+    };
   };
+
+  const message = getMessage();
+  const showIcon = urgencyLevel !== 'info' || daysUntilDue <= 7;
+
+  // Get urgency-based colors (simplified - payment is always upcoming, never overdue)
+  const getUrgencyColors = () => {
+    if (urgencyLevel === 'warning') {
+      return {
+        gradient: 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.1) 50%, rgba(217,119,6,0.15) 100%)',
+        iconColor: 'text-amber-400',
+        glowColor: 'rgba(251,191,36,0.6)',
+        edgeColor: 'rgba(251,191,36,0.4)',
+      };
+    }
+    // Default - info level (payment coming up but not urgent)
+    return {
+      gradient: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(59,130,246,0.1) 25%, rgba(139,92,246,0.15) 50%, rgba(6,182,212,0.1) 75%, rgba(59,130,246,0.15) 100%)',
+      iconColor: 'text-cyan-400',
+      glowColor: 'rgba(6,182,212,0.6)',
+      edgeColor: 'rgba(6,182,212,0.4)',
+    };
+  };
+
+  const colors = getUrgencyColors();
 
   return (
     <div className="relative z-50 w-full overflow-hidden">
       {/* Glacier ice glass base */}
       <div className="relative bg-slate-900/95 backdrop-blur-xl">
-        {/* Holographic ice gradient - animated */}
+        {/* Urgency-based gradient */}
         <div 
           className="absolute inset-0"
           style={{
-            backgroundImage: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(59,130,246,0.1) 25%, rgba(139,92,246,0.15) 50%, rgba(6,182,212,0.1) 75%, rgba(59,130,246,0.15) 100%)',
+            backgroundImage: colors.gradient,
             backgroundSize: '400% 400%',
             animation: 'holographicShift 12s ease-in-out infinite',
           }}
@@ -66,11 +137,11 @@ export function PaymentDueBanner({ dueDate, overdueDays, isOverdue }: PaymentDue
           }}
         />
         
-        {/* Top edge highlight - ice reflection */}
+        {/* Top edge highlight */}
         <div 
           className="absolute top-0 left-0 right-0 h-[1px]"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(139,92,246,0.4) 80%, transparent 100%)',
+            background: `linear-gradient(90deg, transparent 0%, ${colors.edgeColor} 20%, rgba(255,255,255,0.6) 50%, ${colors.edgeColor} 80%, transparent 100%)`,
           }}
         />
         
@@ -78,41 +149,65 @@ export function PaymentDueBanner({ dueDate, overdueDays, isOverdue }: PaymentDue
         <div 
           className="absolute bottom-0 left-0 right-0 h-[1px]"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.2) 30%, rgba(59,130,246,0.3) 50%, rgba(139,92,246,0.2) 70%, transparent 100%)',
+            background: `linear-gradient(90deg, transparent 0%, ${colors.edgeColor} 30%, ${colors.edgeColor} 50%, ${colors.edgeColor} 70%, transparent 100%)`,
           }}
         />
 
         {/* Content */}
         <div className="relative mx-auto max-w-7xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-center gap-4">
-            {/* Icon with cyan glow */}
-            {(isOverdue || isCritical || isUrgent) && (
+            {/* Icon - Clock for upcoming payment */}
+            {showIcon && (
               <div className="relative">
-                <AlertCircle 
-                  className="h-4 w-4 flex-shrink-0 text-cyan-400 drop-shadow-[0_0_6px_rgba(6,182,212,0.6)]"
-                  style={{ animation: 'subtlePulse 3s ease-in-out infinite' }}
-                />
+                {urgencyLevel === 'warning' ? (
+                  <AlertCircle 
+                    className={`h-4 w-4 flex-shrink-0 ${colors.iconColor}`}
+                    style={{ 
+                      filter: `drop-shadow(0 0 6px ${colors.glowColor})`,
+                      animation: 'subtlePulse 3s ease-in-out infinite'
+                    }}
+                  />
+                ) : (
+                  <Clock 
+                    className={`h-4 w-4 flex-shrink-0 ${colors.iconColor}`}
+                    style={{ filter: `drop-shadow(0 0 6px ${colors.glowColor})` }}
+                  />
+                )}
               </div>
             )}
             
-            {/* Message - high contrast white text */}
-            <p 
-              className="text-[13px] font-medium tracking-wide text-white"
-              style={{ 
-                textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                letterSpacing: '0.02em'
-              }}
-            >
-              {getMessage()}
-            </p>
+            {/* Message - main and sub text */}
+            <div className="flex items-center gap-2">
+              <p 
+                className="text-[13px] font-medium tracking-wide text-white"
+                style={{ 
+                  textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  letterSpacing: '0.02em'
+                }}
+              >
+                {message.main}
+              </p>
+              {message.sub && (
+                <>
+                  <span className="text-white/30">|</span>
+                  <p className="text-[12px] text-white/70">
+                    {message.sub}
+                  </p>
+                </>
+              )}
+            </div>
 
-            {/* CTA with holographic effect */}
+            {/* CTA */}
             <Link
               href="/dashboard/admin/developer"
               className="group relative inline-flex items-center gap-1.5 text-[13px] font-semibold transition-all duration-300"
             >
               <span 
-                className="relative z-10 bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent font-bold"
+                className={`relative z-10 font-bold ${
+                  urgencyLevel === 'warning'
+                    ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400'
+                    : 'bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400'
+                } bg-clip-text text-transparent`}
                 style={{ 
                   backgroundSize: '200% 100%',
                   animation: 'shimmer 3s linear infinite',
@@ -121,14 +216,14 @@ export function PaymentDueBanner({ dueDate, overdueDays, isOverdue }: PaymentDue
                 Pay now
               </span>
               <ArrowRight 
-                className="h-3.5 w-3.5 text-cyan-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-violet-400" 
+                className={`h-3.5 w-3.5 ${colors.iconColor} transition-all duration-300 group-hover:translate-x-1`} 
               />
               
               {/* Hover glow */}
               <div 
                 className="absolute -inset-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
                 style={{
-                  background: 'radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%)',
+                  background: `radial-gradient(circle, ${colors.glowColor.replace('0.6', '0.2')} 0%, transparent 70%)`,
                 }}
               />
             </Link>

@@ -202,6 +202,178 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
   );
 }
 
+// Holographic Payment Countdown Banner
+function PaymentCountdown() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isOverdue, setIsOverdue] = useState(false);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const currentDay = now.getDate();
+      
+      // Get the 1st of the next month
+      let targetDate: Date;
+      if (currentDay >= 1) {
+        targetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+      } else {
+        targetDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      }
+
+      const diff = targetDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setIsOverdue(true);
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      }
+
+      setIsOverdue(false);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return { days, hours, minutes, seconds };
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const getUrgencyLevel = () => {
+    if (isOverdue) return 'critical';
+    if (timeLeft.days <= 3) return 'urgent';
+    if (timeLeft.days <= 7) return 'warning';
+    return 'normal';
+  };
+
+  const urgency = getUrgencyLevel();
+
+  // Format the countdown string
+  const countdownStr = `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`;
+
+  // Get message based on urgency
+  const getMessage = () => {
+    if (isOverdue) {
+      return { main: 'Payment overdue', sub: 'Service suspension pending. Please resolve immediately.' };
+    }
+    if (urgency === 'urgent') {
+      return { main: `${timeLeft.days} days until service pause`, sub: 'Payment required to maintain access.' };
+    }
+    if (urgency === 'warning') {
+      return { main: `Payment due in ${timeLeft.days} days`, sub: 'Services will pause if unpaid.' };
+    }
+    return { main: `Next payment in ${timeLeft.days} days`, sub: 'Billed on the 1st of each month.' };
+  };
+
+  const message = getMessage();
+
+  return (
+    <div className="mb-8 relative overflow-hidden rounded-2xl">
+      {/* Holographic gradient background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: urgency === 'critical' 
+            ? 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(236,72,153,0.2) 25%, rgba(239,68,68,0.15) 50%, rgba(251,146,60,0.1) 75%, rgba(139,92,246,0.15) 100%)'
+            : urgency === 'urgent'
+            ? 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(245,158,11,0.2) 25%, rgba(236,72,153,0.15) 50%, rgba(139,92,246,0.1) 75%, rgba(251,146,60,0.15) 100%)'
+            : 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(59,130,246,0.15) 25%, rgba(236,72,153,0.1) 50%, rgba(6,182,212,0.15) 75%, rgba(139,92,246,0.1) 100%)',
+          backgroundSize: '400% 400%',
+          animation: 'holographicShift 12s ease-in-out infinite',
+        }}
+      />
+
+      {/* Soft glow orbs */}
+      <div 
+        className="absolute -top-20 -right-20 w-60 h-60 rounded-full opacity-40 blur-3xl"
+        style={{
+          background: urgency === 'critical' 
+            ? 'radial-gradient(circle, rgba(236,72,153,0.6) 0%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%)',
+        }}
+      />
+      <div 
+        className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full opacity-30 blur-3xl"
+        style={{
+          background: urgency === 'critical'
+            ? 'radial-gradient(circle, rgba(251,146,60,0.6) 0%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(6,182,212,0.5) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Frosted glass overlay */}
+      <div className="absolute inset-0 bg-white/40 backdrop-blur-xl" />
+
+      {/* Top edge highlight */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-[1px]"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.8) 80%, transparent 100%)',
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative px-6 py-4 flex items-center justify-between">
+        {/* Left - Icon + Message */}
+        <div className="flex items-center gap-4">
+          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+            urgency === 'critical' 
+              ? 'bg-gradient-to-br from-pink-500/20 to-red-500/20' 
+              : urgency === 'urgent'
+              ? 'bg-gradient-to-br from-orange-500/20 to-pink-500/20'
+              : 'bg-gradient-to-br from-violet-500/20 to-cyan-500/20'
+          }`}>
+            {urgency === 'critical' || urgency === 'urgent' ? (
+              <AlertCircle className={`h-5 w-5 ${urgency === 'critical' ? 'text-pink-600' : 'text-orange-500'}`} />
+            ) : (
+              <Calendar className="h-5 w-5 text-violet-500" />
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <p className={`text-[15px] font-semibold ${
+                urgency === 'critical' ? 'text-pink-700' : urgency === 'urgent' ? 'text-orange-700' : 'text-gray-800'
+              }`}>
+                {message.main}
+              </p>
+              <span className="text-gray-300">|</span>
+              <p className="text-[13px] text-gray-500">{message.sub}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right - CTA only */}
+        <button
+          onClick={() => document.getElementById('subscribe-section')?.scrollIntoView({ behavior: 'smooth' })}
+          className={`group flex items-center gap-1.5 text-[13px] font-semibold transition-all ${
+            urgency === 'critical' 
+              ? 'text-pink-600 hover:text-pink-700' 
+              : urgency === 'urgent'
+              ? 'text-orange-600 hover:text-orange-700'
+              : 'text-violet-600 hover:text-violet-700'
+          }`}
+        >
+          <span>Pay now</span>
+          <span className="transition-transform group-hover:translate-x-0.5">→</span>
+        </button>
+      </div>
+
+      {/* Keyframe animation */}
+      <style jsx>{`
+        @keyframes holographicShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function DeveloperBillingContent() {
   const { user } = useUser();
   const searchParams = useSearchParams();
@@ -219,6 +391,7 @@ function DeveloperBillingContent() {
   const [selectedOrder, setSelectedOrder] = useState<WorkOrder | null>(null);
   const [comments, setComments] = useState<WorkOrderComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [workOrdersExpanded, setWorkOrdersExpanded] = useState(false); // Collapsed by default
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -856,6 +1029,9 @@ function DeveloperBillingContent() {
         )}
       </div>
 
+      {/* Payment Due Countdown - Apple Inspired */}
+      <PaymentCountdown />
+
       {/* View as Stephen Toggle - Developer Only */}
       {actuallyIsDev && (
         <div className="mb-6">
@@ -1399,26 +1575,34 @@ function DeveloperBillingContent() {
         </div>
       )}
 
-      {/* Work Orders List */}
+      {/* Work Orders List - Collapsible */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <div>
+        <button
+          onClick={() => setWorkOrdersExpanded(!workOrdersExpanded)}
+          className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="text-left">
             <h2 className="font-semibold text-gray-900">Work Orders</h2>
             <p className="text-sm text-gray-500">{pendingOrders.length} pending · {workOrders.filter(o => o.status === 'completed').length} completed</p>
           </div>
-        </div>
+          <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${workOrdersExpanded ? 'rotate-180' : ''}`} />
+        </button>
 
-        {isLoading ? (
-          <div className="p-8 text-center">
+        {workOrdersExpanded && isLoading && (
+          <div className="p-8 text-center border-t border-gray-100">
             <Loader2 className="h-6 w-6 animate-spin text-gray-300 mx-auto" />
           </div>
-        ) : workOrders.length === 0 ? (
-          <div className="p-8 text-center">
+        )}
+        
+        {workOrdersExpanded && !isLoading && workOrders.length === 0 && (
+          <div className="p-8 text-center border-t border-gray-100">
             <Clock className="h-10 w-10 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500">No work orders yet</p>
           </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
+        )}
+        
+        {workOrdersExpanded && !isLoading && workOrders.length > 0 && (
+          <div className="divide-y divide-gray-100 border-t border-gray-100">
             {workOrders.map((order) => {
               const catStyle = categoryStyles[order.category];
               const statStyle = statusStyles[order.status];
@@ -1778,26 +1962,30 @@ function DeveloperBillingContent() {
         </div>
       )}
 
-      {/* Platform Valuation */}
-      <div className="pt-6 border-t border-gray-100">
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="w-full group">
-              <div className="flex items-center justify-center gap-2 py-3 text-sm">
-                <span className="text-gray-400">Platform value saved:</span>
-                <span className="font-medium text-emerald-600">${(platformModules.reduce((sum, m) => sum + m.value, 0) - historyTotals.all).toLocaleString()}</span>
-                <ChevronDown className="h-4 w-4 text-gray-300 group-hover:text-gray-400" />
-              </div>
-            </button>
-          </DialogTrigger>
-          <ValuationDialogContent totalPaid={historyTotals.all} />
-        </Dialog>
-      </div>
+      {/* Platform Valuation - Only show when Work Orders expanded */}
+      {workOrdersExpanded && (
+        <div className="pt-6 border-t border-gray-100">
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="w-full group">
+                <div className="flex items-center justify-center gap-2 py-3 text-sm">
+                  <span className="text-gray-400">Platform value saved:</span>
+                  <span className="font-medium text-emerald-600">${(platformModules.reduce((sum, m) => sum + m.value, 0) - historyTotals.all).toLocaleString()}</span>
+                  <ChevronDown className="h-4 w-4 text-gray-300 group-hover:text-gray-400" />
+                </div>
+              </button>
+            </DialogTrigger>
+            <ValuationDialogContent totalPaid={historyTotals.all} />
+          </Dialog>
+        </div>
+      )}
 
-      {/* Footer */}
-      <p className="text-center text-xs text-gray-400 mt-4 mb-8">
-        {isDev ? 'Developer access' : 'Client access'}
-      </p>
+      {/* Footer - Only show when Work Orders expanded */}
+      {workOrdersExpanded && (
+        <p className="text-center text-xs text-gray-400 mt-4 mb-8">
+          {isDev ? 'Developer access' : 'Client access'}
+        </p>
+      )}
     </div>
   );
 }
