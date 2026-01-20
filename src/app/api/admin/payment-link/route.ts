@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
     // Determine price based on plan type
     const isMonthly = planType === 'monthly';
     const priceId = isMonthly 
-      ? process.env.STRIPE_PRICE_MONTHLY 
-      : process.env.STRIPE_PRICE_3MONTH;
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY 
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_3MONTH;
 
     if (!priceId) {
       return NextResponse.json({ error: 'Payment price not configured' }, { status: 500 });

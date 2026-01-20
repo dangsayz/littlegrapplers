@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const isSubscription = data.planType === 'monthly';
     const priceId = isSubscription 
-      ? process.env.STRIPE_PRICE_MONTHLY 
-      : process.env.STRIPE_PRICE_3MONTH;
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY 
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_3MONTH;
 
     if (!priceId) {
       return NextResponse.json({ error: 'Payment configuration error' }, { status: 500 });
