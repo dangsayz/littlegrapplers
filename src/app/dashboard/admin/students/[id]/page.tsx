@@ -12,7 +12,8 @@ import {
   MapPin,
   Pencil,
   FileText,
-  Clock
+  Clock,
+  StickyNote
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -314,6 +315,23 @@ export default async function AdminStudentDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Admin Notes */}
+      {student.notes && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <StickyNote className="h-5 w-5 text-muted-foreground" />
+              Admin Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-wrap bg-muted/50 rounded-lg p-4">
+              {student.notes}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Actions */}
       <Card>

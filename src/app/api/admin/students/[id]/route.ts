@@ -89,6 +89,9 @@ export async function PUT(
     if (body.emergency_contact_relationship !== undefined) {
       updateData.emergency_contact_relationship = body.emergency_contact_relationship || null;
     }
+    if (body.notes !== undefined) {
+      updateData.notes = body.notes || null;
+    }
 
     const { data: student, error } = await supabaseAdmin
       .from('signed_waivers')

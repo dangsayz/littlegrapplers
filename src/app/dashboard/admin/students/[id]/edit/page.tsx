@@ -32,6 +32,7 @@ interface StudentData {
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   emergency_contact_relationship: string | null;
+  notes: string | null;
 }
 
 export default function AdminStudentEditPage({
@@ -62,6 +63,7 @@ export default function AdminStudentEditPage({
     emergency_contact_name: '',
     emergency_contact_phone: '',
     emergency_contact_relationship: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -85,6 +87,7 @@ export default function AdminStudentEditPage({
           emergency_contact_name: data.emergency_contact_name || '',
           emergency_contact_phone: data.emergency_contact_phone || '',
           emergency_contact_relationship: data.emergency_contact_relationship || '',
+          notes: data.notes || '',
         });
       } catch (err) {
         setError('Failed to load student data');
@@ -343,6 +346,28 @@ export default function AdminStudentEditPage({
                   onChange={(e) => handleChange('emergency_contact_phone', e.target.value)}
                 />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Admin Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                placeholder="Membership dates, special notes, etc..."
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">
+                Use this field to track membership start/end dates or any other important notes.
+              </p>
             </div>
           </CardContent>
         </Card>
