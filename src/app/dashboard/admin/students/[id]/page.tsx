@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabaseAdmin } from '@/lib/supabase';
 import { StudentActions } from './student-actions';
+import { InlineNotes } from '@/components/admin/inline-notes';
 
 
 export default async function AdminStudentDetailPage({
@@ -316,22 +317,8 @@ export default async function AdminStudentDetailPage({
         </Card>
       </div>
 
-      {/* Admin Notes */}
-      {student.notes && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <StickyNote className="h-5 w-5 text-muted-foreground" />
-              Admin Notes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap bg-muted/50 rounded-lg p-4">
-              {student.notes}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Admin Notes - Inline Editable */}
+      <InlineNotes studentId={id} initialNotes={student.notes} />
 
       {/* Actions */}
       <Card>

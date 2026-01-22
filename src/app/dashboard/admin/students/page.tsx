@@ -186,7 +186,7 @@ export default async function AdminStudentsPage({
                         {student.child_full_name}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="whitespace-nowrap">
                           {calculateAge(student.child_date_of_birth)}
                         </Badge>
                       </TableCell>
@@ -196,10 +196,10 @@ export default async function AdminStudentsPage({
                       <TableCell className="text-muted-foreground">
                         {student.parent_email}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground whitespace-nowrap">
                         {student.parent_phone || '-'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground whitespace-nowrap">
                         {formatDate(student.signed_at)}
                       </TableCell>
                       <TableCell className="text-right">
@@ -224,13 +224,13 @@ export default async function AdminStudentsPage({
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <div className="px-2 py-1.5">
                               <PaymentLinkButton
                                 studentId={student.id}
                                 studentName={student.child_full_name}
                                 parentEmail={student.parent_email}
                               />
-                            </DropdownMenuItem>
+                            </div>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               className="text-destructive focus:text-destructive"
