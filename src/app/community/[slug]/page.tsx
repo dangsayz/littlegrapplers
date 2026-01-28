@@ -7,7 +7,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Settings } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Settings, Eye, CreditCard, Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog, CloudSun } from 'lucide-react';
 import { LocationOfflineOverlay } from '@/components/community/location-offline-overlay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -618,7 +618,8 @@ export default function CommunityPage() {
   const [replyMenuOpen, setReplyMenuOpen] = useState<string | null>(null);
   const [membersPage, setMembersPage] = useState(0);
   const MEMBERS_PER_PAGE = 20;
-  const [recentActivity, setRecentActivity] = useState<Array<{ id: string; type: string; name: string; subtitle?: string; date: string }>>([]);
+  const [recentActivity, setRecentActivity] = useState<Array<{ id: string; type: string; name: string; subtitle?: string; date: string; enrollmentId?: string }>>([]);
+  const [weather, setWeather] = useState<{ temperature: number | null; description: string; icon: string; localTime: string } | null>(null);
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
   const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
@@ -792,6 +793,13 @@ export default function CommunityPage() {
           const activityData = await activityRes.json();
           setRecentActivity(activityData.activity || []);
         }
+      }
+
+      // Fetch weather
+      const weatherRes = await fetch(`/api/locations/${slug}/weather`);
+      if (weatherRes.ok) {
+        const weatherData = await weatherRes.json();
+        setWeather(weatherData);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -1330,74 +1338,295 @@ export default function CommunityPage() {
           {/* Main Content - Left Column */}
           <div className="flex-1 min-w-0 space-y-6">
             
-            {/* Welcome Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, <span className="text-[#2EC4B6]">{displayUserName}</span>
-              </h1>
-              <p className="mt-1 text-gray-500 text-sm">{location?.name} Community</p>
-            </div>
-
-            {/* Activity Feed - Apple Inspired */}
-            {recentActivity.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100">
-                  <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-                  <p className="text-sm text-gray-500">What&apos;s happening in your community</p>
+            {/* Unified Welcome + Activity Card */}
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200/50 shadow-sm">
+              {/* Soft gradient background - more subtle */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
+              {/* Teal accent gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/20 via-transparent to-[#8FE3CF]/10" />
+              {/* Subtle glow overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5" />
+              
+              {/* Weather Effects Layer */}
+              {weather && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  {/* Sunny Effect - Floating light rays */}
+                  {(weather.icon === 'sun' || weather.icon === 'cloud-sun') && (
+                    <>
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-radial from-[#FFC857]/20 via-[#FFC857]/5 to-transparent rounded-full blur-xl animate-pulse" style={{ animationDuration: '3s' }} />
+                      <div className="absolute top-4 right-8 w-2 h-2 bg-[#FFC857]/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute top-12 right-16 w-1.5 h-1.5 bg-[#FFC857]/30 rounded-full animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+                      <div className="absolute top-8 right-4 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+                    </>
+                  )}
+                  
+                  {/* Snow Effect - Falling snowflakes */}
+                  {weather.icon === 'cloud-snow' && (
+                    <>
+                      {[...Array(12)].map((_, i) => (
+                        <div
+                          key={`snow-${i}`}
+                          className="absolute w-1.5 h-1.5 bg-white/60 rounded-full"
+                          style={{
+                            left: `${8 + (i * 8)}%`,
+                            top: '-5%',
+                            animation: `snowfall ${3 + (i % 3)}s linear infinite`,
+                            animationDelay: `${i * 0.3}s`,
+                          }}
+                        />
+                      ))}
+                      <style jsx>{`
+                        @keyframes snowfall {
+                          0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+                          10% { opacity: 1; }
+                          90% { opacity: 1; }
+                          100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+                        }
+                      `}</style>
+                    </>
+                  )}
+                  
+                  {/* Rain Effect - Falling rain drops */}
+                  {(weather.icon === 'cloud-rain' || weather.icon === 'cloud-drizzle') && (
+                    <>
+                      {[...Array(15)].map((_, i) => (
+                        <div
+                          key={`rain-${i}`}
+                          className="absolute w-0.5 h-3 bg-gradient-to-b from-[#8FE3CF]/40 to-transparent rounded-full"
+                          style={{
+                            left: `${5 + (i * 6.5)}%`,
+                            top: '-3%',
+                            animation: `rainfall ${0.8 + (i % 3) * 0.2}s linear infinite`,
+                            animationDelay: `${i * 0.1}s`,
+                          }}
+                        />
+                      ))}
+                      <style jsx>{`
+                        @keyframes rainfall {
+                          0% { transform: translateY(-10px); opacity: 0; }
+                          10% { opacity: 0.6; }
+                          90% { opacity: 0.4; }
+                          100% { transform: translateY(500px); opacity: 0; }
+                        }
+                      `}</style>
+                    </>
+                  )}
+                  
+                  {/* Cloudy Effect - Floating clouds */}
+                  {(weather.icon === 'cloud' || weather.icon === 'cloud-fog') && (
+                    <>
+                      <div className="absolute top-4 -left-8 w-24 h-8 bg-white/5 rounded-full blur-lg animate-pulse" style={{ animation: 'cloudFloat 8s ease-in-out infinite' }} />
+                      <div className="absolute top-12 left-1/4 w-16 h-6 bg-white/4 rounded-full blur-md" style={{ animation: 'cloudFloat 10s ease-in-out infinite', animationDelay: '2s' }} />
+                      <div className="absolute top-6 right-1/4 w-20 h-7 bg-white/3 rounded-full blur-lg" style={{ animation: 'cloudFloat 12s ease-in-out infinite', animationDelay: '4s' }} />
+                      <style jsx>{`
+                        @keyframes cloudFloat {
+                          0%, 100% { transform: translateX(0); }
+                          50% { transform: translateX(20px); }
+                        }
+                      `}</style>
+                    </>
+                  )}
+                  
+                  {/* Lightning Effect - Flash */}
+                  {weather.icon === 'cloud-lightning' && (
+                    <>
+                      <div className="absolute inset-0 bg-white/0 animate-pulse" style={{ animation: 'lightning 4s ease-in-out infinite' }} />
+                      <style jsx>{`
+                        @keyframes lightning {
+                          0%, 89%, 91%, 93%, 100% { background-color: transparent; }
+                          90%, 92% { background-color: rgba(255,255,255,0.1); }
+                        }
+                      `}</style>
+                    </>
+                  )}
                 </div>
-                <div className="divide-y divide-gray-50">
-                  {recentActivity.slice(0, 5).map((activity) => {
-                    // Activity type config
-                    const config: Record<string, { icon: typeof Users; gradient: string; color: string; title: string }> = {
-                      new_member: { icon: Users, gradient: 'from-[#2EC4B6]/20 to-[#8FE3CF]/20', color: 'text-[#2EC4B6]', title: 'Welcome' },
-                      new_video: { icon: Video, gradient: 'from-[#F7931E]/20 to-[#FFC857]/20', color: 'text-[#F7931E]', title: 'New Video' },
-                      new_image: { icon: ImageIcon, gradient: 'from-[#8FE3CF]/20 to-[#2EC4B6]/20', color: 'text-[#8FE3CF]', title: 'New Photo' },
-                      comment: { icon: MessageCircle, gradient: 'from-slate-200 to-slate-100', color: 'text-slate-500', title: 'Commented' },
-                      birthday: { icon: Cake, gradient: 'from-[#FF5A5F]/20 to-[#FFC857]/20', color: 'text-[#FF5A5F]', title: 'Birthday' },
-                      student_of_month: { icon: Award, gradient: 'from-[#FFC857]/30 to-[#F7931E]/20', color: 'text-[#F7931E]', title: 'Student of the Month' },
-                    };
-                    const { icon: Icon, gradient, color, title } = config[activity.type] || config.new_member;
+              )}
+              
+              {/* Noise texture for depth */}
+              <div 
+                className="absolute inset-0 opacity-[0.02] mix-blend-overlay"
+                style={{ 
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` 
+                }} 
+              />
+              {/* Edge highlights */}
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2EC4B6]/30 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Welcome Section */}
+                <div className="p-6 pb-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h1 className="text-2xl font-bold text-white drop-shadow-sm">
+                        Welcome back, <span className="text-white/90">{displayUserName}</span>
+                      </h1>
+                      <p className="mt-1 text-white/70 text-sm">{location?.name} Community</p>
+                    </div>
                     
-                    return (
-                      <div 
-                        key={activity.id}
-                        className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50 transition-colors"
-                      >
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-                          <Icon className={`h-5 w-5 ${color}`} />
+                    {/* Weather & Time Widget */}
+                    {weather && (
+                      <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2">
+                        {/* Weather Icon */}
+                        <div className="text-white/90">
+                          {weather.icon === 'sun' && <Sun className="h-6 w-6" />}
+                          {weather.icon === 'cloud' && <Cloud className="h-6 w-6" />}
+                          {weather.icon === 'cloud-sun' && <CloudSun className="h-6 w-6" />}
+                          {weather.icon === 'cloud-rain' && <CloudRain className="h-6 w-6" />}
+                          {weather.icon === 'cloud-snow' && <CloudSnow className="h-6 w-6" />}
+                          {weather.icon === 'cloud-lightning' && <CloudLightning className="h-6 w-6" />}
+                          {weather.icon === 'cloud-drizzle' && <CloudDrizzle className="h-6 w-6" />}
+                          {weather.icon === 'cloud-fog' && <CloudFog className="h-6 w-6" />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 text-sm">
-                            {title === 'Welcome' ? (
-                              <>{title}, <span className={color}>{activity.name}</span></>
-                            ) : title === 'Commented' ? (
-                              <><span className={color}>{activity.name}</span> commented</>
-                            ) : title === 'Birthday' ? (
-                              <><span className={color}>{activity.name}</span></>
-                            ) : (
-                              <><span className={color}>{activity.name}</span></>
+                        <div className="text-right">
+                          <div className="flex items-baseline gap-1">
+                            {weather.temperature !== null && (
+                              <span className="text-xl font-semibold text-white">{weather.temperature}°</span>
                             )}
-                          </p>
-                          <p className="text-gray-500 text-xs mt-0.5 truncate">{activity.subtitle || ''}</p>
+                            <span className="text-xs text-white/60">{weather.localTime}</span>
+                          </div>
+                          <p className="text-xs text-white/50">{weather.description}</p>
                         </div>
-                        <span className="text-xs text-gray-400 flex-shrink-0">
-                          {formatRelativeTime(activity.date)}
-                        </span>
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
                 </div>
+
+                {/* Divider */}
+                {recentActivity.length > 0 && (
+                  <div className="mx-5 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                )}
+
+                {/* Activity Section */}
+                {recentActivity.length > 0 && (
+                  <>
+                    <div className="px-6 pt-4 pb-2">
+                      <h2 className="text-sm font-semibold text-white/80 uppercase tracking-wide">Recent Activity</h2>
+                    </div>
+                    <div className="divide-y divide-white/10">
+                      {recentActivity.slice(0, 5).map((activity) => {
+                        // Activity type config
+                        const config: Record<string, { icon: typeof Users; bgStyle: string; title: string }> = {
+                          new_member: { icon: Users, bgStyle: 'bg-white/20 backdrop-blur-sm', title: 'Welcome' },
+                          new_video: { icon: Video, bgStyle: 'bg-white/25 backdrop-blur-sm', title: 'New Video' },
+                          new_image: { icon: ImageIcon, bgStyle: 'bg-white/20 backdrop-blur-sm', title: 'New Photo' },
+                          comment: { icon: MessageCircle, bgStyle: 'bg-white/15 backdrop-blur-sm', title: 'Commented' },
+                          birthday: { icon: Cake, bgStyle: 'bg-white/25 backdrop-blur-sm', title: 'Birthday' },
+                          student_of_month: { icon: Award, bgStyle: 'bg-white/30 backdrop-blur-sm', title: 'Student of the Month' },
+                        };
+                        const { icon: Icon, bgStyle, title } = config[activity.type] || config.new_member;
+                        
+                        const showAdminActions = isAdmin && activity.enrollmentId && ['new_member', 'birthday', 'student_of_month'].includes(activity.type);
+                        
+                        return (
+                          <div 
+                            key={activity.id}
+                            className="flex items-center gap-4 px-5 py-3 hover:bg-white/5 transition-colors group relative"
+                          >
+                            <div className={`flex-shrink-0 w-9 h-9 rounded-full ${bgStyle} flex items-center justify-center shadow-lg shadow-black/10 group-hover:bg-white/30 transition-colors`}>
+                              <Icon className="h-4 w-4 text-white drop-shadow-sm" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-white text-sm drop-shadow-sm block">
+                                {title === 'Welcome' ? (
+                                  <>{title}, {showAdminActions ? (
+                                    <span className="relative inline-block group/name">
+                                      <span className="font-semibold cursor-pointer hover:underline">{activity.name}</span>
+                                      {/* Admin Quick Actions Dropdown */}
+                                      <span className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover/name:opacity-100 group-hover/name:visible transition-all duration-200 z-50">
+                                        <span className="bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[180px] block">
+                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <Eye className="h-4 w-4 text-gray-400" />
+                                            View Details
+                                          </Link>
+                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <Pencil className="h-4 w-4 text-gray-400" />
+                                            Edit Student
+                                          </Link>
+                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <CreditCard className="h-4 w-4 text-gray-400" />
+                                            Send Payment Link
+                                          </Link>
+                                          <span className="border-t border-gray-100 my-1 block" />
+                                          <button className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+                                            <Trash2 className="h-4 w-4" />
+                                            Delete
+                                          </button>
+                                        </span>
+                                      </span>
+                                    </span>
+                                  ) : (
+                                    <span className="font-semibold">{activity.name}</span>
+                                  )}</>
+                                ) : title === 'Commented' ? (
+                                  <><span className="font-semibold">{activity.name}</span> commented</>
+                                ) : showAdminActions ? (
+                                  <span className="relative inline-block group/name">
+                                    <span className="font-semibold cursor-pointer hover:underline">{activity.name}</span>
+                                    {/* Admin Quick Actions Dropdown */}
+                                    <span className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover/name:opacity-100 group-hover/name:visible transition-all duration-200 z-50">
+                                      <span className="bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[180px] block">
+                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                          <Eye className="h-4 w-4 text-gray-400" />
+                                          View Details
+                                        </Link>
+                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                          <Pencil className="h-4 w-4 text-gray-400" />
+                                          Edit Student
+                                        </Link>
+                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                          <CreditCard className="h-4 w-4 text-gray-400" />
+                                          Send Payment Link
+                                        </Link>
+                                        <span className="border-t border-gray-100 my-1 block" />
+                                        <button className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+                                          <Trash2 className="h-4 w-4" />
+                                          Delete
+                                        </button>
+                                      </span>
+                                    </span>
+                                  </span>
+                                ) : (
+                                  <span className="font-semibold">{activity.name}</span>
+                                )}
+                              </span>
+                              <p className="text-white/60 text-xs mt-0.5 truncate">{activity.subtitle || ''}</p>
+                            </div>
+                            <span className="text-xs text-white/50 flex-shrink-0 font-medium">
+                              {formatRelativeTime(activity.date)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* Empty state padding when no activity */}
+                {recentActivity.length === 0 && <div className="pb-2" />}
               </div>
-            )}
+            </div>
 
             {/* Media Gallery */}
             {media.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="p-5 border-b border-gray-100">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-900">Media Gallery</h2>
-                      <p className="text-sm text-gray-500">Videos and images from your instructor</p>
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Media Gallery</h2>
+                        <p className="text-sm text-gray-500">Videos and images from your instructor</p>
+                      </div>
+                      {isAdmin && (
+                        <Link 
+                          href="/dashboard/admin/media" 
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Video
+                        </Link>
+                      )}
                     </div>
                     <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
                       {(['all', 'video', 'image'] as const).map((type) => {

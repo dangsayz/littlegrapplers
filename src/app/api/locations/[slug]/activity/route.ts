@@ -7,6 +7,7 @@ interface ActivityItem {
   name: string;
   subtitle?: string;
   date: string;
+  enrollmentId?: string;
 }
 
 export async function GET(
@@ -48,6 +49,7 @@ export async function GET(
         name: `${e.child_first_name} ${e.child_last_name}`,
         subtitle: 'Joined the community',
         date: e.submitted_at,
+        enrollmentId: e.id,
       });
     });
 
@@ -125,6 +127,7 @@ export async function GET(
           name: `${e.child_first_name} ${e.child_last_name}`,
           subtitle,
           date: birthdayThisYear.toISOString(),
+          enrollmentId: e.id,
         });
       }
     });
