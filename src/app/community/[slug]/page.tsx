@@ -618,6 +618,7 @@ export default function CommunityPage() {
   const [replyMenuOpen, setReplyMenuOpen] = useState<string | null>(null);
   const [membersPage, setMembersPage] = useState(0);
   const MEMBERS_PER_PAGE = 20;
+  const [recentActivity, setRecentActivity] = useState<Array<{ id: string; type: string; name: string; subtitle?: string; date: string }>>([]);
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
   const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
@@ -782,6 +783,15 @@ export default function CommunityPage() {
       if (sotmRes.ok) {
         const sotmData = await sotmRes.json();
         setStudentOfMonth(sotmData.studentOfMonth);
+      }
+
+      // Fetch recent activity (new members who joined)
+      if (locationData?.id) {
+        const activityRes = await fetch(`/api/locations/${slug}/activity`);
+        if (activityRes.ok) {
+          const activityData = await activityRes.json();
+          setRecentActivity(activityData.activity || []);
+        }
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -1327,6 +1337,58 @@ export default function CommunityPage() {
               </h1>
               <p className="mt-1 text-gray-500 text-sm">{location?.name} Community</p>
             </div>
+
+            {/* Activity Feed - Apple Inspired */}
+            {recentActivity.length > 0 && (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-100">
+                  <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                  <p className="text-sm text-gray-500">What&apos;s happening in your community</p>
+                </div>
+                <div className="divide-y divide-gray-50">
+                  {recentActivity.slice(0, 5).map((activity) => {
+                    // Activity type config
+                    const config: Record<string, { icon: typeof Users; gradient: string; color: string; title: string }> = {
+                      new_member: { icon: Users, gradient: 'from-[#2EC4B6]/20 to-[#8FE3CF]/20', color: 'text-[#2EC4B6]', title: 'Welcome' },
+                      new_video: { icon: Video, gradient: 'from-[#F7931E]/20 to-[#FFC857]/20', color: 'text-[#F7931E]', title: 'New Video' },
+                      new_image: { icon: ImageIcon, gradient: 'from-[#8FE3CF]/20 to-[#2EC4B6]/20', color: 'text-[#8FE3CF]', title: 'New Photo' },
+                      comment: { icon: MessageCircle, gradient: 'from-slate-200 to-slate-100', color: 'text-slate-500', title: 'Commented' },
+                      birthday: { icon: Cake, gradient: 'from-[#FF5A5F]/20 to-[#FFC857]/20', color: 'text-[#FF5A5F]', title: 'Birthday' },
+                      student_of_month: { icon: Award, gradient: 'from-[#FFC857]/30 to-[#F7931E]/20', color: 'text-[#F7931E]', title: 'Student of the Month' },
+                    };
+                    const { icon: Icon, gradient, color, title } = config[activity.type] || config.new_member;
+                    
+                    return (
+                      <div 
+                        key={activity.id}
+                        className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50 transition-colors"
+                      >
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+                          <Icon className={`h-5 w-5 ${color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 text-sm">
+                            {title === 'Welcome' ? (
+                              <>{title}, <span className={color}>{activity.name}</span></>
+                            ) : title === 'Commented' ? (
+                              <><span className={color}>{activity.name}</span> commented</>
+                            ) : title === 'Birthday' ? (
+                              <><span className={color}>{activity.name}</span></>
+                            ) : (
+                              <><span className={color}>{activity.name}</span></>
+                            )}
+                          </p>
+                          <p className="text-gray-500 text-xs mt-0.5 truncate">{activity.subtitle || ''}</p>
+                        </div>
+                        <span className="text-xs text-gray-400 flex-shrink-0">
+                          {formatRelativeTime(activity.date)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Media Gallery */}
             {media.length > 0 && (
@@ -2274,59 +2336,6 @@ export default function CommunityPage() {
         </div>
       </Container>
 
-      {/* Admin Quick Tools FAB - Only visible for admins */}
-      {isAdmin && (
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
-          {/* Expandable menu */}
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="flex flex-col gap-2"
-          >
-            {/* Upload Video Button */}
-            <Link
-              href="/dashboard/admin/media"
-              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-[#2EC4B6]/30 transition-all"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2EC4B6] to-[#2EC4B6]/80 flex items-center justify-center shadow-sm">
-                <Video className="h-5 w-5 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-gray-900">Upload Media</p>
-                <p className="text-xs text-gray-500">Add videos or images</p>
-              </div>
-            </Link>
-
-            {/* Manage Community Button */}
-            <Link
-              href="/dashboard/admin/community"
-              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-[#F7931E]/30 transition-all"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F7931E] to-[#FFC857] flex items-center justify-center shadow-sm">
-                <MessageCircle className="h-5 w-5 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-gray-900">Manage Posts</p>
-                <p className="text-xs text-gray-500">Moderate discussions</p>
-              </div>
-            </Link>
-
-            {/* Admin Dashboard Link */}
-            <Link
-              href="/dashboard/admin"
-              className="group flex items-center gap-3 pl-4 pr-5 py-3 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:border-gray-300 transition-all"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-sm">
-                <Settings className="h-5 w-5 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-gray-900">Admin Panel</p>
-                <p className="text-xs text-gray-500">Full dashboard</p>
-              </div>
-            </Link>
-          </motion.div>
-        </div>
-      )}
 
       {/* Media Preview Modal - Apple-style Blurred Background */}
       {previewMedia && (

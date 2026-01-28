@@ -29,6 +29,7 @@ import { EnrollmentActions } from './enrollment-actions';
 import { ClickStopWrapper } from './click-stop-wrapper';
 import { SearchForm } from './search-form';
 import { CreateEnrollmentDialog } from './create-enrollment-dialog';
+import { CreateNewStudentDialog } from './create-new-student-dialog';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -224,6 +225,7 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
               <span className="text-orange-600 text-sm font-medium">{pendingCount} pending</span>
             </div>
           )}
+          <CreateNewStudentDialog locations={locations || []} />
           <CreateEnrollmentDialog locations={locations || []} />
         </div>
       </div>

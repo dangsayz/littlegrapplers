@@ -29,7 +29,7 @@ import {
 export default async function AdminStudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; location?: string }>;
+  searchParams: Promise<{ search?: string; location?: string; status?: string }>;
 }) {
   const user = await currentUser();
   
@@ -39,17 +39,57 @@ export default async function AdminStudentsPage({
 
   const resolvedSearchParams = await searchParams;
 
-  // Fetch all signed waivers (students)
+  // Fetch all enrollments (the source of truth for students)
   let query = supabaseAdmin
-    .from('signed_waivers')
-    .select('*')
-    .order('signed_at', { ascending: false });
+    .from('enrollments')
+    .select(`
+      id,
+      child_first_name,
+      child_last_name,
+      child_date_of_birth,
+      guardian_first_name,
+      guardian_last_name,
+      guardian_email,
+      guardian_phone,
+      status,
+      location_id,
+      submitted_at,
+      locations(name)
+    `)
+    .order('submitted_at', { ascending: false });
+
+  // Filter by status
+  const statusFilter = resolvedSearchParams.status || 'active';
+  if (statusFilter === 'active') {
+    query = query.in('status', ['approved', 'active']);
+  } else if (statusFilter === 'cancelled') {
+    query = query.eq('status', 'cancelled');
+  }
+  // 'all' = no status filter
 
   if (resolvedSearchParams.search) {
-    query = query.or(`child_full_name.ilike.%${resolvedSearchParams.search}%,parent_email.ilike.%${resolvedSearchParams.search}%,parent_first_name.ilike.%${resolvedSearchParams.search}%,parent_last_name.ilike.%${resolvedSearchParams.search}%`);
+    query = query.or(`child_first_name.ilike.%${resolvedSearchParams.search}%,child_last_name.ilike.%${resolvedSearchParams.search}%,guardian_email.ilike.%${resolvedSearchParams.search}%,guardian_first_name.ilike.%${resolvedSearchParams.search}%,guardian_last_name.ilike.%${resolvedSearchParams.search}%`);
   }
 
-  const { data: students, error } = await query.limit(100);
+  if (resolvedSearchParams.location && resolvedSearchParams.location !== 'all') {
+    query = query.eq('location_id', resolvedSearchParams.location);
+  }
+
+  const { data: enrollments, error } = await query.limit(100);
+
+  // Transform to student format for display
+  const students = (enrollments || []).map(e => ({
+    id: e.id,
+    child_full_name: `${e.child_first_name} ${e.child_last_name}`,
+    child_date_of_birth: e.child_date_of_birth,
+    parent_first_name: e.guardian_first_name,
+    parent_last_name: e.guardian_last_name,
+    parent_email: e.guardian_email,
+    parent_phone: e.guardian_phone,
+    signed_at: e.submitted_at,
+    status: e.status,
+    location_name: (e.locations as unknown as { name: string } | null)?.name || 'Unknown',
+  }));
 
   // Fetch locations for filter
   const { data: locations } = await supabaseAdmin
@@ -124,6 +164,15 @@ export default async function AdminStudentsPage({
               />
             </div>
             <select
+              name="status"
+              defaultValue={resolvedSearchParams.status || 'active'}
+              className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
+            >
+              <option value="active">Active Only</option>
+              <option value="all">All Students</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select
               name="location"
               defaultValue={resolvedSearchParams.location || 'all'}
               className="h-10 rounded-md border border-slate-200 bg-white/80 px-3 text-sm text-slate-600"
@@ -180,6 +229,8 @@ export default async function AdminStudentsPage({
                     parent_email: string;
                     parent_phone: string | null;
                     signed_at: string;
+                    status: string;
+                    location_name: string;
                   }) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">

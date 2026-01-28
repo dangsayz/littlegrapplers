@@ -16,6 +16,11 @@ import {
   FileText,
   AlertCircle,
   Shield,
+  Sparkles,
+  CreditCard,
+  UserPlus,
+  Send,
+  RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -111,6 +116,14 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
   
   const hasPaymentRecord = !!subscription;
 
+  // Fetch activity logs for this enrollment
+  const { data: activityLogs } = await supabaseAdmin
+    .from('activity_logs')
+    .select('*')
+    .eq('entity_id', id)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
   // Fetch reviewer info if reviewed
   let reviewerName = null;
   if (enrollment.reviewed_by) {
@@ -148,6 +161,54 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
       hour: 'numeric',
       minute: '2-digit',
     });
+  };
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const getActivityIcon = (action: string) => {
+    if (action.includes('created') || action.includes('submitted')) return UserPlus;
+    if (action.includes('approved') || action.includes('active')) return CheckCircle;
+    if (action.includes('payment') || action.includes('subscription')) return CreditCard;
+    if (action.includes('email') || action.includes('sent')) return Send;
+    if (action.includes('transfer') || action.includes('location')) return RefreshCw;
+    return Sparkles;
+  };
+
+  const getActivityMessage = (action: string, details: Record<string, unknown> | null) => {
+    const studentName = details?.student_name || `${enrollment.child_first_name} ${enrollment.child_last_name}`;
+    
+    if (action === 'enrollment.admin_created_new') {
+      return { title: `Welcome, ${studentName}`, subtitle: 'Joined Little Grapplers' };
+    }
+    if (action === 'enrollment.submitted') {
+      return { title: `Welcome, ${studentName}`, subtitle: 'Enrollment submitted' };
+    }
+    if (action === 'enrollment.approved') {
+      return { title: 'Enrollment Approved', subtitle: `${studentName} is ready to train` };
+    }
+    if (action === 'enrollment.activated') {
+      return { title: 'Now Active', subtitle: `${studentName} is officially enrolled` };
+    }
+    if (action.includes('payment_link')) {
+      return { title: 'Payment Link Sent', subtitle: `Sent to ${details?.guardian_email || 'parent'}` };
+    }
+    if (action.includes('location_transfer')) {
+      return { title: 'Location Updated', subtitle: `Transferred to ${details?.new_location || 'new location'}` };
+    }
+    return { title: action.replace(/[._]/g, ' ').replace(/^\w/, c => c.toUpperCase()), subtitle: '' };
   };
 
   return (
@@ -237,6 +298,74 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
         currentLocationName={enrollment.locations?.name || 'Not assigned'}
         hasPaymentRecord={hasPaymentRecord}
       />
+
+      {/* Apple-Inspired Activity Feed */}
+      <Card className="border border-white/60 shadow-lg bg-white/80 backdrop-blur-xl overflow-hidden">
+        <div className="relative">
+          {/* Subtle top gradient accent */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2EC4B6]/30 to-transparent" />
+          
+          <CardContent className="pt-6 pb-4">
+            {/* Welcome Header - Always show for new enrollments */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-slate-900">
+                Welcome, <span className="text-[#2EC4B6]">{enrollment.child_first_name}</span>
+              </h2>
+              <p className="text-slate-500 text-sm mt-1">
+                {enrollment.locations?.name || 'Little Grapplers'} Community
+              </p>
+            </div>
+
+            {/* Activity Timeline */}
+            {activityLogs && activityLogs.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Recent Activity</p>
+                <div className="space-y-3">
+                  {activityLogs.map((log) => {
+                    const ActivityIcon = getActivityIcon(log.action);
+                    const message = getActivityMessage(log.action, log.details as Record<string, unknown> | null);
+                    
+                    return (
+                      <div 
+                        key={log.id} 
+                        className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors group"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2EC4B6]/10 to-[#2EC4B6]/5 flex items-center justify-center group-hover:from-[#2EC4B6]/20 group-hover:to-[#2EC4B6]/10 transition-colors">
+                          <ActivityIcon className="h-4 w-4 text-[#2EC4B6]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-800 text-sm">{message.title}</p>
+                          {message.subtitle && (
+                            <p className="text-slate-500 text-xs mt-0.5">{message.subtitle}</p>
+                          )}
+                        </div>
+                        <span className="text-xs text-slate-400 flex-shrink-0">
+                          {formatRelativeTime(log.created_at)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Fallback if no activity logs yet */}
+            {(!activityLogs || activityLogs.length === 0) && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#2EC4B6]/5 to-transparent">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2EC4B6]/20 to-[#2EC4B6]/10 flex items-center justify-center">
+                  <UserPlus className="h-4 w-4 text-[#2EC4B6]" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-800 text-sm">Joined Little Grapplers</p>
+                  <p className="text-slate-500 text-xs mt-0.5">
+                    {formatRelativeTime(enrollment.submitted_at || enrollment.created_at)}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </div>
+      </Card>
 
       {/* Rejection Reason */}
       {enrollment.status === 'rejected' && enrollment.rejection_reason && (
@@ -415,7 +544,7 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <p className="text-sm text-slate-500">Plan Type</p>
               <p className="font-medium text-slate-900 capitalize">
@@ -428,9 +557,9 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
                 {enrollment.photo_media_consent ? 'Granted' : 'Not granted'}
               </p>
             </div>
-            <div>
+            <div className="sm:col-span-2 lg:col-span-1">
               <p className="text-sm text-slate-500">Digital Signature</p>
-              <p className="font-medium text-slate-900 italic">
+              <p className="font-medium text-slate-900 italic break-words">
                 {enrollment.digital_signature || '-'}
               </p>
             </div>
@@ -444,37 +573,27 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Technical Details */}
-      <Card className="border border-slate-200 bg-slate-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg text-slate-600">
-            <Shield className="h-5 w-5" />
-            Technical Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-slate-500">Enrollment ID</p>
-              <p className="font-mono text-slate-700">{enrollment.id}</p>
+      {/* Record Info - Simplified for admin */}
+      <Card className="border border-slate-100 bg-slate-50/50">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center gap-4">
+              <span>Record #{enrollment.id.slice(0, 8)}</span>
+              {enrollment.student_id && (
+                <span className="flex items-center gap-1">
+                  <Shield className="h-3 w-3" />
+                  Student linked
+                </span>
+              )}
+              {enrollment.clerk_user_id && (
+                <span className="flex items-center gap-1">
+                  <Shield className="h-3 w-3" />
+                  Account linked
+                </span>
+              )}
             </div>
             {enrollment.waiver_ip_address && (
-              <div>
-                <p className="text-slate-500">IP Address</p>
-                <p className="font-mono text-slate-700">{enrollment.waiver_ip_address}</p>
-              </div>
-            )}
-            {enrollment.clerk_user_id && (
-              <div>
-                <p className="text-slate-500">Clerk User ID</p>
-                <p className="font-mono text-slate-700">{enrollment.clerk_user_id}</p>
-              </div>
-            )}
-            {enrollment.student_id && (
-              <div>
-                <p className="text-slate-500">Student ID</p>
-                <p className="font-mono text-slate-700">{enrollment.student_id}</p>
-              </div>
+              <span>Signed from {enrollment.waiver_ip_address}</span>
             )}
           </div>
         </CardContent>

@@ -175,8 +175,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ students: [] });
     }
 
-    // Search students
-    const { data: students, error } = await supabaseAdmin
+    // Search students by name OR parent email
+    // First try searching by student name
+    let { data: students, error } = await supabaseAdmin
       .from('students')
       .select(`
         id,
@@ -192,13 +193,57 @@ export async function GET(request: NextRequest) {
       .or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`)
       .limit(10);
 
+    // If no results and search looks like an email, search by parent email
+    if ((!students || students.length === 0) && search.includes('@')) {
+      const { data: parentResults } = await supabaseAdmin
+        .from('users')
+        .select('id, email')
+        .ilike('email', `%${search}%`)
+        .limit(5);
+
+      if (parentResults && parentResults.length > 0) {
+        // Get students linked to these parents
+        const { data: parentData } = await supabaseAdmin
+          .from('parents')
+          .select('id, user_id')
+          .in('user_id', parentResults.map(u => u.id));
+
+        if (parentData && parentData.length > 0) {
+          const { data: studentsByParent } = await supabaseAdmin
+            .from('students')
+            .select(`
+              id,
+              first_name,
+              last_name,
+              date_of_birth,
+              parent:parents(
+                first_name,
+                last_name,
+                user:users(email)
+              )
+            `)
+            .in('parent_id', parentData.map(p => p.id))
+            .limit(10);
+
+          students = studentsByParent || [];
+        }
+      }
+    }
+
     if (error) {
       console.error('Error searching students:', error);
       return NextResponse.json({ error: 'Failed to search students' }, { status: 500 });
     }
 
-    // Format results
-    const formattedStudents = (students || []).map(s => {
+    // Format results from students table
+    let formattedStudents: Array<{
+      id: string;
+      name: string;
+      dateOfBirth: string;
+      parentName: string;
+      parentEmail: string;
+      source: 'students' | 'enrollments';
+    }> = (students || []).map(s => {
       const parent = s.parent as unknown as { first_name: string; last_name: string; user: { email: string } } | null;
       return {
         id: s.id,
@@ -206,8 +251,30 @@ export async function GET(request: NextRequest) {
         dateOfBirth: s.date_of_birth,
         parentName: parent ? `${parent.first_name} ${parent.last_name}` : 'Unknown',
         parentEmail: parent?.user?.email || 'Unknown',
+        source: 'students' as const,
       };
     });
+
+    // If no students found, also search enrollments table (legacy data)
+    if (formattedStudents.length === 0) {
+      const { data: enrollments } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, child_first_name, child_last_name, child_date_of_birth, guardian_first_name, guardian_last_name, guardian_email, student_id')
+        .or(`child_first_name.ilike.%${search}%,child_last_name.ilike.%${search}%,guardian_email.ilike.%${search}%`)
+        .is('student_id', null)
+        .limit(10);
+
+      if (enrollments && enrollments.length > 0) {
+        formattedStudents = enrollments.map(e => ({
+          id: e.id,
+          name: `${e.child_first_name} ${e.child_last_name}`,
+          dateOfBirth: e.child_date_of_birth,
+          parentName: `${e.guardian_first_name} ${e.guardian_last_name}`,
+          parentEmail: e.guardian_email || 'Unknown',
+          source: 'enrollments' as const,
+        }));
+      }
+    }
 
     return NextResponse.json({ students: formattedStudents });
   } catch (error) {

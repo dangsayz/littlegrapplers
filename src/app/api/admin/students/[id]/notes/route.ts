@@ -18,6 +18,19 @@ export async function PATCH(
     const body = await request.json();
     const { notes } = body;
 
+    // Try to update in students table first (new system)
+    const { data: studentData, error: studentError } = await supabaseAdmin
+      .from('students')
+      .update({ notes })
+      .eq('id', id)
+      .select('notes')
+      .single();
+
+    if (!studentError && studentData) {
+      return NextResponse.json({ notes: studentData.notes });
+    }
+
+    // Fallback to signed_waivers table (legacy system)
     const { data, error } = await supabaseAdmin
       .from('signed_waivers')
       .update({ notes })
