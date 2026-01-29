@@ -1181,7 +1181,7 @@ function DeveloperBillingContent() {
       )}
 
       {/* Monthly Hosting Banner */}
-      <div className="relative mb-6 bg-gradient-to-br from-white via-sky-50/80 to-indigo-50/50 rounded-2xl shadow-sm border border-sky-100/60 overflow-hidden">
+      <div id="subscribe-section" className="relative mb-6 bg-gradient-to-br from-white via-sky-50/80 to-indigo-50/50 rounded-2xl shadow-sm border border-sky-100/60 overflow-hidden">
         {/* Floating glass elements - more visible */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div

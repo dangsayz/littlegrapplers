@@ -199,7 +199,7 @@ export function PaymentDueBanner({ dueDate }: PaymentDueBannerProps) {
 
             {/* CTA */}
             <Link
-              href="/dashboard/admin/developer"
+              href="/dashboard/admin/developer#subscribe-section"
               className="group relative inline-flex items-center gap-1.5 text-[13px] font-semibold transition-all duration-300"
             >
               <span 
