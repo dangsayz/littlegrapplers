@@ -52,6 +52,7 @@ interface Enrollment {
   guardian_phone: string | null;
   child_first_name: string;
   child_last_name: string;
+  child_date_of_birth: string | null;
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
 }
@@ -92,6 +93,7 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
     guardian_phone: enrollment.guardian_phone || '',
     child_first_name: enrollment.child_first_name,
     child_last_name: enrollment.child_last_name,
+    child_date_of_birth: enrollment.child_date_of_birth?.split('T')[0] || '',
     emergency_contact_name: enrollment.emergency_contact_name || '',
     emergency_contact_phone: enrollment.emergency_contact_phone || '',
   });
@@ -640,6 +642,15 @@ export function AdminActions({ enrollment, locations, currentLocationName, hasPa
                     onChange={(e) => setEditData({ ...editData, child_last_name: e.target.value })}
                   />
                 </div>
+              </div>
+              <div>
+                <Label htmlFor="child_date_of_birth">Date of Birth</Label>
+                <Input
+                  id="child_date_of_birth"
+                  type="date"
+                  value={editData.child_date_of_birth}
+                  onChange={(e) => setEditData({ ...editData, child_date_of_birth: e.target.value })}
+                />
               </div>
             </div>
 

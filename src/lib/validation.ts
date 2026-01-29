@@ -518,6 +518,11 @@ export const enrollmentEditSchema = z.object({
     .nullable(),
   child_first_name: nameSchema,
   child_last_name: nameSchema,
+  child_date_of_birth: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => (val && val.trim() !== '' ? val : null)),
   emergency_contact_name: z
     .string()
     .max(CHAR_LIMITS.shortText.max)

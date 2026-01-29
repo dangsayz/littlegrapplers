@@ -74,6 +74,7 @@ export async function POST(
         guardian_phone: data.guardian_phone || null,
         child_first_name: data.child_first_name,
         child_last_name: data.child_last_name,
+        child_date_of_birth: data.child_date_of_birth || null,
         emergency_contact_name: data.emergency_contact_name || null,
         emergency_contact_phone: data.emergency_contact_phone || null,
       })
@@ -91,6 +92,7 @@ export async function POST(
         .update({
           first_name: data.child_first_name,
           last_name: data.child_last_name,
+          date_of_birth: data.child_date_of_birth || null,
         })
         .eq('id', enrollment.student_id);
     }

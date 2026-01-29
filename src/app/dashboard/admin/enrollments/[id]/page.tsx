@@ -291,6 +291,7 @@ export default async function EnrollmentDetailPage({ params }: PageProps) {
           guardian_phone: enrollment.guardian_phone,
           child_first_name: enrollment.child_first_name,
           child_last_name: enrollment.child_last_name,
+          child_date_of_birth: enrollment.child_date_of_birth,
           emergency_contact_name: enrollment.emergency_contact_name,
           emergency_contact_phone: enrollment.emergency_contact_phone,
         }}
