@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity, UserCircle } from 'lucide-react';
+import { Trash2, X, ChevronDown, Check, Plus, CheckCircle, RefreshCw, Calendar, Receipt, MessageCircle, Clock, AlertCircle, Send, DollarSign, Loader2, Mail, Bell, CalendarClock, Settings2, Eye, MousePointer, Search, Activity, UserCircle, CreditCard } from 'lucide-react';
+import { BILLING_CONFIG, getBillingSummary, formatCurrency as formatBillingCurrency, type BillingSummary } from '@/lib/billing-ledger';
 import { motion } from 'framer-motion';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { useSearchParams } from 'next/navigation';
@@ -154,7 +155,7 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
           </div>
 
           <div className="px-8 py-4 bg-[#F7F9F9] border-t border-[#1F2A44]/5 text-center">
-            <p className="text-[13px] text-[#1F2A44]/50">18 features · $30/mo hosting</p>
+            <p className="text-[13px] text-[#1F2A44]/50">18 features · ${BILLING_CONFIG.monthlyHosting.amount}/mo hosting</p>
             <p className="text-[11px] text-[#1F2A44]/30 mt-2">
               Don&apos;t believe it? Google &quot;website development cost&quot; and see for yourself.
             </p>
@@ -202,8 +203,62 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
   );
 }
 
-// Holographic Payment Countdown Banner
-function PaymentCountdown() {
+// Past Due Banner - Shows when there are overdue items with clear breakdown
+function PastDueBanner({ 
+  pastDueTotal, 
+  pastDueItems,
+  onPayNow 
+}: { 
+  pastDueTotal: number;
+  pastDueItems: Array<{ description: string; amount: number }>;
+  onPayNow: () => void;
+}) {
+  if (pastDueTotal <= 0) return null;
+
+  return (
+    <div className="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500 via-rose-500 to-pink-500">
+      {/* Animated background */}
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: 'linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+      
+      <div className="relative px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-lg">Past Due: {formatBillingCurrency(pastDueTotal)}</p>
+              <div className="text-white/80 text-sm flex flex-wrap gap-x-3 gap-y-1">
+                {pastDueItems.map((item, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    <span>{item.description}</span>
+                    <span className="text-white/60">({formatBillingCurrency(item.amount)})</span>
+                    {i < pastDueItems.length - 1 && <span className="text-white/40">+</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onPayNow}
+            className="px-6 py-2.5 rounded-xl bg-white text-red-600 text-sm font-bold hover:bg-white/90 shadow-lg transition-all whitespace-nowrap"
+          >
+            Pay {formatBillingCurrency(pastDueTotal)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Holographic Payment Countdown Banner - Only shows when nothing is overdue
+function PaymentCountdown({ hasOverdue = false }: { hasOverdue?: boolean }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isOverdue, setIsOverdue] = useState(false);
 
@@ -244,6 +299,9 @@ function PaymentCountdown() {
     return () => clearInterval(timer);
   }, []);
 
+  // Don't show countdown if there are overdue items - Past Due banner takes priority
+  if (hasOverdue) return null;
+
   const getUrgencyLevel = () => {
     if (isOverdue) return 'critical';
     if (timeLeft.days <= 3) return 'urgent';
@@ -278,7 +336,7 @@ function PaymentCountdown() {
       <div 
         className="absolute inset-0"
         style={{
-          background: urgency === 'critical' 
+          backgroundImage: urgency === 'critical' 
             ? 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(236,72,153,0.2) 25%, rgba(239,68,68,0.15) 50%, rgba(251,146,60,0.1) 75%, rgba(139,92,246,0.15) 100%)'
             : urgency === 'urgent'
             ? 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(245,158,11,0.2) 25%, rgba(236,72,153,0.15) 50%, rgba(139,92,246,0.1) 75%, rgba(251,146,60,0.15) 100%)'
@@ -447,6 +505,28 @@ function DeveloperBillingContent() {
   }>>([]);
   const [historyTotals, setHistoryTotals] = useState({ all: 450, subscription: 0, oneTime: 450 });
 
+  // Billing summary state - tracks overdue items, due now, upcoming
+  const [billingSummary, setBillingSummary] = useState<BillingSummary | null>(null);
+  
+  // Overdue maintenance fees - tracks unpaid months
+  // January maintenance was $30, now February is here so another $30 is owed
+  const [overdueItems] = useState([
+    {
+      id: 'maintenance-jan-2026',
+      type: 'maintenance' as const,
+      description: 'Jan 2026 Maintenance',
+      amount: BILLING_CONFIG.maintenanceFee.amount,
+      due_date: '2026-01-01',
+    },
+    {
+      id: 'maintenance-feb-2026',
+      type: 'maintenance' as const,
+      description: 'Feb 2026 Maintenance',
+      amount: BILLING_CONFIG.maintenanceFee.amount,
+      due_date: '2026-02-01',
+    },
+  ]);
+
   // Balance reminder state
   const [balanceReminderSettings, setBalanceReminderSettings] = useState<{
     balance_reminder_enabled: boolean;
@@ -502,6 +582,21 @@ function DeveloperBillingContent() {
   } | null>(null);
   const [loadingEmailActivity, setLoadingEmailActivity] = useState(false);
   const [showEmailActivity, setShowEmailActivity] = useState(false);
+
+  // Compute billing summary when work orders or subscription changes
+  useEffect(() => {
+    const summary = getBillingSummary(
+      workOrders,
+      subscription ? {
+        active: subscription.status === 'active',
+        amount: subscription.amount || BILLING_CONFIG.monthlyHosting.amount,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        status: subscription.status,
+      } : null,
+      overdueItems
+    );
+    setBillingSummary(summary);
+  }, [workOrders, subscription, overdueItems]);
 
   // Fetch work orders
   const fetchWorkOrders = useCallback(async () => {
@@ -922,9 +1017,55 @@ function DeveloperBillingContent() {
   const unpaidTotal = unpaidOrders.reduce((sum, o) => sum + (o.quoted_cost || 0), 0);
   const pendingOrders = workOrders.filter(o => !['completed', 'cancelled'].includes(o.status));
 
+  // Calculate total due now (overdue + work orders)
+  const totalDueNow = (billingSummary?.totals.due_now || 0);
+
   // Pay all unpaid work orders
   const [processingPayAll, setProcessingPayAll] = useState(false);
   
+  // Pay ONLY past due items (maintenance fee) - separate from work orders
+  const handlePayPastDue = async () => {
+    const pastDueTotal = billingSummary?.totals.past_due || 0;
+    if (pastDueTotal <= 0) return;
+    
+    setProcessingPayAll(true);
+    try {
+      const descriptions = billingSummary?.pastDueItems.map(item => item.description) || [];
+      
+      const response = await fetch('/api/payments/developer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: pastDueTotal,
+          description: descriptions.join(', '),
+          workOrderIds: [], // No work orders - just past due items
+          includeOverdue: true,
+          overdueItems: billingSummary?.pastDueItems.map(item => ({
+            id: item.id,
+            type: item.type,
+            amount: item.amount,
+          })),
+        }),
+      });
+
+      const { url, error } = await response.json();
+
+      if (error) {
+        console.error('Payment error:', error);
+        return;
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+    } finally {
+      setProcessingPayAll(false);
+    }
+  };
+  
+  // Legacy: Pay only work orders (kept for backwards compatibility)
   const handlePayAll = async () => {
     if (unpaidTotal <= 0) return;
     
@@ -1029,8 +1170,20 @@ function DeveloperBillingContent() {
         )}
       </div>
 
-      {/* Payment Due Countdown - Apple Inspired */}
-      <PaymentCountdown />
+      {/* Past Due Banner - Shows first if there are overdue items */}
+      {billingSummary && billingSummary.hasOverdue && (
+        <PastDueBanner
+          pastDueTotal={billingSummary.totals.past_due}
+          pastDueItems={billingSummary.pastDueItems.map(item => ({
+            description: item.description,
+            amount: item.amount,
+          }))}
+          onPayNow={handlePayPastDue}
+        />
+      )}
+
+      {/* Payment Due Countdown - Only shows when nothing is overdue */}
+      <PaymentCountdown hasOverdue={billingSummary?.hasOverdue || false} />
 
       {/* View as Stephen Toggle - Developer Only */}
       {actuallyIsDev && (
@@ -1175,7 +1328,7 @@ function DeveloperBillingContent() {
           
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-500">Monthly hosting fee</p>
-            <p className="text-lg font-bold text-gray-900">$30<span className="text-sm font-normal text-gray-500">/mo</span></p>
+            <p className="text-lg font-bold text-gray-900">${BILLING_CONFIG.monthlyHosting.amount}<span className="text-sm font-normal text-gray-500">/mo</span></p>
           </div>
         </div>
       )}
@@ -1209,7 +1362,7 @@ function DeveloperBillingContent() {
               </div>
               <div>
                 <p className="font-semibold text-slate-800">Monthly Hosting</p>
-                <p className="text-sm text-slate-500">$30/mo · Supabase + Vercel infrastructure</p>
+                <p className="text-sm text-slate-500">${BILLING_CONFIG.monthlyHosting.amount}/mo · Supabase + Vercel infrastructure</p>
               </div>
             </div>
             {subscription ? (

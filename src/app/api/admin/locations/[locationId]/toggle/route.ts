@@ -27,6 +27,8 @@ export async function POST(
       );
     }
 
+    console.log(`[Location Toggle] Attempting to set location ${locationId} to is_active=${is_active}`);
+    
     const { data, error } = await supabaseAdmin
       .from('locations')
       .update({ is_active })
@@ -36,8 +38,10 @@ export async function POST(
 
     if (error) {
       console.error('Failed to toggle location:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
     }
+    
+    console.log(`[Location Toggle] Successfully updated location ${locationId}:`, data);
 
     await supabaseAdmin.from('activity_logs').insert({
       admin_email: email,

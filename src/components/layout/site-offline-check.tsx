@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import { Wrench } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { unstable_noStore as noStore } from 'next/cache';
 
 async function getPlatformStatus() {
@@ -29,54 +29,88 @@ export async function SiteOfflineCheck({ children }: { children: React.ReactNode
 
   if (!status.is_enabled) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-        <div className="max-w-lg w-full">
-          {/* Glass card */}
-          <div className="relative rounded-3xl overflow-hidden">
-            {/* Background effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-teal-500/20 to-transparent rounded-full blur-2xl" />
-            
-            {/* Border */}
-            <div className="absolute inset-0 rounded-3xl border border-white/10" />
-            
-            <div className="relative z-10 p-10 text-center">
-              {/* Icon */}
-              <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20 mb-8">
-                <Wrench className="h-10 w-10 text-white" />
-              </div>
-              
-              {/* Logo */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">LG</span>
-                </div>
-                <span className="text-white font-semibold text-lg">Little Grapplers</span>
-              </div>
-              
-              {/* Message */}
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                We'll Be Right Back
-              </h1>
-              
-              <p className="text-slate-300 text-lg leading-relaxed mb-8">
-                {status.disabled_reason || 'We are performing scheduled maintenance to enhance your experience. We will be back shortly.'}
-              </p>
-              
-              {/* Decorative element */}
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" style={{ animationDelay: '0.2s' }} />
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" style={{ animationDelay: '0.4s' }} />
-              </div>
-            </div>
-          </div>
+      <div 
+        className="min-h-screen flex items-center justify-center overflow-hidden"
+        style={{
+          background: 'linear-gradient(155deg, #e6e9ec 0%, #dde1e5 35%, #d4d8dd 70%, #cdd2d8 100%)',
+        }}
+      >
+        {/* Diagonal light beam */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(130deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.35) 20%, transparent 45%, rgba(0,0,0,0.02) 70%, rgba(0,0,0,0.05) 100%)',
+          }}
+        />
+
+        <div className="relative" style={{ transform: 'scaleY(0.97)' }}>
+          {/* Warm subsurface glow */}
+          <div 
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-20 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(255,200,160,0.5) 0%, rgba(255,185,140,0.35) 25%, rgba(255,170,120,0.15) 50%, transparent 75%)',
+              filter: 'blur(18px)',
+            }}
+          />
+
+          {/* Bottom glow */}
+          <div 
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-32 h-10 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 100% 100% at 50% 20%, rgba(255,180,130,0.7) 0%, rgba(255,165,110,0.4) 40%, transparent 75%)',
+              filter: 'blur(12px)',
+            }}
+          />
+
+          {/* Primary shadow */}
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 w-[85%] h-8 pointer-events-none"
+            style={{
+              bottom: '-18px',
+              background: 'radial-gradient(ellipse 100% 100% at 50% 0%, rgba(60,50,45,0.18) 0%, rgba(60,50,45,0.08) 50%, transparent 80%)',
+              filter: 'blur(10px)',
+            }}
+          />
+
+          {/* Ambient shadow */}
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 w-[120%] h-12 pointer-events-none"
+            style={{
+              bottom: '-28px',
+              background: 'radial-gradient(ellipse 100% 60% at 50% 0%, rgba(80,70,65,0.06) 0%, transparent 70%)',
+              filter: 'blur(20px)',
+            }}
+          />
           
-          {/* Footer text */}
-          <p className="text-center text-slate-500 text-sm mt-6">
-            Thank you for your patience
-          </p>
+          {/* Pill */}
+          <div
+            className="relative flex items-center gap-4 px-9 py-4"
+            style={{
+              borderRadius: '9999px',
+              background: 'linear-gradient(180deg, #fffcfa 0%, #faf7f5 50%, #f7f4f2 100%)',
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.02)',
+            }}
+          >
+            <span 
+              className="font-medium"
+              style={{ 
+                fontSize: '17px',
+                color: '#2a2a2a',
+                letterSpacing: '0.01em',
+              }}
+            >
+              Service Offline
+            </span>
+            <Lock 
+              style={{ 
+                width: '18px', 
+                height: '18px',
+                color: '#9ca3af',
+                opacity: 0.55,
+                marginLeft: '2px',
+              }} 
+            />
+          </div>
         </div>
       </div>
     );

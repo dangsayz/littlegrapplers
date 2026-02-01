@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const devStripe = new Stripe(DEV_STRIPE_SECRET);
 
     const body = await request.json();
-    const { amount, description } = body;
+    const { amount, description, workOrderIds } = body;
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         type: 'developer_payment',
         description: description || '',
+        work_order_ids: workOrderIds ? JSON.stringify(workOrderIds) : '',
       },
     });
 

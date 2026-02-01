@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
-import { AlertTriangle, Lock, Power } from 'lucide-react';
+import { useUser, SignOutButton } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
+import { AlertTriangle, Lock, Power, CreditCard } from 'lucide-react';
 import { MASTER_EMAILS, type PlatformStatusData } from '@/lib/site-status';
+import { CLIENT_OWNER_EMAILS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 interface SiteFrozenOverlayProps {
@@ -17,7 +19,13 @@ export function SiteFrozenOverlay({ message, initialStatus }: SiteFrozenOverlayP
   const [status, setStatus] = useState<PlatformStatusData | null>(initialStatus || null);
   const [isEnabling, setIsEnabling] = useState(false);
 
+  const pathname = usePathname();
   const isSuperAdmin = isLoaded && userEmail && MASTER_EMAILS.map(e => e.toLowerCase()).includes(userEmail.toLowerCase());
+  const isClientOwner = isLoaded && userEmail && CLIENT_OWNER_EMAILS.map(e => e.toLowerCase()).includes(userEmail.toLowerCase());
+  
+  // Allow access to sign-in and payment pages even when frozen
+  const isOnPaymentPage = pathname === '/dashboard/admin/developer';
+  const isOnSignInPage = pathname?.startsWith('/sign-in');
 
   useEffect(() => {
     async function fetchStatus() {
@@ -66,90 +74,221 @@ export function SiteFrozenOverlay({ message, initialStatus }: SiteFrozenOverlayP
     return null;
   }
 
+  // Allow access to sign-in page without overlay (so people can actually sign in)
+  if (isOnSignInPage) {
+    return null;
+  }
+
+  // Super admins (Dang) bypass the frozen overlay completely
   if (isSuperAdmin) {
+    return null;
+  }
+
+  // Allow Stephen to access the payment page without overlay
+  if (isClientOwner && isOnPaymentPage) {
+    return null;
+  }
+
+  // Client owner (Stephen) sees elegant minimal maintenance page
+  if (isClientOwner) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-6">
-        <div className="max-w-lg text-center">
-          <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-8">
-            <Power className="h-10 w-10 text-red-400" />
-          </div>
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+        style={{
+          background: 'linear-gradient(155deg, #e6e9ec 0%, #dde1e5 35%, #d4d8dd 70%, #cdd2d8 100%)',
+        }}
+      >
+        {/* Diagonal light beam from top-left */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(130deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.35) 20%, transparent 45%, rgba(0,0,0,0.02) 70%, rgba(0,0,0,0.05) 100%)',
+          }}
+        />
 
-          <h1 className="text-2xl font-semibold text-white mb-4">
-            Platform Disabled
-          </h1>
+        {/* Subtle vignette around button area */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 60% 50% at 50% 50%, transparent 0%, transparent 40%, rgba(0,0,0,0.03) 100%)',
+          }}
+        />
 
-          <p className="text-slate-400 mb-4 leading-relaxed">
-            {status.disabled_reason || 'The platform has been manually disabled.'}
-          </p>
+        {/* Floating card with glow */}
+        <div className="relative" style={{ transform: 'scaleY(0.97)' }}>
+          {/* Warm subsurface glow - emanating from BEHIND the pill */}
+          <div 
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-20 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(255,200,160,0.5) 0%, rgba(255,185,140,0.35) 25%, rgba(255,170,120,0.15) 50%, transparent 75%)',
+              filter: 'blur(18px)',
+            }}
+          />
 
-          {status.auto_disabled && (
-            <div className="mb-6 p-3 rounded-lg bg-amber-500/20 border border-amber-500/30">
-              <p className="text-sm text-amber-300">
-                Auto-disabled due to payment overdue by {status.payment_overdue_days} days
-              </p>
-            </div>
-          )}
+          {/* Secondary warm glow - bottom concentrated */}
+          <div 
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-32 h-10 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 100% 100% at 50% 20%, rgba(255,180,130,0.7) 0%, rgba(255,165,110,0.4) 40%, transparent 75%)',
+              filter: 'blur(12px)',
+            }}
+          />
 
-          {status.disabled_by && (
-            <p className="text-sm text-slate-500 mb-6">
-              Disabled by: {status.disabled_by}
-              {status.disabled_at && ` on ${new Date(status.disabled_at).toLocaleDateString()}`}
-            </p>
-          )}
+          {/* Primary soft shadow - directly underneath */}
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 w-[85%] h-8 pointer-events-none"
+            style={{
+              bottom: '-18px',
+              background: 'radial-gradient(ellipse 100% 100% at 50% 0%, rgba(60,50,45,0.18) 0%, rgba(60,50,45,0.08) 50%, transparent 80%)',
+              filter: 'blur(10px)',
+            }}
+          />
 
-          <div className="space-y-3">
-            <Button
-              onClick={handleEnablePlatform}
-              disabled={isEnabling}
-              className="w-full bg-emerald-600 hover:bg-emerald-700"
+          {/* Secondary ambient shadow - wide spread */}
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 w-[120%] h-12 pointer-events-none"
+            style={{
+              bottom: '-28px',
+              background: 'radial-gradient(ellipse 100% 60% at 50% 0%, rgba(80,70,65,0.06) 0%, transparent 70%)',
+              filter: 'blur(20px)',
+            }}
+          />
+          
+          {/* Main pill */}
+          <a
+            href="/dashboard/admin/developer"
+            className="relative flex items-center gap-4 px-9 py-4 cursor-pointer transition-transform duration-300 hover:scale-[1.015]"
+            style={{
+              borderRadius: '9999px',
+              background: 'linear-gradient(180deg, #fffcfa 0%, #faf7f5 50%, #f7f4f2 100%)',
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.02)',
+            }}
+          >
+            <span 
+              className="font-medium"
+              style={{ 
+                fontSize: '17px',
+                color: '#2a2a2a',
+                letterSpacing: '0.01em',
+              }}
             >
-              <Power className="h-4 w-4 mr-2" />
-              {isEnabling ? 'Enabling...' : 'Enable Platform'}
-            </Button>
-            
-            <p className="text-xs text-slate-500">
-              You are viewing this as a Super Admin. Regular users see the maintenance page.
-            </p>
-          </div>
+              Service Offline
+            </span>
+            <Lock 
+              className="text-gray-400" 
+              style={{ 
+                width: '18px', 
+                height: '18px',
+                opacity: 0.55,
+                marginLeft: '2px',
+              }} 
+            />
+          </a>
         </div>
       </div>
     );
   }
 
+  // Regular users see professional maintenance page
+  // If logged in, show sign out option. If not logged in, just show the offline message.
+  const isLoggedIn = isLoaded && user;
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center p-6">
-      <div className="max-w-md text-center">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-8">
-          <Lock className="h-10 w-10 text-gray-400" />
-        </div>
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        background: 'linear-gradient(155deg, #e6e9ec 0%, #dde1e5 35%, #d4d8dd 70%, #cdd2d8 100%)',
+      }}
+    >
+      {/* Diagonal light beam */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(130deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.35) 20%, transparent 45%, rgba(0,0,0,0.02) 70%, rgba(0,0,0,0.05) 100%)',
+        }}
+      />
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-          Site Temporarily Unavailable
-        </h1>
+      <div className="relative" style={{ transform: 'scaleY(0.97)' }}>
+        {/* Warm subsurface glow */}
+        <div 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-20 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(255,200,160,0.5) 0%, rgba(255,185,140,0.35) 25%, rgba(255,170,120,0.15) 50%, transparent 75%)',
+            filter: 'blur(18px)',
+          }}
+        />
 
-        <p className="text-gray-500 mb-8 leading-relaxed">
-          {message || status.disabled_reason || 'This website is currently under maintenance. We apologize for any inconvenience and will be back shortly.'}
-        </p>
+        {/* Bottom glow */}
+        <div 
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-32 h-10 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 100% 100% at 50% 20%, rgba(255,180,130,0.7) 0%, rgba(255,165,110,0.4) 40%, transparent 75%)',
+            filter: 'blur(12px)',
+          }}
+        />
 
-        <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-          <p className="text-sm text-gray-500">
-            For urgent inquiries, please contact:
-          </p>
-          <a 
-            href="mailto:dangzr1@gmail.com" 
-            className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        {/* Primary shadow */}
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 w-[85%] h-8 pointer-events-none"
+          style={{
+            bottom: '-18px',
+            background: 'radial-gradient(ellipse 100% 100% at 50% 0%, rgba(60,50,45,0.18) 0%, rgba(60,50,45,0.08) 50%, transparent 80%)',
+            filter: 'blur(10px)',
+          }}
+        />
+
+        {/* Ambient shadow */}
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 w-[120%] h-12 pointer-events-none"
+          style={{
+            bottom: '-28px',
+            background: 'radial-gradient(ellipse 100% 60% at 50% 0%, rgba(80,70,65,0.06) 0%, transparent 70%)',
+            filter: 'blur(20px)',
+          }}
+        />
+        
+        {/* Pill - clickable, goes to sign-in */}
+        <a
+          href="/sign-in?redirect_url=/dashboard/admin/developer"
+          className="relative flex items-center gap-4 px-9 py-4 cursor-pointer transition-transform duration-300 hover:scale-[1.015]"
+          style={{
+            borderRadius: '9999px',
+            background: 'linear-gradient(180deg, #fffcfa 0%, #faf7f5 50%, #f7f4f2 100%)',
+            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.9), inset 0 -1px 2px rgba(0,0,0,0.02)',
+          }}
+        >
+          <span 
+            className="font-medium"
+            style={{ 
+              fontSize: '17px',
+              color: '#2a2a2a',
+              letterSpacing: '0.01em',
+            }}
           >
-            dangzr1@gmail.com
-          </a>
-        </div>
-
-        <div className="mt-8 flex items-center justify-center gap-2 text-amber-600">
-          <AlertTriangle className="h-4 w-4" />
-          <p className="text-sm">
-            If you are the site owner, please check your billing status.
-          </p>
-        </div>
+            Service Offline
+          </span>
+          <Lock 
+            style={{ 
+              width: '18px', 
+              height: '18px',
+              color: '#9ca3af',
+              opacity: 0.55,
+              marginLeft: '2px',
+            }} 
+          />
+        </a>
       </div>
+
+      {/* Sign out button for logged-in users */}
+      {isLoggedIn && (
+        <div className="relative mt-8">
+          <SignOutButton>
+            <button
+              className="text-sm text-slate-500 hover:text-slate-700 transition-colors underline underline-offset-2"
+            >
+              Sign out
+            </button>
+          </SignOutButton>
+        </div>
+      )}
     </div>
   );
 }

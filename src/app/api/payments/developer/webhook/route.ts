@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     
+    // CRITICAL: Mark work orders as paid
+    // This automatically unfreezes the site since hasUnpaidWorkOrders becomes false
+    await markWorkOrdersAsPaid(session);
+    
     // CRITICAL: Update platform status to mark payment as received
     // This automatically removes the payment due banner from the site
     await updatePlatformPaymentStatus(session);
@@ -269,6 +273,58 @@ async function updatePlatformPaymentStatus(session: Stripe.Checkout.Session) {
     console.log(`Platform payment status updated - next due date: ${nextPaymentDueDate}`);
   } catch (error) {
     console.error('Error updating platform payment status:', error);
+  }
+}
+
+/**
+ * Marks work orders as paid when payment is received
+ * This automatically unfreezes the site since hasUnpaidWorkOrders becomes false
+ */
+async function markWorkOrdersAsPaid(session: Stripe.Checkout.Session) {
+  try {
+    const workOrderIdsStr = session.metadata?.work_order_ids;
+    if (!workOrderIdsStr) {
+      console.log('[Webhook] No work order IDs in session metadata');
+      return;
+    }
+
+    const workOrderIds = JSON.parse(workOrderIdsStr) as string[];
+    if (!workOrderIds.length) {
+      console.log('[Webhook] Empty work order IDs array');
+      return;
+    }
+
+    console.log(`[Webhook] Marking ${workOrderIds.length} work orders as paid:`, workOrderIds);
+
+    const { error } = await supabase
+      .from('work_orders')
+      .update({ 
+        paid: true, 
+        paid_at: new Date().toISOString(),
+      })
+      .in('id', workOrderIds);
+
+    if (error) {
+      console.error('[Webhook] Failed to mark work orders as paid:', error);
+      return;
+    }
+
+    console.log(`[Webhook] Successfully marked ${workOrderIds.length} work orders as paid`);
+    
+    // Log this action
+    await supabase.from('activity_logs').insert({
+      admin_email: 'stripe_webhook',
+      action: 'work_orders.paid',
+      entity_type: 'work_order',
+      entity_id: workOrderIds[0],
+      details: { 
+        work_order_ids: workOrderIds,
+        session_id: session.id,
+        amount: session.amount_total,
+      },
+    });
+  } catch (error) {
+    console.error('[Webhook] Error marking work orders as paid:', error);
   }
 }
 

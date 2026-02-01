@@ -39,19 +39,29 @@ export function LocationToggle({
 
   const handleToggle = async () => {
     setIsLoading(true);
+    const newStatus = !currentStatus;
+    console.log(`[LocationToggle] Toggling ${locationName} from ${currentStatus} to ${newStatus}`);
+    
     try {
       const res = await fetch(`/api/admin/locations/${locationId}/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !currentStatus }),
+        body: JSON.stringify({ is_active: newStatus }),
       });
 
-      if (res.ok) {
-        setCurrentStatus(!currentStatus);
+      const data = await res.json();
+      console.log(`[LocationToggle] API response:`, data);
+
+      if (res.ok && data.success) {
+        setCurrentStatus(newStatus);
         router.refresh();
+      } else {
+        console.error('Toggle failed:', data.error || 'Unknown error');
+        alert(`Failed to ${newStatus ? 'enable' : 'disable'} location: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to toggle location:', error);
+      alert(`Failed to ${newStatus ? 'enable' : 'disable'} location: Network error`);
     } finally {
       setIsLoading(false);
     }

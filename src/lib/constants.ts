@@ -195,7 +195,7 @@ export type AdminRole = 'super_admin' | 'admin' | 'none';
  * Platform control configuration
  */
 export const PLATFORM_CONFIG = {
-  paymentGracePeriodDays: 5, // Auto-disable after this many days overdue
+  paymentGracePeriodDays: 0, // Auto-disable immediately on due date (no grace period)
   statusCheckIntervalMs: 60000, // Check platform status every minute
 } as const;
 
