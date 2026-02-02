@@ -124,25 +124,13 @@ export default async function RootLayout({
     // Platform status table may not exist yet, fall back to env var
   }
 
-  // Check for unpaid work orders (development fees)
-  try {
-    const { data: unpaidOrders } = await supabaseAdmin
-      .from('work_orders')
-      .select('id, quoted_cost')
-      .eq('status', 'completed')
-      .eq('paid', false)
-      .gt('quoted_cost', 0);
-    
-    hasUnpaidWorkOrders = (unpaidOrders?.length || 0) > 0;
-  } catch {
-    // Work orders table may not exist
-  }
+  // Stephen paid - site is live
+  // Work order payment tracking disabled for now
+  // hasUnpaidWorkOrders stays false
 
-  // Site is frozen if:
-  // 1. Platform is disabled (payment overdue) OR
-  // 2. There are unpaid work orders (development fees owed)
+  // Site is frozen only if platform is explicitly disabled
   const isFrozen = platformStatus 
-    ? (!platformStatus.is_enabled || hasUnpaidWorkOrders)
+    ? !platformStatus.is_enabled
     : process.env.SITE_FROZEN === 'true';
   const freezeMessage = platformStatus?.disabled_reason || process.env.SITE_FREEZE_MESSAGE;
 

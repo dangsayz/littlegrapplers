@@ -203,6 +203,50 @@ function ValuationDialogContent({ totalPaid }: { totalPaid: number }) {
   );
 }
 
+// Thank You Banner - Shows after recent payment
+function ThankYouBanner({ 
+  amount, 
+  description,
+  date 
+}: { 
+  amount: number;
+  description: string;
+  date: string;
+}) {
+  const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
+  return (
+    <div className="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
+      {/* Animated background */}
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: 'linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+      
+      <div className="relative px-6 py-4">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+            <CheckCircle className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-lg">Thank you for your payment!</p>
+            <p className="text-white/80 text-sm">
+              {formatBillingCurrency(amount)} received on {formattedDate} for {description}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Past Due Banner - Shows when there are overdue items with clear breakdown
 function PastDueBanner({ 
   pastDueTotal, 
@@ -508,24 +552,22 @@ function DeveloperBillingContent() {
   // Billing summary state - tracks overdue items, due now, upcoming
   const [billingSummary, setBillingSummary] = useState<BillingSummary | null>(null);
   
-  // Overdue maintenance fees - tracks unpaid months
-  // January maintenance was $30, now February is here so another $30 is owed
-  const [overdueItems] = useState([
-    {
-      id: 'maintenance-jan-2026',
-      type: 'maintenance' as const,
-      description: 'Jan 2026 Maintenance',
-      amount: BILLING_CONFIG.maintenanceFee.amount,
-      due_date: '2026-01-01',
-    },
-    {
-      id: 'maintenance-feb-2026',
-      type: 'maintenance' as const,
-      description: 'Feb 2026 Maintenance',
-      amount: BILLING_CONFIG.maintenanceFee.amount,
-      due_date: '2026-02-01',
-    },
-  ]);
+  // Recent payment - Stephen paid $60 maintenance on Feb 1, 2026
+  const [recentPayment] = useState({
+    amount: 60,
+    date: '2026-02-01',
+    description: 'Jan + Feb 2026 Maintenance',
+  });
+  
+  // No overdue maintenance - Stephen paid the $60
+  // Work orders ($550) have 5-day grace period ending Feb 6, 2026
+  const [overdueItems] = useState<Array<{
+    id: string;
+    type: 'subscription' | 'maintenance' | 'work_order' | 'invoice';
+    description: string;
+    amount: number;
+    due_date: string;
+  }>>([]);
 
   // Balance reminder state
   const [balanceReminderSettings, setBalanceReminderSettings] = useState<{
@@ -1169,6 +1211,15 @@ function DeveloperBillingContent() {
           </button>
         )}
       </div>
+
+      {/* Thank You Banner - Shows after recent payment */}
+      {recentPayment && (
+        <ThankYouBanner
+          amount={recentPayment.amount}
+          description={recentPayment.description}
+          date={recentPayment.date}
+        />
+      )}
 
       {/* Past Due Banner - Shows first if there are overdue items */}
       {billingSummary && billingSummary.hasOverdue && (
