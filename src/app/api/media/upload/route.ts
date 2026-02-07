@@ -41,6 +41,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type. Only images and videos allowed.' }, { status: 400 });
     }
 
+    // Server-side file size validation
+    const maxImageSize = 10 * 1024 * 1024; // 10MB
+    const maxVideoSize = 500 * 1024 * 1024; // 500MB
+    const maxSize = isVideo ? maxVideoSize : maxImageSize;
+    if (file.size > maxSize) {
+      const limitMB = maxSize / (1024 * 1024);
+      return NextResponse.json({ error: `File too large. Max ${limitMB}MB for ${isVideo ? 'videos' : 'images'}.` }, { status: 413 });
+    }
+
     // Generate unique filename
     const timestamp = Date.now();
     const ext = file.name.split('.').pop();

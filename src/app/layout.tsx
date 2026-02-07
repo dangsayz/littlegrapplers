@@ -111,7 +111,6 @@ export default async function RootLayout({
   noStore();
   
   let platformStatus = null;
-  let hasUnpaidWorkOrders = false;
   
   try {
     const { data } = await supabaseAdmin

@@ -57,6 +57,10 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.ytimg.com https://img.clerk.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.clerk.accounts.dev https://*.clerk.dev wss://*.supabase.co; frame-src https://js.stripe.com https://*.clerk.accounts.dev https://challenges.cloudflare.com https://www.youtube.com; media-src 'self' blob: https://*.supabase.co; worker-src 'self' blob:;",
+          },
         ],
       },
       // Stricter headers for API routes

@@ -238,10 +238,14 @@ export default function AdminMediaPage() {
         const data = await response.json();
         setMedia(prev => prev.map(m => m.id === editingMedia.id ? { ...m, ...data.media } : m));
         setEditingMedia(null);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Save failed:', response.status, errorData);
+        alert(errorData.error || 'Failed to save changes. Please try again.');
       }
     } catch (error) {
       console.error('Save error:', error);
-      alert('Failed to save changes');
+      alert('Failed to save changes. Please check your connection and try again.');
     } finally {
       setIsSaving(false);
     }

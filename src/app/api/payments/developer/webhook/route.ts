@@ -45,6 +45,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Idempotency: skip if already processed
+  const { data: existing } = await supabase
+    .from('webhook_events')
+    .select('id')
+    .eq('stripe_event_id', event.id)
+    .single();
+
+  if (existing) {
+    console.log(`[Dev Webhook] Event ${event.id} already processed, skipping`);
+    return NextResponse.json({ received: true, skipped: true });
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     
@@ -73,6 +85,13 @@ export async function POST(request: NextRequest) {
       amount: (session.amount_total || 0) / 100,
     });
   }
+
+  // Mark event as processed
+  await supabase.from('webhook_events').upsert({
+    stripe_event_id: event.id,
+    event_type: event.type,
+    processed_at: new Date().toISOString(),
+  }, { onConflict: 'stripe_event_id', ignoreDuplicates: true });
 
   return NextResponse.json({ received: true });
 }

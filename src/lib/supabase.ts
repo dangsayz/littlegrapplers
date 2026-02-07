@@ -9,8 +9,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Admin client for server-side operations (bypasses RLS)
 // Only create if service key is available (server-side only)
+// On client-side (browser), supabaseAdmin should never be used — falls back to anon
+const isServer = typeof window === 'undefined';
 export const supabaseAdmin: SupabaseClient = supabaseServiceKey
   ? createClient(supabaseUrl, supabaseServiceKey)
-  : supabase; // Fallback to anon client on client-side (won't be used there anyway)
+  : isServer
+    ? (() => { console.error('CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing on the server. Admin operations will fail.'); return supabase; })()
+    : supabase;
 
 export default supabase;
