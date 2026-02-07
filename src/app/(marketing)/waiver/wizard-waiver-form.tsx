@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar } from 'lucide-react';
+import { User, Phone, Mail, Baby, AlertCircle, Check, Loader2, ArrowRight, UserPlus, Calendar, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 const STORAGE_KEY = 'littlegrapplers_waiver_draft';
@@ -180,6 +180,18 @@ export function WizardWaiverForm({ locations }: WizardWaiverFormProps) {
         <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-950/5 p-6">
           <h4 className="text-lg font-bold text-gray-900 mb-4">Next Steps</h4>
           <div className="space-y-3">
+            <Link href="/enroll" className="flex items-center justify-between p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all group">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                  <CreditCard className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Complete Enrollment & Payment</p>
+                  <p className="text-sm text-gray-500">Finish signing up your child</p>
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-green-400 group-hover:text-green-600" />
+            </Link>
             <Link href="/sign-up" className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all group">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">

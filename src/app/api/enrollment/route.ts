@@ -89,7 +89,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid location selected' }, { status: 400 });
     }
 
-    // Check for duplicate enrollment (same child + location + pending/approved/active)
+    // Check for duplicate enrollment (same child + location)
+    // Only block if child is already ACTIVE (paid). Reuse pending/approved records.
     const { data: existingEnrollment } = await supabaseAdmin
       .from('enrollments')
       .select('id, status')
@@ -100,42 +101,76 @@ export async function POST(request: NextRequest) {
       .in('status', ['pending', 'approved', 'active'])
       .single();
 
-    if (existingEnrollment) {
+    if (existingEnrollment && existingEnrollment.status === 'active') {
       return NextResponse.json({ 
-        error: `An enrollment for ${data.childFirstName} at this location is already ${existingEnrollment.status}. Please contact us if you need assistance.` 
+        error: `${data.childFirstName} is already enrolled at this location.` 
       }, { status: 400 });
     }
 
-    // Create enrollment record
-    const { data: enrollment, error: insertError } = await supabaseAdmin
-      .from('enrollments')
-      .insert({
-        location_id: data.locationId,
-        status: 'pending',
-        guardian_first_name: data.guardianFirstName,
-        guardian_last_name: data.guardianLastName,
-        guardian_email: data.guardianEmail,
-        guardian_phone: data.guardianPhone || null,
-        child_first_name: data.childFirstName,
-        child_last_name: data.childLastName,
-        child_date_of_birth: data.childDateOfBirth || null,
-        emergency_contact_name: data.emergencyContactName || null,
-        emergency_contact_phone: data.emergencyContactPhone || null,
-        plan_type: data.planType,
-        digital_signature: data.digitalSignature,
-        photo_media_consent: data.photoMediaConsent,
-        waiver_agreed_at: new Date().toISOString(),
-        waiver_ip_address: ipAddress,
-        clerk_user_id: clerkUserId,
-        user_id: userId,
-        submitted_at: new Date().toISOString(),
-      })
-      .select('id')
-      .single();
+    let enrollmentId: string;
 
-    if (insertError) {
-      console.error('Enrollment insert error:', insertError);
-      return NextResponse.json({ error: 'Failed to submit enrollment' }, { status: 500 });
+    if (existingEnrollment && ['pending', 'approved'].includes(existingEnrollment.status)) {
+      // Update existing unpaid enrollment with latest info
+      const { error: updateError } = await supabaseAdmin
+        .from('enrollments')
+        .update({
+          guardian_first_name: data.guardianFirstName,
+          guardian_last_name: data.guardianLastName,
+          guardian_phone: data.guardianPhone || null,
+          child_date_of_birth: data.childDateOfBirth || null,
+          emergency_contact_name: data.emergencyContactName || null,
+          emergency_contact_phone: data.emergencyContactPhone || null,
+          plan_type: data.planType,
+          digital_signature: data.digitalSignature,
+          photo_media_consent: data.photoMediaConsent,
+          waiver_agreed_at: new Date().toISOString(),
+          waiver_ip_address: ipAddress,
+          clerk_user_id: clerkUserId || undefined,
+          user_id: userId || undefined,
+        })
+        .eq('id', existingEnrollment.id);
+
+      if (updateError) {
+        console.error('Enrollment update error:', updateError);
+        return NextResponse.json({ error: 'Failed to update enrollment' }, { status: 500 });
+      }
+
+      enrollmentId = existingEnrollment.id;
+      console.log(`Reusing existing enrollment ${enrollmentId} (was ${existingEnrollment.status})`);
+    } else {
+      // Create new enrollment record
+      const { data: enrollment, error: insertError } = await supabaseAdmin
+        .from('enrollments')
+        .insert({
+          location_id: data.locationId,
+          status: 'pending',
+          guardian_first_name: data.guardianFirstName,
+          guardian_last_name: data.guardianLastName,
+          guardian_email: data.guardianEmail,
+          guardian_phone: data.guardianPhone || null,
+          child_first_name: data.childFirstName,
+          child_last_name: data.childLastName,
+          child_date_of_birth: data.childDateOfBirth || null,
+          emergency_contact_name: data.emergencyContactName || null,
+          emergency_contact_phone: data.emergencyContactPhone || null,
+          plan_type: data.planType,
+          digital_signature: data.digitalSignature,
+          photo_media_consent: data.photoMediaConsent,
+          waiver_agreed_at: new Date().toISOString(),
+          waiver_ip_address: ipAddress,
+          clerk_user_id: clerkUserId,
+          user_id: userId,
+          submitted_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('Enrollment insert error:', insertError);
+        return NextResponse.json({ error: 'Failed to submit enrollment' }, { status: 500 });
+      }
+
+      enrollmentId = enrollment.id;
     }
 
     // Log activity
@@ -143,7 +178,7 @@ export async function POST(request: NextRequest) {
       admin_email: userEmail || data.guardianEmail,
       action: 'enrollment.submitted',
       entity_type: 'enrollment',
-      entity_id: enrollment.id,
+      entity_id: enrollmentId,
       details: {
         child_name: `${data.childFirstName} ${data.childLastName}`,
         location_id: data.locationId,
@@ -178,7 +213,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Enrollment submitted successfully',
-      enrollmentId: enrollment.id,
+      enrollmentId: enrollmentId,
     });
   } catch (error) {
     console.error('Enrollment submission error:', error);
