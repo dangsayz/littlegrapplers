@@ -93,8 +93,8 @@ function verifyWebhookSignature(
   timestamp: string | null
 ): boolean {
   if (!RESEND_WEBHOOK_SECRET || !signature || !timestamp) {
-    console.warn('[Resend Webhook] Missing secret or signature, skipping verification');
-    return !RESEND_WEBHOOK_SECRET; // Allow if no secret configured (dev mode)
+    console.warn('[Resend Webhook] Missing secret or signature, rejecting request');
+    return false; // Fail-closed: reject if secret not configured
   }
 
   const signedPayload = `${timestamp}.${payload}`;
