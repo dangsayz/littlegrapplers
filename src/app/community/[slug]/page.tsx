@@ -7,7 +7,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Settings, Eye, CreditCard, Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog, CloudSun } from 'lucide-react';
+import { Lock, MessageCircle, Plus, ArrowRight, ArrowLeft, Pin, Clock, User, AlertCircle, MapPin, Users, Home, ChevronRight, ChevronLeft, Check, DollarSign, Play, Image as ImageIcon, Award, Cake, Pencil, X, ChevronDown, Trash2, MoreHorizontal, Calendar, Video, Settings, Eye, CreditCard, Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudDrizzle, CloudFog, CloudSun, Search, TrendingUp, Megaphone, Bookmark, ThumbsUp, Hash, Activity, FileText, Shield } from 'lucide-react';
 import { LocationOfflineOverlay } from '@/components/community/location-offline-overlay';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -402,8 +402,8 @@ function InlineComposer({
   const handleSubmit = async () => {
     if (!content.trim()) return;
     
-    // Auto-generate title from first line or first 50 chars of content
-    const autoTitle = content.trim().split('\n')[0].slice(0, 50) || 'New Discussion';
+    // Use explicit title if provided, otherwise auto-generate from content
+    const autoTitle = title.trim() || content.trim().split('\n')[0].slice(0, 50) || 'New Discussion';
     
     setIsSubmitting(true);
     setError('');
@@ -454,13 +454,18 @@ function InlineComposer({
   if (!isExpanded) {
     return (
       <div 
+        id="community-composer"
         onClick={() => setIsExpanded(true)}
-        className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-text hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg cursor-text hover:border-gray-300 transition-colors"
       >
-        <div className="h-9 w-9 rounded-full bg-[#2EC4B6] flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-sm font-semibold">{userInitials}</span>
+        <div className="h-7 w-7 rounded-md bg-[#1F2A44] flex items-center justify-center flex-shrink-0">
+          <span className="text-white text-[11px] font-semibold">{userInitials}</span>
         </div>
-        <span className="text-gray-400 text-sm">Start a discussion...</span>
+        <span className="text-gray-400 text-[13px]">Write a post...</span>
+        <div className="ml-auto flex items-center gap-1.5">
+          <ImageIcon className="h-3.5 w-3.5 text-gray-300" />
+          <Plus className="h-3.5 w-3.5 text-gray-300" />
+        </div>
       </div>
     );
   }
@@ -471,76 +476,76 @@ function InlineComposer({
   const isAtLimit = charsRemaining <= 0;
 
   return (
-    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-      <div className="flex gap-3">
-        <div className="h-9 w-9 rounded-full bg-[#2EC4B6] flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-sm font-semibold">{userInitials}</span>
-        </div>
-        <div className="flex-1">
-          <div className="relative">
-            <textarea
-              value={content}
-              onChange={(e) => {
-                if (e.target.value.length <= MAX_CHARS) {
-                  setContent(e.target.value);
-                }
-              }}
-              placeholder="What's on your mind?"
-              rows={3}
-              autoFocus
-              className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-900 text-sm placeholder:text-gray-400 outline-none ring-0 resize-none transition-colors ${
-                isAtLimit 
-                  ? 'border-red-300 focus:border-red-400' 
-                  : 'border-gray-200/60 focus:border-[#2EC4B6]/40'
-              }`}
-            />
-            {/* Character countdown */}
-            <div className={`absolute bottom-2 right-3 text-xs font-medium transition-colors ${
-              isAtLimit 
-                ? 'text-red-500' 
-                : isNearLimit 
-                  ? 'text-amber-500' 
-                  : 'text-gray-300'
-            }`}>
-              {charsRemaining}
-            </div>
-          </div>
-
-          {/* Media Previews */}
-          {mediaPreviews.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {mediaPreviews.map((preview, index) => (
-                <div key={index} className="relative group">
-                  {mediaFiles[index]?.type.startsWith('video/') ? (
-                    <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
-                      <Play className="h-6 w-6 text-gray-500" />
-                    </div>
-                  ) : (
-                    <img src={preview} alt="" className="w-16 h-16 object-cover rounded-lg" />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeMedia(index)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+    <div id="community-composer" className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      {/* Title input */}
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Post title (optional)"
+        className="w-full px-3.5 py-2.5 text-[14px] font-medium text-gray-900 placeholder:text-gray-400 border-b border-gray-100 focus:outline-none focus:bg-gray-50/50 transition-colors"
+        autoFocus
+      />
+      
+      {/* Body */}
+      <div className="relative">
+        <textarea
+          value={content}
+          onChange={(e) => {
+            if (e.target.value.length <= MAX_CHARS) {
+              setContent(e.target.value);
+            }
+          }}
+          placeholder="Write your post..."
+          rows={3}
+          className={`w-full px-3.5 py-2.5 text-[14px] text-gray-700 placeholder:text-gray-400 focus:outline-none resize-none ${
+            isAtLimit ? 'bg-red-50/30' : ''
+          }`}
+        />
+        <div className={`absolute bottom-2 right-3 text-[11px] font-medium transition-colors ${
+          isAtLimit 
+            ? 'text-red-500' 
+            : isNearLimit 
+              ? 'text-amber-500' 
+              : 'text-gray-300'
+        }`}>
+          {charsRemaining}
         </div>
       </div>
 
-      {error && (
-        <p className="text-red-500 text-xs pl-12">{error}</p>
+      {/* Media Previews */}
+      {mediaPreviews.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-3.5 pb-2">
+          {mediaPreviews.map((preview, index) => (
+            <div key={index} className="relative group">
+              {mediaFiles[index]?.type.startsWith('video/') ? (
+                <div className="w-14 h-14 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center">
+                  <Play className="h-5 w-5 text-gray-400" />
+                </div>
+              ) : (
+                <img src={preview} alt="" className="w-14 h-14 object-cover rounded-md border border-gray-200" />
+              )}
+              <button
+                type="button"
+                onClick={() => removeMedia(index)}
+                className="absolute -top-1 -right-1 bg-gray-800 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-2.5 w-2.5" />
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
-      <div className="flex items-center justify-between pl-12">
-        {/* Media Upload Button */}
-        <label className="flex items-center gap-1.5 text-gray-400 hover:text-[#2EC4B6] cursor-pointer transition-colors">
-          <ImageIcon className="h-5 w-5" />
-          <span className="text-xs">Photo/Video</span>
+      {error && (
+        <p className="text-red-500 text-[12px] px-3.5 pb-2">{error}</p>
+      )}
+
+      {/* Footer toolbar */}
+      <div className="flex items-center justify-between px-3 py-2 border-t border-gray-100 bg-gray-50/50">
+        <label className="flex items-center gap-1 px-2 py-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
+          <ImageIcon className="h-3.5 w-3.5" />
+          <span className="text-[12px] font-medium">Attach</span>
           <input
             type="file"
             accept="image/*,video/*"
@@ -550,19 +555,19 @@ function InlineComposer({
           />
         </label>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={resetForm}
-            className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 font-medium rounded-lg transition-colors"
+            className="px-2.5 py-1.5 text-[12px] text-gray-400 hover:text-gray-600 font-medium rounded-md transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim()}
-            className="px-4 py-2 text-sm bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-[12px] bg-[#1F2A44] hover:bg-[#2a3a5c] text-white font-medium rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Posting...' : 'Post'}
+            {isSubmitting ? 'Posting...' : 'Publish'}
           </button>
         </div>
       </div>
@@ -1108,6 +1113,19 @@ export default function CommunityPage() {
     }
   };
 
+  const handleTogglePin = async (threadId: string) => {
+    try {
+      const res = await fetch(`/api/discussions/${threadId}/pin`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        fetchLocationData();
+      }
+    } catch (err) {
+      console.error('Error toggling pin:', err);
+    }
+  };
+
   const handleDeleteThreadFromList = async (threadId: string) => {
     setIsThreadDeleting(true);
     try {
@@ -1313,426 +1331,147 @@ export default function CommunityPage() {
     );
   }
 
-  // Community page (verified) - 2 Column Layout
+  // Community page (verified) - Enterprise Layout
   return (
-    <div className="min-h-screen bg-[#F7F9F9]">
-      {/* Compact Header */}
-      <section className="bg-white border-b border-gray-100">
-        <Container className="py-4">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-400 hover:text-gray-600 transition-colors">
-              <Home className="h-4 w-4" />
-            </Link>
-            <ChevronRight className="h-4 w-4 text-gray-300" />
-            <span className="text-gray-400">Community</span>
-            <ChevronRight className="h-4 w-4 text-gray-300" />
-            <span className="text-gray-900 font-medium">{location?.name || 'Loading...'}</span>
-          </nav>
+    <div className="min-h-screen bg-[#f8f9fa]">
+      {/* Enterprise Header Bar */}
+      <section className="bg-white border-b border-gray-200">
+        <Container className="py-0">
+          {/* Top row: breadcrumb + actions */}
+          <div className="flex items-center justify-between py-2.5 border-b border-gray-100">
+            <nav className="flex items-center gap-1.5 text-[13px]">
+              <Link href="/" className="text-gray-400 hover:text-gray-600 transition-colors">
+                <Home className="h-3.5 w-3.5" />
+              </Link>
+              <ChevronRight className="h-3 w-3 text-gray-300" />
+              <span className="text-gray-400">Community</span>
+              <ChevronRight className="h-3 w-3 text-gray-300" />
+              <span className="text-gray-700 font-medium">{location?.name || 'Loading...'}</span>
+            </nav>
+            <div className="flex items-center gap-2">
+              {weather && (
+                <div className="flex items-center gap-1.5 text-[12px] text-gray-400 mr-2">
+                  <div className="text-gray-400">
+                    {weather.icon === 'sun' && <Sun className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud' && <Cloud className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-sun' && <CloudSun className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-rain' && <CloudRain className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-snow' && <CloudSnow className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-lightning' && <CloudLightning className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-drizzle' && <CloudDrizzle className="h-3.5 w-3.5" />}
+                    {weather.icon === 'cloud-fog' && <CloudFog className="h-3.5 w-3.5" />}
+                  </div>
+                  {weather.temperature !== null && <span className="font-medium text-gray-500">{weather.temperature}°</span>}
+                  <span className="text-gray-300">·</span>
+                  <span>{weather.localTime}</span>
+                </div>
+              )}
+              {isAdmin && (
+                <Link href="/dashboard/admin" className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                  <Settings className="h-4 w-4" />
+                </Link>
+              )}
+            </div>
+          </div>
+          {/* Bottom row: community identity + status + primary action */}
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-lg bg-[#1F2A44] flex items-center justify-center">
+                <Users className="h-4.5 w-4.5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-[17px] font-semibold text-gray-900 leading-tight">{location?.name}</h1>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Active
+                  </span>
+                  <span className="text-[12px] text-gray-400">{members.length} members</span>
+                  <span className="text-gray-300">·</span>
+                  <span className="text-[12px] text-gray-400">{threads.length} threads</span>
+                  <span className="text-gray-300">·</span>
+                  <span className="text-[12px] text-gray-400">{media.length} media</span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                const composer = document.getElementById('community-composer');
+                if (composer) {
+                  composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  composer.click();
+                }
+              }}
+              className="h-8 px-3.5 bg-[#1F2A44] hover:bg-[#2a3a5c] text-white text-[13px] font-medium rounded-lg flex items-center gap-1.5 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              New Post
+            </button>
+          </div>
         </Container>
       </section>
 
       {/* 2-Column Layout */}
-      <Container className="py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      <Container className="py-5">
+        <div className="flex flex-col lg:flex-row gap-5">
           
           {/* Main Content - Left Column */}
-          <div className="flex-1 min-w-0 space-y-6">
-            
-            {/* Unified Welcome + Activity Card */}
-            <div className="relative rounded-2xl overflow-hidden border border-gray-200/50 shadow-sm">
-              {/* Soft gradient background - more subtle */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
-              {/* Teal accent gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2EC4B6]/20 via-transparent to-[#8FE3CF]/10" />
-              {/* Subtle glow overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5" />
-              
-              {/* Weather Effects Layer */}
-              {weather && (
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  {/* Sunny Effect - Floating light rays */}
-                  {(weather.icon === 'sun' || weather.icon === 'cloud-sun') && (
-                    <>
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-radial from-[#FFC857]/20 via-[#FFC857]/5 to-transparent rounded-full blur-xl animate-pulse" style={{ animationDuration: '3s' }} />
-                      <div className="absolute top-4 right-8 w-2 h-2 bg-[#FFC857]/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-                      <div className="absolute top-12 right-16 w-1.5 h-1.5 bg-[#FFC857]/30 rounded-full animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
-                      <div className="absolute top-8 right-4 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
-                    </>
-                  )}
-                  
-                  {/* Snow Effect - Falling snowflakes */}
-                  {weather.icon === 'cloud-snow' && (
-                    <>
-                      {[...Array(12)].map((_, i) => (
-                        <div
-                          key={`snow-${i}`}
-                          className="absolute w-1.5 h-1.5 bg-white/60 rounded-full"
-                          style={{
-                            left: `${8 + (i * 8)}%`,
-                            top: '-5%',
-                            animation: `snowfall ${3 + (i % 3)}s linear infinite`,
-                            animationDelay: `${i * 0.3}s`,
-                          }}
-                        />
-                      ))}
-                      <style jsx>{`
-                        @keyframes snowfall {
-                          0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
-                          10% { opacity: 1; }
-                          90% { opacity: 1; }
-                          100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
-                        }
-                      `}</style>
-                    </>
-                  )}
-                  
-                  {/* Rain Effect - Falling rain drops */}
-                  {(weather.icon === 'cloud-rain' || weather.icon === 'cloud-drizzle') && (
-                    <>
-                      {[...Array(15)].map((_, i) => (
-                        <div
-                          key={`rain-${i}`}
-                          className="absolute w-0.5 h-3 bg-gradient-to-b from-[#8FE3CF]/40 to-transparent rounded-full"
-                          style={{
-                            left: `${5 + (i * 6.5)}%`,
-                            top: '-3%',
-                            animation: `rainfall ${0.8 + (i % 3) * 0.2}s linear infinite`,
-                            animationDelay: `${i * 0.1}s`,
-                          }}
-                        />
-                      ))}
-                      <style jsx>{`
-                        @keyframes rainfall {
-                          0% { transform: translateY(-10px); opacity: 0; }
-                          10% { opacity: 0.6; }
-                          90% { opacity: 0.4; }
-                          100% { transform: translateY(500px); opacity: 0; }
-                        }
-                      `}</style>
-                    </>
-                  )}
-                  
-                  {/* Cloudy Effect - Floating clouds */}
-                  {(weather.icon === 'cloud' || weather.icon === 'cloud-fog') && (
-                    <>
-                      <div className="absolute top-4 -left-8 w-24 h-8 bg-white/5 rounded-full blur-lg animate-pulse" style={{ animation: 'cloudFloat 8s ease-in-out infinite' }} />
-                      <div className="absolute top-12 left-1/4 w-16 h-6 bg-white/4 rounded-full blur-md" style={{ animation: 'cloudFloat 10s ease-in-out infinite', animationDelay: '2s' }} />
-                      <div className="absolute top-6 right-1/4 w-20 h-7 bg-white/3 rounded-full blur-lg" style={{ animation: 'cloudFloat 12s ease-in-out infinite', animationDelay: '4s' }} />
-                      <style jsx>{`
-                        @keyframes cloudFloat {
-                          0%, 100% { transform: translateX(0); }
-                          50% { transform: translateX(20px); }
-                        }
-                      `}</style>
-                    </>
-                  )}
-                  
-                  {/* Lightning Effect - Flash */}
-                  {weather.icon === 'cloud-lightning' && (
-                    <>
-                      <div className="absolute inset-0 bg-white/0 animate-pulse" style={{ animation: 'lightning 4s ease-in-out infinite' }} />
-                      <style jsx>{`
-                        @keyframes lightning {
-                          0%, 89%, 91%, 93%, 100% { background-color: transparent; }
-                          90%, 92% { background-color: rgba(255,255,255,0.1); }
-                        }
-                      `}</style>
-                    </>
-                  )}
-                </div>
-              )}
-              
-              {/* Noise texture for depth */}
-              <div 
-                className="absolute inset-0 opacity-[0.02] mix-blend-overlay"
-                style={{ 
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` 
-                }} 
-              />
-              {/* Edge highlights */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2EC4B6]/30 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              
-              {/* Content */}
-              <div className="relative z-10">
-                {/* Welcome Section */}
-                <div className="p-6 pb-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h1 className="text-2xl font-bold text-white drop-shadow-sm">
-                        Welcome back, <span className="text-white/90">{displayUserName}</span>
-                      </h1>
-                      <p className="mt-1 text-white/70 text-sm">{location?.name} Community</p>
-                    </div>
-                    
-                    {/* Weather & Time Widget */}
-                    {weather && (
-                      <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2">
-                        {/* Weather Icon */}
-                        <div className="text-white/90">
-                          {weather.icon === 'sun' && <Sun className="h-6 w-6" />}
-                          {weather.icon === 'cloud' && <Cloud className="h-6 w-6" />}
-                          {weather.icon === 'cloud-sun' && <CloudSun className="h-6 w-6" />}
-                          {weather.icon === 'cloud-rain' && <CloudRain className="h-6 w-6" />}
-                          {weather.icon === 'cloud-snow' && <CloudSnow className="h-6 w-6" />}
-                          {weather.icon === 'cloud-lightning' && <CloudLightning className="h-6 w-6" />}
-                          {weather.icon === 'cloud-drizzle' && <CloudDrizzle className="h-6 w-6" />}
-                          {weather.icon === 'cloud-fog' && <CloudFog className="h-6 w-6" />}
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-baseline gap-1">
-                            {weather.temperature !== null && (
-                              <span className="text-xl font-semibold text-white">{weather.temperature}°</span>
-                            )}
-                            <span className="text-xs text-white/60">{weather.localTime}</span>
-                          </div>
-                          <p className="text-xs text-white/50">{weather.description}</p>
-                        </div>
+          <div className="flex-1 min-w-0 space-y-4">
+
+            {/* Community Overview Card */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Pinned Announcement Preview */}
+                {(() => {
+                  const pinnedThread = threads.find(t => t.isPinned);
+                  return pinnedThread ? (
+                    <div className="col-span-2 flex items-start gap-3 p-3 bg-amber-50/60 border border-amber-200/40 rounded-lg">
+                      <div className="h-7 w-7 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Pin className="h-3.5 w-3.5 text-amber-600" />
                       </div>
-                    )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">Pinned</p>
+                        <p className="text-[13px] text-gray-700 mt-0.5 line-clamp-2 leading-snug">{pinnedThread.content.slice(0, 120)}{pinnedThread.content.length > 120 ? '...' : ''}</p>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+                {/* Metric: New This Week */}
+                {(() => {
+                  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                  const newPosts = threads.filter(t => new Date(t.createdAt).getTime() > weekAgo).length;
+                  const newMedia = media.filter(m => new Date(m.created_at).getTime() > weekAgo).length;
+                  return (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="h-7 w-7 rounded-md bg-[#2EC4B6]/10 flex items-center justify-center flex-shrink-0">
+                        <TrendingUp className="h-3.5 w-3.5 text-[#2EC4B6]" />
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">This Week</p>
+                        <p className="text-[14px] font-semibold text-gray-900">{newPosts + newMedia} new</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+                {/* Metric: Your Role */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="h-7 w-7 rounded-md bg-[#1F2A44]/10 flex items-center justify-center flex-shrink-0">
+                    <Shield className="h-3.5 w-3.5 text-[#1F2A44]" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Your Role</p>
+                    <p className="text-[14px] font-semibold text-gray-900">{isAdmin ? 'Admin' : 'Member'}</p>
                   </div>
                 </div>
-
-                {/* Divider */}
-                {recentActivity.length > 0 && (
-                  <div className="mx-5 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                )}
-
-                {/* Activity Section */}
-                {recentActivity.length > 0 && (
-                  <>
-                    <div className="px-6 pt-4 pb-2">
-                      <h2 className="text-sm font-semibold text-white/80 uppercase tracking-wide">Recent Activity</h2>
-                    </div>
-                    <div className="divide-y divide-white/10">
-                      {recentActivity.slice(0, 5).map((activity) => {
-                        // Activity type config
-                        const config: Record<string, { icon: typeof Users; bgStyle: string; title: string }> = {
-                          new_member: { icon: Users, bgStyle: 'bg-white/20 backdrop-blur-sm', title: 'Welcome' },
-                          new_video: { icon: Video, bgStyle: 'bg-white/25 backdrop-blur-sm', title: 'New Video' },
-                          new_image: { icon: ImageIcon, bgStyle: 'bg-white/20 backdrop-blur-sm', title: 'New Photo' },
-                          comment: { icon: MessageCircle, bgStyle: 'bg-white/15 backdrop-blur-sm', title: 'Commented' },
-                          birthday: { icon: Cake, bgStyle: 'bg-white/25 backdrop-blur-sm', title: 'Birthday' },
-                          student_of_month: { icon: Award, bgStyle: 'bg-white/30 backdrop-blur-sm', title: 'Student of the Month' },
-                        };
-                        const { icon: Icon, bgStyle, title } = config[activity.type] || config.new_member;
-                        
-                        const showAdminActions = isAdmin && activity.enrollmentId && ['new_member', 'birthday', 'student_of_month'].includes(activity.type);
-                        
-                        return (
-                          <div 
-                            key={activity.id}
-                            className="flex items-center gap-4 px-5 py-3 hover:bg-white/5 transition-colors group relative"
-                          >
-                            <div className={`flex-shrink-0 w-9 h-9 rounded-full ${bgStyle} flex items-center justify-center shadow-lg shadow-black/10 group-hover:bg-white/30 transition-colors`}>
-                              <Icon className="h-4 w-4 text-white drop-shadow-sm" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <span className="font-medium text-white text-sm drop-shadow-sm block">
-                                {title === 'Welcome' ? (
-                                  <>{title}, {showAdminActions ? (
-                                    <span className="relative inline-block group/name">
-                                      <span className="font-semibold cursor-pointer hover:underline">{activity.name}</span>
-                                      {/* Admin Quick Actions Dropdown */}
-                                      <span className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover/name:opacity-100 group-hover/name:visible transition-all duration-200 z-50">
-                                        <span className="bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[180px] block">
-                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                            <Eye className="h-4 w-4 text-gray-400" />
-                                            View Details
-                                          </Link>
-                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                            <Pencil className="h-4 w-4 text-gray-400" />
-                                            Edit Student
-                                          </Link>
-                                          <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                            <CreditCard className="h-4 w-4 text-gray-400" />
-                                            Send Payment Link
-                                          </Link>
-                                          <span className="border-t border-gray-100 my-1 block" />
-                                          <button className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
-                                            <Trash2 className="h-4 w-4" />
-                                            Delete
-                                          </button>
-                                        </span>
-                                      </span>
-                                    </span>
-                                  ) : (
-                                    <span className="font-semibold">{activity.name}</span>
-                                  )}</>
-                                ) : title === 'Commented' ? (
-                                  <><span className="font-semibold">{activity.name}</span> commented</>
-                                ) : showAdminActions ? (
-                                  <span className="relative inline-block group/name">
-                                    <span className="font-semibold cursor-pointer hover:underline">{activity.name}</span>
-                                    {/* Admin Quick Actions Dropdown */}
-                                    <span className="absolute left-0 top-full mt-1 opacity-0 invisible group-hover/name:opacity-100 group-hover/name:visible transition-all duration-200 z-50">
-                                      <span className="bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[180px] block">
-                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                          <Eye className="h-4 w-4 text-gray-400" />
-                                          View Details
-                                        </Link>
-                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                          <Pencil className="h-4 w-4 text-gray-400" />
-                                          Edit Student
-                                        </Link>
-                                        <Link href={`/dashboard/admin/enrollments/${activity.enrollmentId}`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                          <CreditCard className="h-4 w-4 text-gray-400" />
-                                          Send Payment Link
-                                        </Link>
-                                        <span className="border-t border-gray-100 my-1 block" />
-                                        <button className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
-                                          <Trash2 className="h-4 w-4" />
-                                          Delete
-                                        </button>
-                                      </span>
-                                    </span>
-                                  </span>
-                                ) : (
-                                  <span className="font-semibold">{activity.name}</span>
-                                )}
-                              </span>
-                              <p className="text-white/60 text-xs mt-0.5 truncate">{activity.subtitle || ''}</p>
-                            </div>
-                            <span className="text-xs text-white/50 flex-shrink-0 font-medium">
-                              {formatRelativeTime(activity.date)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-
-                {/* Empty state padding when no activity */}
-                {recentActivity.length === 0 && <div className="pb-2" />}
               </div>
             </div>
 
-            {/* Media Gallery */}
-            {media.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h2 className="text-lg font-semibold text-gray-900">Media Gallery</h2>
-                        <p className="text-sm text-gray-500">Videos and images from your instructor</p>
-                      </div>
-                      {isAdmin && (
-                        <Link 
-                          href="/dashboard/admin/media" 
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2EC4B6] hover:bg-[#2EC4B6]/90 text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          Video
-                        </Link>
-                      )}
-                    </div>
-                    <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-                      {(['all', 'video', 'image'] as const).map((type) => {
-                        const count = type === 'all' ? media.length : media.filter(m => m.file_type === type).length;
-                        return (
-                          <button
-                            key={type}
-                            onClick={() => {
-                              setMediaFilter(type);
-                              setVisibleMediaCount(8);
-                            }}
-                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                              mediaFilter === type
-                                ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                          >
-                            {type === 'all' ? 'All' : type === 'video' ? 'Videos' : 'Images'}
-                            <span className="ml-1 opacity-60">({count})</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  {(() => {
-                    const filteredMedia = mediaFilter === 'all' 
-                      ? media 
-                      : media.filter(m => m.file_type === mediaFilter);
-                    const visibleMedia = filteredMedia.slice(0, visibleMediaCount);
-                    const hasMore = filteredMedia.length > visibleMediaCount;
-
-                    return (
-                      <>
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                          {visibleMedia.map((item) => (
-                            <div
-                              key={item.id}
-                              onClick={() => setPreviewMedia(item)}
-                              className="group relative bg-gray-50 rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#2EC4B6]/30 transition-all"
-                            >
-                              <div className="aspect-video relative overflow-hidden">
-                                {item.file_type === 'video' ? (
-                                  <>
-                                    <video
-                                      src={item.file_url}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      muted
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                                      <div className="h-10 w-10 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
-                                        <Play className="h-4 w-4 text-gray-800 ml-0.5" />
-                                      </div>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <img
-                                    src={item.file_url}
-                                    alt={item.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                )}
-                                <div className="absolute top-2 left-2">
-                                  <div className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                                    item.file_type === 'video' 
-                                      ? 'bg-red-500/90 text-white' 
-                                      : 'bg-blue-500/90 text-white'
-                                  }`}>
-                                    {item.file_type === 'video' ? 'Video' : 'Image'}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="p-2.5">
-                                <p className="font-medium text-gray-900 text-sm truncate">{item.title}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {hasMore && (
-                          <div className="mt-4 text-center">
-                            <button
-                              onClick={() => setVisibleMediaCount(prev => prev + 8)}
-                              className="px-4 py-2 text-sm font-medium text-[#2EC4B6] hover:bg-[#2EC4B6]/5 rounded-lg transition-colors"
-                            >
-                              Load More ({filteredMedia.length - visibleMediaCount} remaining)
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-
             {/* Discussions */}
-            <div className="bg-white rounded-2xl border border-gray-100">
-              <div className="p-5 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Discussions</h2>
-                    <p className="text-sm text-gray-500">{threads.length} threads</p>
-                  </div>
+            <div className="bg-white rounded-xl border border-gray-200">
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-[15px] font-semibold text-gray-900">Feed</h2>
+                  <span className="text-[12px] text-gray-400">{threads.length} threads</span>
                 </div>
                 
                 {/* Inline Composer */}
@@ -1745,10 +1484,10 @@ export default function CommunityPage() {
 
               <div className="divide-y divide-gray-100">
                 {threads.length === 0 ? (
-                  <div className="text-center py-12 px-6">
-                    <MessageCircle className="h-10 w-10 mx-auto mb-3 text-gray-200" />
-                    <h3 className="text-base font-semibold mb-1 text-gray-900">No discussions yet</h3>
-                    <p className="text-gray-500 text-sm">Be the first to start a conversation!</p>
+                  <div className="text-center py-10 px-6">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-200" />
+                    <h3 className="text-[14px] font-semibold mb-0.5 text-gray-900">No discussions yet</h3>
+                    <p className="text-gray-400 text-[13px]">Be the first to start a conversation</p>
                   </div>
                 ) : (
                   threads.map((thread) => {
@@ -1759,58 +1498,56 @@ export default function CommunityPage() {
                     
                     return (
                       <div key={thread.id} className="relative">
-                        <div className={`group p-4 sm:p-5 transition-colors border-b last:border-b-0 ${
-                          isSuperAdmin 
-                            ? 'bg-gradient-to-r from-slate-50/50 to-white border-l border-l-[#1F2A44]/60 border-b-gray-100' 
-                            : 'hover:bg-gray-50/80 border-gray-100'
+                        <div className={`group px-4 py-3.5 transition-colors ${
+                          thread.isPinned
+                            ? 'bg-amber-50/40 border-l-2 border-l-amber-400'
+                            : isFounder
+                              ? 'bg-slate-50/40 border-l-2 border-l-[#F7931E]'
+                              : 'hover:bg-gray-50/50'
                         }`}>
                           <div className="flex gap-3">
                             {/* Avatar */}
                             <div className="flex-shrink-0">
-                              <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center ${
-                                isSuperAdmin 
-                                  ? 'bg-gradient-to-br from-[#1F2A44] to-[#2a3a5c] ring-2 ring-[#1F2A44]/20' 
-                                  : 'bg-gradient-to-br from-gray-100 to-gray-200'
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold ${
+                                isFounder 
+                                  ? 'bg-[#F7931E] text-white' 
+                                  : isSuperAdmin
+                                    ? 'bg-[#1F2A44] text-white'
+                                    : 'bg-gray-100 text-gray-600'
                               }`}>
-                                <span className={`text-sm sm:text-base font-semibold ${
-                                  isSuperAdmin ? 'text-white' : 'text-gray-600'
-                                }`}>
-                                  {thread.author.firstName?.[0] || thread.author.email[0].toUpperCase()}
-                                </span>
+                                {thread.author.firstName?.[0] || thread.author.email[0].toUpperCase()}
                               </div>
                             </div>
                             
                             {/* Content */}
                             <div className="flex-1 min-w-0">
-                              {/* Header: Name + Time + Menu */}
+                              {/* Meta row: Author + role + time + pinned */}
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className={`text-[15px] sm:text-base font-semibold ${
-                                    isSuperAdmin ? 'text-[#1F2A44]' : 'text-gray-900'
-                                  }`}>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[13px] font-semibold text-gray-900">
                                     {thread.author.firstName || thread.author.email.split('@')[0]}
                                   </span>
-                                  {isSuperAdmin && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F2A44] text-white uppercase tracking-wide">
+                                  {isFounder && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F7931E] text-white uppercase tracking-wide">
+                                      Coach
+                                    </span>
+                                  )}
+                                  {isSuperAdmin && !isFounder && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1F2A44] text-white uppercase tracking-wide">
                                       Tech
                                     </span>
                                   )}
-                                  {isFounder && (
-                                    <>
-                                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F7931E] text-white uppercase tracking-wide">
-                                        Coach / Founder
-                                      </span>
-                                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#FFC857]/20 text-[#F7931E] uppercase tracking-wide border border-[#FFC857]/40 backdrop-blur-sm">
-                                        Admin
-                                      </span>
-                                    </>
+                                  {(isFounder || isAdmin) && ADMIN_EMAILS.includes(thread.author.email) && (
+                                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 uppercase tracking-wide">
+                                      Admin
+                                    </span>
                                   )}
-                                  <span className="text-[13px] sm:text-sm text-gray-400">·</span>
-                                  <span className="text-[13px] sm:text-sm text-gray-400">
+                                  <span className="text-[12px] text-gray-400">·</span>
+                                  <span className="text-[12px] text-gray-400" title={new Date(thread.createdAt).toLocaleString()}>
                                     {formatRelativeTime(thread.createdAt)}
                                   </span>
                                   {thread.isPinned && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#2EC4B6]/10 text-[#2EC4B6]">
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">
                                       <Pin className="h-2.5 w-2.5" />
                                       Pinned
                                     </span>
@@ -1851,6 +1588,20 @@ export default function CommunityPage() {
                                             <Pencil className="h-3.5 w-3.5" />
                                             Edit
                                           </button>
+                                          {isAdmin && (
+                                            <button
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleTogglePin(thread.id);
+                                                setThreadMenuOpen(null);
+                                              }}
+                                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                            >
+                                              <Pin className="h-3.5 w-3.5" />
+                                              {thread.isPinned ? 'Unpin' : 'Pin to Top'}
+                                            </button>
+                                          )}
                                           <button
                                             onClick={(e) => {
                                               e.preventDefault();
@@ -1872,12 +1623,12 @@ export default function CommunityPage() {
                               
                               {/* Body - Editable or Display */}
                               {isEditing ? (
-                                <div className="mt-2 space-y-3">
+                                <div className="mt-2 space-y-2">
                                   <textarea
                                     value={editThreadContent}
                                     onChange={(e) => setEditThreadContent(e.target.value)}
                                     rows={3}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-[#2EC4B6]/50 focus:ring-2 focus:ring-[#2EC4B6]/10 resize-none"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-[14px] focus:outline-none focus:border-[#2EC4B6]/50 focus:ring-1 focus:ring-[#2EC4B6]/10 resize-none"
                                     onClick={(e) => e.stopPropagation()}
                                   />
                                   <div className="flex gap-2">
@@ -1888,7 +1639,7 @@ export default function CommunityPage() {
                                         handleEditThreadFromList(thread.id);
                                       }}
                                       disabled={isSavingThread}
-                                      className="px-4 py-2 bg-[#2EC4B6] text-white text-xs font-semibold rounded-lg hover:bg-[#2EC4B6]/90 transition-colors disabled:opacity-50"
+                                      className="px-3 py-1.5 bg-[#1F2A44] text-white text-[12px] font-medium rounded-md hover:bg-[#2a3a5c] transition-colors disabled:opacity-50"
                                     >
                                       {isSavingThread ? 'Saving...' : 'Save'}
                                     </button>
@@ -1899,7 +1650,7 @@ export default function CommunityPage() {
                                         setEditingThreadId(null);
                                         setEditThreadContent('');
                                       }}
-                                      className="px-4 py-2 text-gray-500 text-xs font-medium hover:text-gray-700 transition-colors"
+                                      className="px-3 py-1.5 text-gray-400 text-[12px] font-medium hover:text-gray-600 transition-colors"
                                     >
                                       Cancel
                                     </button>
@@ -1907,28 +1658,37 @@ export default function CommunityPage() {
                                 </div>
                               ) : (
                                 <div>
-                                  <p className="mt-1.5 text-[15px] sm:text-base text-gray-700 leading-relaxed">
+                                  {/* Body text with truncation */}
+                                  <p className={`mt-1 text-[14px] text-gray-600 leading-relaxed max-w-[70ch] ${
+                                    expandedThreadId === thread.id ? '' : 'line-clamp-3'
+                                  }`}>
                                     {thread.content}
                                   </p>
+                                  {thread.content.length > 200 && expandedThreadId !== thread.id && (
+                                    <button
+                                      onClick={() => toggleThreadExpansion(thread.id)}
+                                      className="text-[12px] font-medium text-[#2EC4B6] hover:text-[#2EC4B6]/80 mt-0.5 transition-colors"
+                                    >
+                                      Read more
+                                    </button>
+                                  )}
                                   
                                   {/* Media Display */}
                                   {thread.media && thread.media.length > 0 && (
-                                    <div className="mt-4 space-y-3">
+                                    <div className="mt-3 space-y-2">
                                       {thread.media.map((m) => (
-                                        <div key={m.id} className="relative rounded-xl overflow-hidden bg-gray-100">
+                                        <div key={m.id} className="relative rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                                           {m.type === 'video' ? (
-                                            <div className="relative">
-                                              <video 
-                                                src={m.url} 
-                                                className="w-full max-h-[400px] object-contain bg-black" 
-                                                controls
-                                              />
-                                            </div>
+                                            <video 
+                                              src={m.url} 
+                                              className="w-full max-h-[360px] object-contain bg-black" 
+                                              controls
+                                            />
                                           ) : (
                                             <img 
                                               src={m.url} 
                                               alt={m.name} 
-                                              className="w-full max-h-[500px] object-contain"
+                                              className="w-full max-h-[400px] object-contain"
                                             />
                                           )}
                                         </div>
@@ -1936,14 +1696,14 @@ export default function CommunityPage() {
                                     </div>
                                   )}
                                   
-                                  {/* Footer: Engagement Actions */}
-                                  <div className="mt-3 flex items-center gap-4">
+                                  {/* Footer: Action Bar */}
+                                  <div className="mt-2.5 flex items-center gap-1 -ml-1.5">
                                     <button
                                       onClick={() => toggleThreadExpansion(thread.id)}
-                                      className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-[#2EC4B6] transition-colors"
+                                      className="flex items-center gap-1 px-2 py-1 rounded-md text-[12px] font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                                     >
-                                      <MessageCircle className="h-4 w-4" />
-                                      <span>{thread.replyCount || 0} {thread.replyCount === 1 ? 'reply' : 'replies'}</span>
+                                      <MessageCircle className="h-3.5 w-3.5" />
+                                      <span>{thread.replyCount || 0}</span>
                                     </button>
                                     <button
                                       onClick={() => {
@@ -1952,7 +1712,7 @@ export default function CommunityPage() {
                                         }
                                         setReplyingToThreadId(thread.id);
                                       }}
-                                      className="text-[13px] text-gray-400 hover:text-[#2EC4B6] transition-colors"
+                                      className="px-2 py-1 rounded-md text-[12px] font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                                     >
                                       Reply
                                     </button>
@@ -2111,132 +1871,223 @@ export default function CommunityPage() {
                 )}
               </div>
             </div>
+
+            {/* Media Gallery */}
+            {media.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-[15px] font-semibold text-gray-900">Media</h2>
+                      <span className="text-[12px] text-gray-400">{media.length} items</span>
+                      {isAdmin && (
+                        <Link 
+                          href="/dashboard/admin/media" 
+                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-[11px] font-medium rounded-md transition-colors ml-1"
+                        >
+                          <Plus className="h-3 w-3" />
+                          Upload
+                        </Link>
+                      )}
+                    </div>
+                    <div className="flex gap-0.5 p-0.5 bg-gray-100 rounded-md">
+                      {(['all', 'video', 'image'] as const).map((type) => {
+                        const count = type === 'all' ? media.length : media.filter(m => m.file_type === type).length;
+                        return (
+                          <button
+                            key={type}
+                            onClick={() => {
+                              setMediaFilter(type);
+                              setVisibleMediaCount(8);
+                            }}
+                            className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
+                              mediaFilter === type
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                          >
+                            {type === 'all' ? 'All' : type === 'video' ? 'Videos' : 'Photos'}
+                            <span className="ml-0.5 opacity-50">({count})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  {(() => {
+                    const filteredMedia = mediaFilter === 'all' 
+                      ? media 
+                      : media.filter(m => m.file_type === mediaFilter);
+                    const visibleMedia = filteredMedia.slice(0, visibleMediaCount);
+                    const hasMore = filteredMedia.length > visibleMediaCount;
+
+                    return (
+                      <>
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+                          {visibleMedia.map((item) => {
+                            const itemAge = Date.now() - new Date(item.created_at).getTime();
+                            const isNew = itemAge < 3 * 24 * 60 * 60 * 1000; // 3 days
+                            return (
+                            <div
+                              key={item.id}
+                              onClick={() => setPreviewMedia(item)}
+                              className="group relative bg-gray-50 rounded-lg overflow-hidden cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all"
+                            >
+                              <div className="aspect-video relative overflow-hidden">
+                                {item.file_type === 'video' ? (
+                                  <>
+                                    <video
+                                      src={item.file_url}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      muted
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                      <div className="h-10 w-10 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
+                                        <Play className="h-4 w-4 text-gray-800 ml-0.5" />
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <img
+                                    src={item.file_url}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  />
+                                )}
+                                <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                                  <div className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                                    item.file_type === 'video' 
+                                      ? 'bg-red-500/90 text-white' 
+                                      : 'bg-blue-500/90 text-white'
+                                  }`}>
+                                    {item.file_type === 'video' ? 'Video' : 'Image'}
+                                  </div>
+                                  {isNew && (
+                                    <div className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#2EC4B6] text-white">
+                                      New
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="p-2.5 flex items-center justify-between gap-2">
+                                <p className="font-medium text-gray-900 text-sm truncate">{item.title}</p>
+                                <span className="text-[11px] text-gray-400 flex-shrink-0">{formatRelativeTime(item.created_at)}</span>
+                              </div>
+                            </div>
+                            );
+                          })}
+                        </div>
+
+                        {hasMore && (
+                          <div className="mt-4 text-center">
+                            <button
+                              onClick={() => setVisibleMediaCount(prev => prev + 8)}
+                              className="px-4 py-2 text-sm font-medium text-[#2EC4B6] hover:bg-[#2EC4B6]/5 rounded-lg transition-colors"
+                            >
+                              Load More ({filteredMedia.length - visibleMediaCount} remaining)
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar - Right Column */}
-          <div className="w-full lg:w-72 flex-shrink-0 space-y-4">
+          <div className="w-full lg:w-72 flex-shrink-0 space-y-3">
             
-            {/* Location Card */}
+            {/* Community Profile */}
             {location && (
-              <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/20 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
-                {/* Floating glass elements */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <motion.div
-                    className="absolute -top-4 right-2 w-14 h-14 rounded-full bg-gradient-to-bl from-emerald-200/25 to-transparent blur-xl"
-                    animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                  <motion.div
-                    className="absolute bottom-2 -left-2 w-8 h-8 rounded-full bg-gradient-to-tr from-slate-200/30 to-transparent blur-lg"
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  />
-                </div>
-                
-                <div className="relative flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
-                    <MapPin className="h-5 w-5 text-slate-500" />
+              <div className="bg-white rounded-xl border border-gray-200 p-4">
+                <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-3">Community Profile</p>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-9 w-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-4 w-4 text-gray-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Location</p>
-                    <p className="text-sm font-semibold text-slate-800">{location.name}</p>
+                    <p className="text-[13px] font-semibold text-gray-900">{location.name}</p>
                     {location.address && (
-                      <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                      <p className="text-[11px] text-gray-400 truncate">
                         {location.address}{location.city ? `, ${location.city}` : ''}{location.state ? `, ${location.state}` : ''}
                       </p>
                     )}
                   </div>
                 </div>
+                {isAdmin && (
+                  <Link href="/dashboard/admin" className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 hover:text-gray-700 transition-colors">
+                    <Settings className="h-3 w-3" />
+                    Manage location
+                  </Link>
+                )}
               </div>
             )}
 
-            {/* Stats */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-indigo-50/20 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
-              {/* Floating glass elements */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <motion.div
-                  className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-gradient-to-br from-indigo-200/20 to-transparent blur-xl"
-                  animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.div
-                  className="absolute bottom-4 right-0 w-10 h-10 rounded-full bg-gradient-to-tl from-sky-200/20 to-transparent blur-lg"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                />
-              </div>
-              
-              <p className="relative text-xs text-slate-400 uppercase tracking-wide font-medium mb-3">Community Stats</p>
-              <div className="relative space-y-3">
+            {/* Insights */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-3">Insights</p>
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
-                      <Users className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-600">Members</span>
+                    <Users className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="text-[13px] text-gray-600">Members</span>
                   </div>
-                  <span className="text-sm font-semibold text-slate-800">{members.length}</span>
+                  <span className="text-[13px] font-semibold text-gray-900">{members.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
-                      <MessageCircle className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-600">Discussions</span>
+                    <MessageCircle className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="text-[13px] text-gray-600">Threads</span>
                   </div>
-                  <span className="text-sm font-semibold text-slate-800">{threads.length}</span>
+                  <span className="text-[13px] font-semibold text-gray-900">{threads.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-white/70 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center shadow-sm">
-                      <Play className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-600">Media</span>
+                    <Play className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="text-[13px] text-gray-600">Media</span>
                   </div>
-                  <span className="text-sm font-semibold text-slate-800">{media.length}</span>
+                  <span className="text-[13px] font-semibold text-gray-900">{media.length}</span>
                 </div>
+                {(() => {
+                  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                  const weeklyActive = threads.filter(t => new Date(t.createdAt).getTime() > weekAgo).length + media.filter(m => new Date(m.created_at).getTime() > weekAgo).length;
+                  return (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-3.5 w-3.5 text-gray-400" />
+                        <span className="text-[13px] text-gray-600">This week</span>
+                      </div>
+                      <span className="text-[13px] font-semibold text-[#2EC4B6]">{weeklyActive} new</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* Members */}
+            {/* Roster */}
             {members.length > 0 && (() => {
               const totalPages = Math.ceil(members.length / MEMBERS_PER_PAGE);
               const startIdx = membersPage * MEMBERS_PER_PAGE;
               const paginatedMembers = members.slice(startIdx, startIdx + MEMBERS_PER_PAGE);
               
               return (
-                <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-sky-50/30 rounded-2xl border border-slate-200/40 p-4 backdrop-blur-sm">
-                  {/* Floating glass elements */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <motion.div
-                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gradient-to-br from-slate-200/30 to-transparent blur-xl"
-                      animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    <motion.div
-                      className="absolute bottom-8 -left-4 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-200/25 to-transparent blur-lg"
-                      animate={{ y: [0, -8, 0], opacity: [0.2, 0.4, 0.2] }}
-                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                    />
-                    <motion.div
-                      className="absolute top-1/2 right-2 w-2 h-2 rounded-full bg-slate-300/40"
-                      animate={{ y: [0, -6, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                  </div>
-                  
-                  <div className="relative flex items-center justify-between mb-3">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Members ({members.length})</p>
+                <div className="bg-white rounded-xl border border-gray-200 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Roster ({members.length})</p>
                     {totalPages > 1 && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => setMembersPage(p => Math.max(0, p - 1))}
                           disabled={membersPage === 0}
                           className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                          <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
+                          <ChevronLeft className="h-3 w-3 text-gray-400" />
                         </button>
-                        <span className="text-[10px] text-gray-400 min-w-[40px] text-center">
+                        <span className="text-[10px] text-gray-400 min-w-[32px] text-center">
                           {membersPage + 1}/{totalPages}
                         </span>
                         <button
@@ -2244,27 +2095,27 @@ export default function CommunityPage() {
                           disabled={membersPage >= totalPages - 1}
                           className="p-1 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                          <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
+                          <ChevronRight className="h-3 w-3 text-gray-400" />
                         </button>
                       </div>
                     )}
                   </div>
-                  <div className="relative space-y-2.5">
+                  <div className="space-y-2">
                     {paginatedMembers.map((member) => {
                       const memberSince = member.joinedAt 
-                        ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                        ? new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                         : null;
                       return (
-                        <div key={member.id} className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/50 flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <span className="text-xs font-semibold text-slate-600">{member.initials}</span>
+                        <div key={member.id} className="flex items-center gap-2.5">
+                          <div className="h-7 w-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[11px] font-semibold text-gray-600">{member.initials}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-800 truncate">{member.name}</p>
-                            {memberSince && (
-                              <p className="text-[10px] text-slate-400">Since {memberSince}</p>
-                            )}
+                            <p className="text-[13px] font-medium text-gray-800 truncate">{member.name}</p>
                           </div>
+                          {memberSince && (
+                            <span className="text-[10px] text-gray-400 flex-shrink-0">{memberSince}</span>
+                          )}
                         </div>
                       );
                     })}
@@ -2273,14 +2124,13 @@ export default function CommunityPage() {
               );
             })()}
 
-            {/* Student of the Month - Apple/Google inspired */}
-            <div className="bg-white rounded-[20px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)] relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                    <Award className="h-[18px] w-[18px] text-gray-500" strokeWidth={1.5} />
-                  </div>
-                  <p className="text-[13px] font-semibold text-gray-900 tracking-[-0.01em]">Student of the Month</p>
+            {/* Student of the Month - Hidden for non-admins when empty */}
+            {(studentOfMonth || isAdmin) && (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 relative">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Award className="h-3.5 w-3.5 text-gray-400" />
+                  <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Student of the Month</p>
                 </div>
                 {isAdmin && !editingSOTM && (
                   <button
@@ -2413,16 +2263,15 @@ export default function CommunityPage() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* Upcoming Birthdays - Apple/Google inspired */}
-            <div className="bg-white rounded-[20px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full bg-violet-50/80 flex items-center justify-center backdrop-blur-sm">
-                  <Cake className="h-[18px] w-[18px] text-violet-400" strokeWidth={1.5} />
-                </div>
-                <p className="text-[13px] font-semibold text-gray-900 tracking-[-0.01em]">Upcoming Birthdays</p>
+            {/* Upcoming Birthdays */}
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Cake className="h-3.5 w-3.5 text-gray-400" />
+                <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">Birthdays</p>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {(() => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
@@ -2443,12 +2292,7 @@ export default function CommunityPage() {
 
                   if (upcomingBirthdays.length === 0) {
                     return (
-                      <div className="flex items-center gap-3 py-1">
-                        <div className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center">
-                          <Cake className="h-4 w-4 text-gray-300" strokeWidth={1.5} />
-                        </div>
-                        <p className="text-[14px] text-gray-400">No birthdays on file</p>
-                      </div>
+                      <p className="text-[13px] text-gray-400">No birthdays on file</p>
                     );
                   }
 
@@ -2456,96 +2300,39 @@ export default function CommunityPage() {
                     const isBirthday = member.daysUntil === 0;
                     
                     return (
-                      <motion.div 
+                      <div 
                         key={member.id || index} 
-                        className={`relative flex items-center gap-3 ${isBirthday ? 'p-3 -mx-2 rounded-2xl bg-gradient-to-r from-violet-50/80 via-sky-50/80 to-violet-50/80 backdrop-blur-sm' : ''}`}
-                        initial={isBirthday ? { scale: 1 } : false}
-                        animate={isBirthday ? { 
-                          scale: [1, 1.02, 1],
-                          transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                        } : {}}
+                        className={`flex items-center gap-2.5 ${isBirthday ? 'p-2 -mx-1 rounded-lg bg-violet-50 border border-violet-100' : ''}`}
                       >
-                        {isBirthday && (
-                          <>
-                            {[...Array(8)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="absolute w-2 h-2 rounded-full"
-                                style={{
-                                  background: ['#8B5CF6', '#06B6D4', '#2EC4B6', '#A78BFA'][i % 4],
-                                  left: `${10 + (i * 12)}%`,
-                                  top: i % 2 === 0 ? '-4px' : 'auto',
-                                  bottom: i % 2 === 1 ? '-4px' : 'auto',
-                                }}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ 
-                                  opacity: [0, 1, 0],
-                                  scale: [0, 1.2, 0],
-                                  y: i % 2 === 0 ? [0, -8, 0] : [0, 8, 0],
-                                }}
-                                transition={{
-                                  duration: 1.5,
-                                  repeat: Infinity,
-                                  delay: i * 0.15,
-                                  ease: "easeOut"
-                                }}
-                              />
-                            ))}
-                          </>
-                        )}
-                        
-                        <div className={`relative w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-semibold ${
+                        <div className={`w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold flex-shrink-0 ${
                           isBirthday 
-                            ? 'bg-gradient-to-br from-violet-400 to-sky-400 text-white shadow-lg shadow-violet-200/50' 
+                            ? 'bg-violet-500 text-white' 
                             : member.daysUntil <= 7
-                              ? 'bg-gradient-to-br from-violet-100/80 to-sky-100/80 text-violet-600'
+                              ? 'bg-violet-100 text-violet-600'
                               : 'bg-gray-100 text-gray-600'
                         }`}>
-                          {isBirthday && (
-                            <motion.div
-                              className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-400 to-sky-400"
-                              animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                              transition={{ duration: 1.5, repeat: Infinity }}
-                            />
-                          )}
-                          <span className="relative z-10">{member.initials}</span>
+                          {member.initials}
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <p className={`text-[14px] font-medium truncate ${isBirthday ? 'text-violet-700' : 'text-gray-900'}`}>
+                          <p className={`text-[13px] font-medium truncate ${isBirthday ? 'text-violet-700' : 'text-gray-800'}`}>
                             {member.name}
                           </p>
-                          <p className="text-[12px] text-gray-400">{member.monthDay}</p>
+                          <p className="text-[11px] text-gray-400">{member.monthDay}</p>
                         </div>
                         
                         {isBirthday ? (
-                          <motion.div 
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-500 to-sky-500 text-white shadow-md shadow-violet-200/50"
-                            animate={{ scale: [1, 1.05, 1] }}
-                            transition={{ duration: 0.8, repeat: Infinity }}
-                          >
-                            <Cake className="h-3.5 w-3.5" />
-                            <span className="text-[11px] font-bold tracking-wide">BIRTHDAY</span>
-                          </motion.div>
+                          <span className="text-[10px] font-bold text-violet-600 uppercase tracking-wide px-2 py-0.5 bg-violet-100 rounded">
+                            Today
+                          </span>
                         ) : (
-                          <div className={`text-center min-w-[52px] px-2.5 py-1.5 rounded-xl ${
-                            member.daysUntil <= 7 
-                              ? 'bg-violet-50/80 border border-violet-100/50'
-                              : 'bg-gray-50'
+                          <span className={`text-[12px] font-semibold tabular-nums ${
+                            member.daysUntil <= 7 ? 'text-violet-600' : 'text-gray-500'
                           }`}>
-                            <p className={`text-[15px] font-bold leading-none ${
-                              member.daysUntil <= 7 ? 'text-violet-600' : 'text-gray-600'
-                            }`}>
-                              {member.daysUntil}
-                            </p>
-                            <p className={`text-[9px] font-medium uppercase tracking-wide mt-0.5 ${
-                              member.daysUntil <= 7 ? 'text-violet-500' : 'text-gray-400'
-                            }`}>
-                              {member.daysUntil === 1 ? 'day' : 'days'}
-                            </p>
-                          </div>
+                            {member.daysUntil}d
+                          </span>
                         )}
-                      </motion.div>
+                      </div>
                     );
                   });
                 })()}
@@ -2555,10 +2342,10 @@ export default function CommunityPage() {
             {/* Dashboard Link */}
             <Link 
               href="/dashboard"
-              className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="flex items-center justify-center gap-1.5 p-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
             >
-              <Home className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-500">Dashboard</span>
+              <Home className="h-3.5 w-3.5 text-gray-400" />
+              <span className="text-[13px] font-medium text-gray-500">Dashboard</span>
             </Link>
 
           </div>
@@ -2566,140 +2353,125 @@ export default function CommunityPage() {
       </Container>
 
 
-      {/* Media Preview Modal - Apple-style Blurred Background */}
+      {/* Media Preview Modal — Theater Mode */}
       {previewMedia && (
         <div 
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xl overflow-y-auto"
+          className="fixed inset-0 z-50 bg-[#0a0a0a] overflow-y-auto"
           onClick={() => setPreviewMedia(null)}
         >
-          
-          {/* Close button */}
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewMedia(null);
-            }}
-            className="fixed top-6 right-6 z-[60] h-10 w-10 rounded-full bg-white/20 backdrop-blur-md border border-white/20 hover:bg-white/30 flex items-center justify-center transition-colors shadow-lg cursor-pointer"
-          >
-            <X className="h-5 w-5 text-white" />
-          </motion.button>
+          {/* Top bar */}
+          <div className="sticky top-0 z-[60] flex items-center justify-between px-4 sm:px-6 py-3 bg-[#0a0a0a]/80 backdrop-blur-sm border-b border-white/5">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); setPreviewMedia(null); }}
+                className="p-1.5 rounded-md hover:bg-white/10 transition-colors flex-shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4 text-white/70" />
+              </button>
+              <div className="min-w-0">
+                <h2 className="text-[15px] font-semibold text-white truncate">{previewMedia.title}</h2>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                    previewMedia.file_type === 'video' 
+                      ? 'bg-white/10 text-white/60' 
+                      : 'bg-white/10 text-white/60'
+                  }`}>
+                    {previewMedia.file_type === 'video' ? <Video className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
+                    {previewMedia.file_type}
+                  </span>
+                  <span className="text-[12px] text-white/30">{new Date(previewMedia.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); setPreviewMedia(null); }}
+              className="p-1.5 rounded-md hover:bg-white/10 transition-colors flex-shrink-0"
+            >
+              <X className="h-4 w-4 text-white/70" />
+            </button>
+          </div>
 
           <div 
-            className="min-h-screen flex flex-col items-center py-12 px-4 relative z-10"
+            className="flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Video/Image with enhanced styling */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="w-full max-w-4xl relative"
-            >
-              <div className="relative bg-black rounded-xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-                {previewMedia.file_type === 'video' ? (
-                  <video
-                    src={previewMedia.file_url}
-                    controls
-                    autoPlay
-                    className="w-full"
-                    style={{ maxHeight: '60vh' }}
-                  />
-                ) : (
-                  <img
-                    src={previewMedia.file_url}
-                    alt={previewMedia.title}
-                    className="w-full object-contain"
-                    style={{ maxHeight: '60vh' }}
-                  />
-                )}
-              </div>
-            </motion.div>
-
-            {/* Title, Description & Date */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-8 text-center max-w-2xl"
-            >
-              {/* Type badge */}
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                  previewMedia.file_type === 'video' 
-                    ? 'bg-red-500/20 text-red-300 ring-1 ring-red-500/30' 
-                    : 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/30'
-                }`}>
-                  {previewMedia.file_type === 'video' ? (
-                    <><Video className="h-3 w-3" /> Video</>
-                  ) : (
-                    <><ImageIcon className="h-3 w-3" /> Image</>
-                  )}
-                </span>
-              </div>
-              
-              <h3 className="text-white text-2xl font-bold tracking-tight">{previewMedia.title}</h3>
-              
-              {previewMedia.description && (
-                <p className="mt-3 text-white/70 text-base leading-relaxed">{previewMedia.description}</p>
+            {/* Player area — full width, dark theater */}
+            <div className="w-full bg-black flex items-center justify-center" style={{ minHeight: '50vh', maxHeight: '70vh' }}>
+              {previewMedia.file_type === 'video' ? (
+                <video
+                  src={previewMedia.file_url}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '70vh' }}
+                />
+              ) : (
+                <img
+                  src={previewMedia.file_url}
+                  alt={previewMedia.title}
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '70vh' }}
+                />
               )}
-              
-              {/* Upload date */}
-              <div className="mt-4 flex items-center justify-center gap-4">
-                <div className="flex items-center gap-1.5 text-sm text-white/50">
-                  <Calendar className="h-4 w-4" />
-                  <span>Added {new Date(previewMedia.created_at).toLocaleDateString('en-US', { 
-                    month: 'long', 
-                    day: 'numeric', 
-                    year: 'numeric' 
-                  })}</span>
-                </div>
-                <span className="text-white/30">•</span>
-                <div className="flex items-center gap-1.5 text-sm text-white/50">
-                  <Clock className="h-4 w-4" />
-                  <span>{formatRelativeTime(previewMedia.created_at)}</span>
+            </div>
+
+            {/* Content below player */}
+            <div className="w-full max-w-3xl px-4 sm:px-6 py-6">
+              {/* Title + Description */}
+              <div className="mb-6">
+                <h3 className="text-[20px] font-bold text-white">{previewMedia.title}</h3>
+                {previewMedia.description && (
+                  <p className="mt-2 text-[14px] text-white/50 leading-relaxed">{previewMedia.description}</p>
+                )}
+                <div className="flex items-center gap-3 mt-3">
+                  <span className="text-[12px] text-white/30">{new Date(previewMedia.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  <span className="text-white/15">·</span>
+                  <span className="text-[12px] text-white/30">{formatRelativeTime(previewMedia.created_at)}</span>
                 </div>
               </div>
-            </motion.div>
 
-            {/* Questions Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-10 w-full max-w-2xl"
-            >
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <MessageCircle className="h-4 w-4 text-[#2EC4B6]" />
-                  <h4 className="text-white text-sm font-semibold">Questions</h4>
+              {/* Divider */}
+              <div className="h-px bg-white/8 mb-6" />
+
+              {/* Questions Section */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4 text-white/40" />
+                    <h4 className="text-[14px] font-semibold text-white/80">Questions</h4>
+                    {mediaComments.length > 0 && (
+                      <span className="text-[11px] text-white/30 font-medium">{mediaComments.length}</span>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Ask Question Input */}
-                <div className="flex gap-3 mb-6">
+                <div className="flex gap-2 mb-5">
                   <input
                     type="text"
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmitQuestion()}
                     placeholder="Ask a question about this video..."
-                    className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3.5 py-2.5 text-[14px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 transition-colors"
                   />
                   <button
                     onClick={() => handleSubmitQuestion()}
                     disabled={!newQuestion.trim() || isSubmittingQuestion}
-                    className="px-5 py-3 bg-teal-500 text-white text-sm font-medium rounded-xl hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white text-[13px] font-medium rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     {isSubmittingQuestion ? '...' : 'Ask'}
                   </button>
                 </div>
 
-                {/* Nested Comments List - Reddit Style */}
+                {/* Comments List */}
                 {mediaComments.length === 0 ? (
-                  <p className="text-white/50 text-sm text-center py-8">No questions yet. Be the first to ask!</p>
+                  <div className="text-center py-8">
+                    <MessageCircle className="h-6 w-6 mx-auto mb-2 text-white/10" />
+                    <p className="text-white/25 text-[13px]">No questions yet. Be the first to ask.</p>
+                  </div>
                 ) : (
-                  <div className="divide-y divide-white/10">
+                  <div className="divide-y divide-white/5">
                     {nestComments(mediaComments).map((comment) => (
                       <CommentThread
                         key={comment.id}
@@ -2725,7 +2497,7 @@ export default function CommunityPage() {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       )}
