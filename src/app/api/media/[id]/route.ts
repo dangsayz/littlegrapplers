@@ -37,8 +37,8 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error('Update error:', error);
-      return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });
+      console.error('Update error:', JSON.stringify(error));
+      return NextResponse.json({ error: `Failed to update media: ${error.message}` }, { status: 500 });
     }
 
     // Update location assignments if provided
