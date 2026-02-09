@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { createClient } from '@supabase/supabase-js';
+import * as tus from 'tus-js-client';
 
 // Client-side Supabase for direct uploads (bypasses Next.js body limit)
 const supabase = createClient(
@@ -131,74 +132,106 @@ export default function AdminMediaPage() {
     setIsUploading(true);
     setUploadProgress(0);
 
-    try {
-      const file = uploadForm.file;
-      const isVideo = file.type.startsWith('video/');
-      
-      // Generate unique filename
-      const timestamp = Date.now();
-      const ext = file.name.split('.').pop();
-      const filename = `${timestamp}-${Math.random().toString(36).substring(7)}.${ext}`;
-      const folder = isVideo ? 'videos' : 'images';
-      const filePath = `${folder}/${filename}`;
+    const file = uploadForm.file;
+    const isVideo = file.type.startsWith('video/');
 
-      // Direct upload to Supabase Storage (bypasses Next.js 10MB limit)
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file, {
+    // Generate unique filename
+    const timestamp = Date.now();
+    const ext = file.name.split('.').pop();
+    const filename = `${timestamp}-${Math.random().toString(36).substring(7)}.${ext}`;
+    const folder = isVideo ? 'videos' : 'images';
+    const filePath = `${folder}/${filename}`;
+
+    const bucketName = 'media';
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+    return new Promise<void>((resolve) => {
+      const upload = new tus.Upload(file, {
+        endpoint: `${supabaseUrl}/storage/v1/upload/resumable`,
+        retryDelays: [0, 1000, 3000, 5000],
+        headers: {
+          authorization: `Bearer ${anonKey}`,
+          'x-upsert': 'false',
+        },
+        uploadDataDuringCreation: true,
+        removeFingerprintOnSuccess: true,
+        metadata: {
+          bucketName,
+          objectName: filePath,
           contentType: file.type,
-          upsert: false,
-        });
+          cacheControl: '3600',
+        },
+        chunkSize: 6 * 1024 * 1024, // 6MB chunks
+        onError: (error) => {
+          console.error('Upload error:', error);
+          alert(`Upload failed: ${error.message || 'Connection issue. Please try again.'}`);
+          setIsUploading(false);
+          resolve();
+        },
+        onProgress: (bytesUploaded, bytesTotal) => {
+          const pct = Math.round((bytesUploaded / bytesTotal) * 100);
+          setUploadProgress(pct);
+        },
+        onSuccess: async () => {
+          try {
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from(bucketName)
+              .getPublicUrl(filePath);
 
-      if (uploadError) {
-        throw new Error(`Storage error: ${uploadError.message}`);
-      }
+            const fileUrl = urlData.publicUrl;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath);
+            // Save media record via API (small JSON payload)
+            const response = await fetch('/api/media/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: uploadForm.title,
+                description: uploadForm.description,
+                fileUrl,
+                filePath,
+                fileType: isVideo ? 'video' : 'image',
+                fileSize: file.size,
+                mimeType: file.type,
+                allLocations: uploadForm.allLocations,
+                locationIds: uploadForm.locationIds,
+              }),
+            });
 
-      const fileUrl = urlData.publicUrl;
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.error || 'Failed to save media record');
+            }
 
-      // Save media record via API (small JSON payload)
-      const response = await fetch('/api/media/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: uploadForm.title,
-          description: uploadForm.description,
-          fileUrl,
-          filePath,
-          fileType: isVideo ? 'video' : 'image',
-          fileSize: file.size,
-          mimeType: file.type,
-          allLocations: uploadForm.allLocations,
-          locationIds: uploadForm.locationIds,
-        }),
+            const data = await response.json();
+            setMedia(prev => [data.media, ...prev]);
+            setShowUploadModal(false);
+            setUploadForm({
+              title: '',
+              description: '',
+              allLocations: true,
+              locationIds: [],
+              file: null,
+            });
+          } catch (error) {
+            console.error('Save error:', error);
+            alert(error instanceof Error ? error.message : 'Upload succeeded but failed to save record');
+          } finally {
+            setIsUploading(false);
+            resolve();
+          }
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to save media record');
-      }
-
-      const data = await response.json();
-      setMedia(prev => [data.media, ...prev]);
-      setShowUploadModal(false);
-      setUploadForm({
-        title: '',
-        description: '',
-        allLocations: true,
-        locationIds: [],
-        file: null,
+      // Check for previous uploads to resume
+      upload.findPreviousUploads().then((previousUploads) => {
+        if (previousUploads.length > 0) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+        upload.start();
       });
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert(error instanceof Error ? error.message : 'Failed to upload file');
-    } finally {
-      setIsUploading(false);
-    }
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -584,12 +617,18 @@ export default function AdminMediaPage() {
           <div className="px-6 py-4 bg-gray-50/80 border-t border-gray-100 flex-shrink-0">
             {isUploading ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-center gap-2 text-[13px] text-gray-600">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading...
+                <div className="flex items-center justify-between text-[13px] text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {uploadProgress < 100 ? 'Uploading...' : 'Saving...'}
+                  </div>
+                  <span className="font-medium tabular-nums">{uploadProgress}%</span>
                 </div>
                 <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#007AFF] rounded-full animate-pulse w-3/5" />
+                  <div 
+                    className="h-full bg-[#007AFF] rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
                 </div>
               </div>
             ) : (
