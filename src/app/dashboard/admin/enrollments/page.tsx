@@ -30,6 +30,7 @@ import { ClickStopWrapper } from './click-stop-wrapper';
 import { SearchForm } from './search-form';
 import { CreateEnrollmentDialog } from './create-enrollment-dialog';
 import { CreateNewStudentDialog } from './create-new-student-dialog';
+import { EnrollmentSyncTool } from './sync-tool';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -293,12 +294,17 @@ export default async function AdminEnrollmentsPage({ searchParams }: PageProps) 
       </div>
 
       {/* Filters */}
-      <SearchForm 
-        locations={locations || []}
-        defaultSearch={resolvedSearchParams.search}
-        defaultStatus={statusFilter}
-        defaultLocation={locationFilter}
-      />
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <SearchForm 
+            locations={locations || []}
+            defaultSearch={resolvedSearchParams.search}
+            defaultStatus={statusFilter}
+            defaultLocation={locationFilter}
+          />
+        </div>
+        <EnrollmentSyncTool />
+      </div>
 
       {/* Enrollments List */}
       <div className="space-y-4">
