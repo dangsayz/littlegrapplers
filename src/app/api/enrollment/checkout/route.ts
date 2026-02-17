@@ -7,6 +7,7 @@ import {
   checkHoneypot,
 } from '@/lib/validation';
 import { z } from 'zod';
+import { runEnrollmentHealthCheck } from '@/lib/enrollment-monitor';
 
 const enrollmentCheckoutSchema = z.object({
   locationId: z.string().uuid('Invalid location'),
@@ -190,6 +191,14 @@ export async function POST(request: NextRequest) {
       .from('enrollments')
       .update({ stripe_checkout_session_id: session.id })
       .eq('id', enrollmentId);
+
+    // Proactive health check - fix any existing issues
+    try {
+      await runEnrollmentHealthCheck();
+    } catch (error) {
+      console.error('Health check failed:', error);
+      // Don't fail the enrollment if health check fails
+    }
 
     return NextResponse.json({
       success: true,
