@@ -91,7 +91,75 @@ export async function runEnrollmentHealthCheck(): Promise<EnrollmentHealth> {
       }
     }
 
-    // 3. Log health check results
+    // 3. Handle orphaned waivers - create missing enrollments
+    const { data: orphanedWaivers, error: waiverError } = await supabaseAdmin
+      .from('signed_waivers')
+      .select(`
+        id,
+        child_full_name,
+        guardian_email,
+        guardian_phone,
+        emergency_contact_name,
+        emergency_contact_phone,
+        clerk_user_id,
+        created_at
+      `)
+      .eq('is_active', true);
+
+    if (!waiverError && orphanedWaivers) {
+      for (const waiver of orphanedWaivers) {
+        // Check if enrollment exists
+        const childName = waiver.child_full_name;
+        const firstName = childName.split(' ')[0] || '';
+        const lastName = childName.split(' ').slice(1).join(' ') || '';
+
+        const { data: existingEnrollment } = await supabaseAdmin
+          .from('enrollments')
+          .select('id')
+          .eq('guardian_email', waiver.guardian_email)
+          .ilike('child_first_name', firstName)
+          .ilike('child_last_name', lastName)
+          .single();
+
+        if (!existingEnrollment) {
+          // Create missing enrollment from waiver data
+          const { data: locations } = await supabaseAdmin
+            .from('locations')
+            .select('id')
+            .eq('is_active', true)
+            .limit(1)
+            .single();
+
+          if (locations) {
+            const { error: createError } = await supabaseAdmin
+              .from('enrollments')
+              .insert({
+                location_id: locations.id,
+                status: 'pending',
+                guardian_email: waiver.guardian_email,
+                guardian_phone: waiver.guardian_phone,
+                child_first_name: firstName,
+                child_last_name: lastName,
+                emergency_contact_name: waiver.emergency_contact_name,
+                emergency_contact_phone: waiver.emergency_contact_phone,
+                clerk_user_id: waiver.clerk_user_id,
+                submitted_at: waiver.created_at,
+                created_at: waiver.created_at,
+                updated_at: new Date().toISOString(),
+              });
+
+            if (!createError) {
+              health.issuesFixed++;
+              console.log(`Auto-created enrollment for orphaned waiver: ${childName}`);
+            } else {
+              health.errors.push(`Failed to create enrollment for ${childName}: ${createError.message}`);
+            }
+          }
+        }
+      }
+    }
+
+    // 4. Log health check results
     if (health.issuesFixed > 0 || health.errors.length > 0) {
       await supabaseAdmin
         .from('activity_logs')
