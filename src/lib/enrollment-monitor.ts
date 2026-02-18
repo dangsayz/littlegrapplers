@@ -99,6 +99,7 @@ export async function runEnrollmentHealthCheck(): Promise<EnrollmentHealth> {
         child_full_name,
         guardian_email,
         guardian_phone,
+        guardian_name,
         emergency_contact_name,
         emergency_contact_phone,
         clerk_user_id,
@@ -122,6 +123,22 @@ export async function runEnrollmentHealthCheck(): Promise<EnrollmentHealth> {
           .single();
 
         if (!existingEnrollment) {
+          // Parse guardian name from waiver data
+          let guardianFirstName = '';
+          let guardianLastName = '';
+          
+          if (waiver.guardian_name) {
+            const guardianNames = waiver.guardian_name.split(' ');
+            guardianFirstName = guardianNames[0] || '';
+            guardianLastName = guardianNames.slice(1).join(' ') || '';
+          } else {
+            // Fallback: try to extract from email
+            const emailName = waiver.guardian_email.split('@')[0];
+            const emailParts = emailName.split('.');
+            guardianFirstName = emailParts[0] || '';
+            guardianLastName = emailParts.slice(1).join(' ') || '';
+          }
+
           // Create missing enrollment from waiver data
           const { data: locations } = await supabaseAdmin
             .from('locations')
@@ -130,12 +147,14 @@ export async function runEnrollmentHealthCheck(): Promise<EnrollmentHealth> {
             .limit(1)
             .single();
 
-          if (locations) {
+          if (locations && guardianFirstName) {
             const { error: createError } = await supabaseAdmin
               .from('enrollments')
               .insert({
                 location_id: locations.id,
                 status: 'pending',
+                guardian_first_name: guardianFirstName,
+                guardian_last_name: guardianLastName || 'Unknown',
                 guardian_email: waiver.guardian_email,
                 guardian_phone: waiver.guardian_phone,
                 child_first_name: firstName,
@@ -154,6 +173,8 @@ export async function runEnrollmentHealthCheck(): Promise<EnrollmentHealth> {
             } else {
               health.errors.push(`Failed to create enrollment for ${childName}: ${createError.message}`);
             }
+          } else {
+            health.errors.push(`Cannot create enrollment for ${childName}: missing guardian name or location`);
           }
         }
       }
